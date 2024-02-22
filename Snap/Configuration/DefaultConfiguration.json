@@ -1,0 +1,59 @@
+{
+	"backgroundColor": "#282A36",
+	"textColor": "#F8F8F2",
+	"showingIcons": true,
+	"iconSizeWidth": 35,
+	"iconSizeHeight": 50,
+	"blockedPaths": [
+		"/System/Library/Frameworks/",
+		"/System/Library/PrivateFrameworks/",
+		"/usr/"
+	],
+	"resultItemHeight": 70,
+	"resultItemLimit": 25,
+	"searchBarFont": {
+		"name": "Menlo",
+		"size": 22
+	},
+	"searchBarHeight": 50,
+	"insertionPointColor": "#F8F8F2",
+	"maximumWidth": 775,
+	"maximumHeight": 600,
+	"shouldAnimateNavigation": true,
+	"resultItemFont": {
+		"name": "Menlo",
+		"size": 18
+	},
+	"selectedItemBackgroundColor": "#FF79C6",
+	"activationKeyboardShortcut": {
+		"key": {"keyCode": 49},
+		"modifiers": ["option"],
+		"events": ["keyDown"]
+	},
+	"showPathKeyboardShortcut": {
+		"key": {"keyCode": 5},
+		"modifiers": ["command"],
+		"events": ["keyDown"]
+	},
+	"quickLookKeyboardShortcut": {
+		"key": {"keyCode": 0},
+		"modifiers": ["shift"],
+		"events": ["keyDown"]
+	},
+	"clipboardHistoryEnabled": true,
+	"clipboardHistoryItemLimit": 10,
+	"copyLastItemToClipboardKeyboardShortcut": {
+		"key": {"keyCode":9},
+		"events": ["keyDown"],
+		"modifiers": ["command","option","control"]
+	},
+	"mergeClipboardHistoryItemKeyboardShortcut": {
+		"key": {"keyCode":8},
+		"events":["keyDown"],
+		"modifiers":["command","option","control"]
+	},
+	"itemMergedSoundEnabled": true,
+	"snippetExpansionEnabled": true,
+	"snippets": [],
+	"blockedActions": []
+}
