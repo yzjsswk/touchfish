@@ -14,8 +14,8 @@ struct WebBrowserView: View {
                             name: desc,
                             desc: url,
                             isSelected: false,
-//                            icon: Image(systemName: "link")
-                            icon: Image(nsImage: NSImage(named: "baidu")!)
+                            icon: Image(systemName: "link")
+//                            icon: Image(nsImage: NSImage(named: "baidu")!)
                         ) {
                             //                        NSWorkspace.shared.open(URL(string: url)!)
                             TouchFishApp.deactivate()

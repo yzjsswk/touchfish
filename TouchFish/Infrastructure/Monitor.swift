@@ -149,7 +149,7 @@ struct MonitorManager {
                 MonitorManager.clipboardListenerState = .stop
             }
         default:
-            print("WARN: monitor type not support: stop \(type)")
+            Log.warning("monitor type not support: stop \(type)")
         }
     }
     

@@ -106,7 +106,6 @@ struct ExtraInfo: Codable {
     mutating func fillTextInfo(_ value: String, _ description: String?) {
         let linePreviewText = description ?? value
         let firstLine = linePreviewText.trimmingCharacters(in: .whitespacesAndNewlines).split(separator: "\n", omittingEmptySubsequences: false).first ?? ""
-        Log.info(firstLine)
         linePreview = firstLine.count < Config.it.fishItemPreviewLength ? String(firstLine) : firstLine.prefix(Config.it.fishItemPreviewLength - 3)+"..."
         charCount = value.count
         wordCount = value.split(separator: " ", omittingEmptySubsequences: false).count

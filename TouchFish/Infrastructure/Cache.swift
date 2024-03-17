@@ -12,7 +12,7 @@ struct Cache {
         func refreshTagByTime() {
             DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 60) {
                 TagCache.refresh()
-                refreshImageByTime()
+                refreshTagByTime()
             }
         }
         func refreshFishByTime() {

@@ -20,7 +20,7 @@ struct FishListView: View {
                             fish.copyToClipboard()
                             TouchFishApp.deactivate()
                             pasteToFrontmostApp()
-                            Log.info("paste fish \(fish.id)")
+//                            Log.info("paste fish \(fish.id)")
                         }
                         .id(fish.id)
                         .frame(width: (Config.it.mainWidth - 30)/2, height: Config.it.fishItemHeight)
