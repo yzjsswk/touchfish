@@ -37,7 +37,7 @@ struct BasicSettingView: View {
                     .bold()
                 Spacer()
                 ZStack {
-                    Constant.commandBarBackgroundColor.color
+                    Constant.commandBarBackgroundColor
                     HStack(spacing: 2) {
                         Image(systemName: "option")
                         Image(systemName: "space")
@@ -107,7 +107,7 @@ struct RecipeDirectoryAddView: View {
         Image(systemName: "plus.circle")
         .resizable()
         .frame(width: 20, height: 20)
-        .foregroundColor(isHovered ? Constant.selectedItemBackgroundColor.color : .gray)
+        .foregroundStyle(isHovered ? Constant.selectedItemBackgroundColor : Functions.makeLinearGradient(colors: [.gray]))
         .onHover { isHovered in
             self.isHovered = isHovered
         }
@@ -143,7 +143,7 @@ struct RecipeDirectoryListView: View {
             Image(systemName: "minus.circle")
             .resizable()
             .frame(width: 20, height: 20)
-            .foregroundColor(isHovered ? Constant.selectedItemBackgroundColor.color : .gray)
+            .foregroundStyle(isHovered ? Constant.selectedItemBackgroundColor : Functions.makeLinearGradient(colors: [.gray]))
             .onHover { isHovered in
                 self.isHovered = isHovered
             }

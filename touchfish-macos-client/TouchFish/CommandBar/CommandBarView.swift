@@ -19,7 +19,7 @@ struct CommandBarView: View {
                             GeometryReader { geometry in
                                 Rectangle()
                                     .cornerRadius(5)
-                                    .foregroundColor(Constant.selectedItemBackgroundColor.color)
+                                    .foregroundStyle(Constant.selectedItemBackgroundColor)
                                     .frame(width: geometry.size.width+5, height: geometry.size.height+8)
                                     .offset(x: -2.5, y: -4)
                             }
@@ -37,7 +37,8 @@ struct CommandBarView: View {
                         HStack {
                             Text(placeHolderString)
                                 .font(.custom("Menlo", size: 20))
-                                .foregroundStyle(.gray)
+                                .foregroundStyle("A3A3A3".color)
+                                .offset(x: 3, y: 1)
                             Spacer()
                         }
                     }
@@ -46,7 +47,7 @@ struct CommandBarView: View {
             .padding([.leading], 6)
             .frame(height: Constant.commandBarHeight)
         }
-        .background(Constant.commandBarBackgroundColor.color)
+        .background(Constant.commandBarBackgroundColor)
         .cornerRadius(10)
         .padding(10)
         .onReceive(NotificationCenter.default.publisher(for: .CommandBarShouldFocus)) { _ in

@@ -11,11 +11,13 @@ struct FishListView: View {
     @Binding var isMultSelecting: Bool
     @Binding var multSelectedFishIdentitys: Set<String>
     
+    @Binding var fishItemPosOffset: CGFloat
+    
     var body: some View {
         VStack {
             ScrollView(showsIndicators: false) {
                 VStack {
-                    ForEach(fishList, id: \.identity) { fish in
+                    ForEach(Array(fishList.enumerated()), id: \.1.identity) { (idx, fish) in
                         FishListItemView(
                             fish: fish,
                             selectedFishIdentity: $selectedFishIdentity,
@@ -24,6 +26,7 @@ struct FishListView: View {
                             isMultSelecting: $isMultSelecting,
                             multSelectedFishIdentitys: $multSelectedFishIdentitys
                         )
+                        .offset(y: idx <= 16 ? (fishItemPosOffset*50*CGFloat(idx+1)) : 0)
 //                        .transition(.move(edge: .top).combined(with: .opacity))
                         .onHover { isHovered in
                             if isHovered {
@@ -51,7 +54,6 @@ struct FishListView: View {
                     .font(.system(.footnote, design: .monospaced))
                 Spacer()
             }
-            
         }
 
     }

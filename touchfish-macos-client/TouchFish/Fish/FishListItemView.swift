@@ -60,7 +60,7 @@ struct FishListItemView: View {
                     HStack(spacing: 3) {
                         Text(fish.identity)
                             .font(.caption)
-                            .foregroundColor(.gray)
+                            .foregroundStyle(Functions.makeLinearGradient(colors: ["BBCCFD"]))
                             CopyButtonView()
                             .onTapGesture {
                                 if let data = fish.identity.data(using: .utf8) {
@@ -117,7 +117,7 @@ struct FishListItemView: View {
         }
         .frame(maxWidth: Constant.mainWidth)
         .padding(5)
-        .background(isSelected ? Constant.selectedItemBackgroundColor.color : Constant.mainBackgroundColor.color)
+        .background(isSelected ? Constant.selectedItemBackgroundColor : Functions.makeLinearGradient(colors: [.clear]))
 //        .shadow(color: Color.gray.opacity(0.3), radius: 2, x: 0, y: 2)
         .cornerRadius(5)
         .frame(width: (Constant.mainWidth-30)/2, height: isHovering ? Constant.fishItemHeight+20 : Constant.fishItemHeight)
@@ -148,10 +148,9 @@ struct FishListItemView: View {
                         showCopyed = false
                     }
                 }
-
             }
         }
-        .onLongPressGesture(minimumDuration: 1.0) { isPressing in
+        .onLongPressGesture(minimumDuration: 0.8) { isPressing in
 //            if isPressing {
 //                print("Pressing...")
 //            }
@@ -175,11 +174,14 @@ struct CopyButtonView: View {
                 .resizable()
                 .scaledToFit()
                 .foregroundColor(Color.white)
-                .onHover { isHovered in
-                    self.isHovered = isHovered
-                }
+                .frame(width: isHovered ? 20 : 18, height: isHovered ? 20 : 18)
         }
         .frame(width: 20, height: 20)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
     }
 }
 
@@ -192,12 +194,15 @@ struct EditButtonView: View {
             Image(systemName: "square.and.pencil")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(isHovered ? .brown : .brown)
-                .onHover { isHovered in
-                    self.isHovered = isHovered
-                }
+                .foregroundColor(.white)
+                .frame(width: isHovered ? 20 : 18, height: isHovered ? 20 : 18)
         }
         .frame(width: 20, height: 20)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
     }
     
 }
@@ -208,15 +213,18 @@ struct LockButtonView: View {
     
     var body: some View {
         HStack {
-            Image(systemName: "lock")
+            Image(systemName: isHovered ? "lock.fill" : "lock")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.yellow)
-                .onHover { isHovered in
-                    self.isHovered = isHovered
-                }
+                .foregroundColor(Color.white)
+                .frame(width: isHovered ? 25 : 23, height: isHovered ? 20 : 18)
         }
         .frame(width: 25, height: 20)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
     }
 }
 
@@ -229,12 +237,15 @@ struct UnLockButtonView: View {
             Image(systemName: "lock.fill")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.yellow)
-                .onHover { isHovered in
-                    self.isHovered = isHovered
-                }
+                .foregroundColor(Color.white.opacity(isHovered ? 0.5 : 1.0))
+                .frame(width: isHovered ? 25 : 23, height: isHovered ? 20 : 18)
         }
         .frame(width: 25, height: 20)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
     }
 }
 
@@ -244,16 +255,19 @@ struct MarkButtonView: View {
     
     var body: some View {
         HStack {
-            Image(systemName: "bookmark")
+            Image(systemName: isHovered ? "bookmark.fill" : "bookmark")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.orange)
-                .onHover { isHovered in
-                    self.isHovered = isHovered
-                }
+                .foregroundColor(Color.white)
+                .frame(width: isHovered ? 20 : 18, height: isHovered ? 20 : 18)
         }
         .frame(width: 20, height: 20)
         .offset(y:1)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
     }
 }
 
@@ -266,13 +280,16 @@ struct UnMarkButtonView: View {
             Image(systemName: "bookmark.fill")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.orange)
-                .onHover { isHovered in
-                    self.isHovered = isHovered
-                }
+                .foregroundColor(Color.white.opacity(isHovered ? 0.5 : 1.0))
+                .frame(width: isHovered ? 20 : 18, height: isHovered ? 20 : 18)
         }
         .frame(width: 20, height: 20)
         .offset(y:1)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
     }
 }
 
@@ -282,15 +299,18 @@ struct DeleteButtonView: View {
     
     var body: some View {
         HStack {
-            Image(systemName: "trash.fill")
+            Image(systemName: isHovered ? "trash.fill" : "trash")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(isHovered ? .red : .gray)
-                .onHover { isHovered in
-                    self.isHovered = isHovered
-                }
+                .foregroundColor(isHovered ? .red : .white)
+                .frame(width: isHovered ? 20 : 18, height: isHovered ? 20 : 18)
         }
         .frame(width: 20, height: 20)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
     }
 }
 

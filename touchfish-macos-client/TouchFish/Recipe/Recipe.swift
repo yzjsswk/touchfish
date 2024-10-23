@@ -13,7 +13,7 @@ struct Recipe {
     var command: String?
     var parameters: [Parameter] = []
     var actions: [RecipeAction] = []
-    var color: Color
+    var color: LinearGradient
     var order: Int
     var enabled: Bool = true
     
@@ -69,7 +69,7 @@ struct Recipe {
                 command: recipeJson.command,
                 parameters: recipeJson.parameters ?? [],
                 actions: recipeJson.actions ?? [],
-                color: (recipeJson.color ?? Constant.userDefinedRecipeDefaultIemColor).color,
+                color: recipeJson.color?.linearGradient ?? Constant.userDefinedRecipeDefaultIemColor,
                 order: recipeJson.order ?? 0,
                 enabled: recipeJson.enabled ?? true
             )
@@ -405,7 +405,7 @@ struct RecipeManager {
                 Recipe.Parameter(name: "locked"),
                 Recipe.Parameter(name: "sort")
             ],
-            color: Constant.internalRecipeItemColor.color,
+            color: Constant.internalRecipeItemColor,
             order: -600
         ),
         Recipe(
@@ -416,7 +416,7 @@ struct RecipeManager {
             name: "Add Fish",
             icon: Image(systemName: "plus.square"),
             command: "add",
-            color: Constant.internalRecipeItemColor.color,
+            color: Constant.internalRecipeItemColor,
             order: -500
         ),
         Recipe(
@@ -427,7 +427,7 @@ struct RecipeManager {
             name: "Setting",
             icon: Image(systemName: "gearshape"),
             command: "set",
-            color: Constant.internalRecipeItemColor.color,
+            color: Constant.internalRecipeItemColor,
             order: -400
         ),
         Recipe(
@@ -441,7 +441,7 @@ struct RecipeManager {
             parameters: [
                 Recipe.Parameter(name: "level")
             ],
-            color: Constant.internalRecipeItemColor.color,
+            color: Constant.internalRecipeItemColor,
             order: -300
         ),
         Recipe(
@@ -452,7 +452,7 @@ struct RecipeManager {
             name: "Statistics",
             icon: Image(systemName: "chart.line.uptrend.xyaxis.circle.fill"),
             command: "stats",
-            color: Constant.internalRecipeItemColor.color,
+            color: Constant.internalRecipeItemColor,
             order: -200
         ),
         Recipe(
@@ -463,7 +463,7 @@ struct RecipeManager {
             name: "Recipe Store",
             icon: Image(systemName: "books.vertical"),
             command: "store",
-            color: Constant.internalRecipeItemColor.color,
+            color: Constant.internalRecipeItemColor,
             order: -100
         ),
     ]

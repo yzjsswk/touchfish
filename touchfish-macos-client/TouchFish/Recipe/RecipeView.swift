@@ -142,7 +142,7 @@ struct UserDefinedRecipeListItemView1: View {
             Spacer()
         }
         .frame(width: Constant.mainWidth-30, height: Constant.userDefinedRecipeItemHeight)
-        .background(isSelected ? Constant.selectedItemBackgroundColor.color : Constant.mainBackgroundColor.color)
+        .background(isSelected ? Constant.selectedItemBackgroundColor : Constant.mainBackgroundColor)
         .cornerRadius(5)
         .onHover { isHovered in
             withAnimation(.spring(duration: 0.1)) {
@@ -192,7 +192,7 @@ struct UserDefinedRecipeListItemView2: View {
             Spacer()
         }
         .frame(width: Constant.mainWidth-30, height: isSelected ? Constant.userDefinedRecipeItemHeight : Constant.userDefinedRecipeItemHeight-15)
-        .background(isSelected ? Constant.selectedItemBackgroundColor.color : Constant.mainBackgroundColor.color)
+        .background(isSelected ? Constant.selectedItemBackgroundColor : Constant.mainBackgroundColor)
         .cornerRadius(5)
         .onHover { isHovered in
             withAnimation(.spring(duration: 0.1)) {

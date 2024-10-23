@@ -67,7 +67,7 @@ struct DataServiceConfigAddView: View {
             Image(systemName: "plus.circle")
             .resizable()
             .frame(width: 20, height: 20)
-            .foregroundColor(isHovered1 ? Constant.selectedItemBackgroundColor.color : .gray)
+            .foregroundStyle(isHovered1 ? Constant.selectedItemBackgroundColor : Functions.makeLinearGradient(colors: [.gray]))
             .onHover { isHovered in
                 self.isHovered1 = isHovered
             }

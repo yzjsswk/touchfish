@@ -44,13 +44,17 @@ struct StatsTabView: View {
         
         var body: some View {
             ZStack {
-                isSelected || isHovered ? Constant.commandBarBackgroundColor.color : Constant.mainBackgroundColor.color
+                isSelected ? Constant.selectedItemBackgroundColor.opacity(1.0) : (
+                    isHovered ? Constant.selectedItemBackgroundColor.opacity(0.6) :
+                        Functions.makeLinearGradient(colors: [.white]).opacity(1.0)
+                )
                 Text(title)
                     .font(.title3)
+                    .foregroundStyle(isSelected || isHovered ? .white : .black)
                     .bold()
                     .padding()
             }
-            .cornerRadius(5)
+            .cornerRadius(8)
             .onHover { isHovered in
                 self.isHovered = isHovered
             }

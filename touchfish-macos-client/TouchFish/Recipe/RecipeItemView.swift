@@ -17,6 +17,7 @@ struct RecipeItemView: View {
                 .foregroundColor(isSelected ? Color.white: Color.black)
             }
             .frame(width: Constant.recipeItemHeight)
+            .padding(.leading, 2.5)
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(recipe.name)
@@ -32,7 +33,7 @@ struct RecipeItemView: View {
                 if let desc = recipe.description, isSelected {
                     Text(desc)
                         .font(.caption)
-                        .foregroundColor(.gray)
+                        .foregroundStyle(Functions.makeLinearGradient(colors: ["BBCCFD"]))
                 }
             }
             Spacer()
@@ -41,18 +42,18 @@ struct RecipeItemView: View {
                     Image(systemName: "circle.fill")
                         .resizable()
                         .frame(width: 30, height: 30)
-                        .foregroundColor(Constant.unreadMessageTipColor.color)
+                        .foregroundStyle(Constant.unreadMessageTipColor)
                     Text(String(messageCenterUnreadCount))
                         .font(.custom("Menlo", size: 12))
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                 }
             }
         }
         .padding(5)
         .frame(width: Constant.mainWidth-30, height: isSelected ? Constant.recipeItemSelectedHeight : Constant.recipeItemHeight)
-        .background(isSelected ? Constant.selectedItemBackgroundColor.color : Constant.mainBackgroundColor.color)
-        .saturation(1.0)
-        .cornerRadius(5)
+        .background(isSelected ? Constant.selectedItemBackgroundColor : Functions.makeLinearGradient(colors: [Color.clear]))
+//        .saturation(1.0)
+        .cornerRadius(10)
         .onHover { isHovered in
             withAnimation(.spring(duration: 0.1)) {
                 isSelected = isHovered

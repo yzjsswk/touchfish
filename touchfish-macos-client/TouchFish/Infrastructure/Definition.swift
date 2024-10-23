@@ -18,22 +18,33 @@ struct Constant {
     static let fishDetailItemHeight: CGFloat = 10
     static let messageItemHeight: CGFloat = 60
     
-    static let backgroundColor = LinearGradient(colors: ["ECEEF1".color, "F1FAF1".color, "ECEEF1".color], startPoint: .leading, endPoint: .trailing)
-    static let mainBackgroundColor: String = "ECEEF1"
-    static let commandBarBackgroundColor: String = "D8D8DB"
-    static let selectedItemBackgroundColor: String = "502A70"
-    static let commandFieldBackgroundColor: String = "282A36"
-    static let commandFieldInsertionPointColor: String = "F8F8F2"
-    static let internalRecipeItemColor: String = "D8D8DB"
-    static let userDefinedRecipeDefaultIemColor: String = "D8D8DB"
-    static let errorMessageColor: String = "DA5448"
-    static let unreadMessageTipColor: String = "E2503F"
+    static let commandBarBackgroundColor = Functions.makeLinearGradient(colors: ["D8E0FE", "EBEDFE"])
+    static let mainBackgroundColor = Functions.makeLinearGradient(colors: ["FCFCFF"])
+//    static let commandBarBackgroundColor = Functions.makeLinearGradient(colors: [Color.white])
+    static let selectedItemBackgroundColor = Functions.makeLinearGradient(colors: ["5E71F9", "6077F7", "6A9EF8"])
+//    static let selectedItemBackgroundColor = Functions.makeLinearGradient(colors: [.blue, .purple])
+    //    static let mainBackgroundColor: String = "ECEEF1"
+//    static let commandBarBackgroundColor: String = "D8D8DB"
+//    static let selectedItemBackgroundColor: String = "502A70"
+//    static let commandFieldBackgroundColor = Functions.makeLinearGradient(colors: ["282A36"])
+    static let internalRecipeItemColor = Functions.makeLinearGradient(colors: ["D8D8DB"])
+    static let userDefinedRecipeDefaultIemColor = Functions.makeLinearGradient(colors: ["D8D8DB"])
+    static let errorMessageColor = Functions.makeLinearGradient(colors: ["DA5448"])
+    static let unreadMessageTipColor = Functions.makeLinearGradient(colors: ["E2503F"])
     
     static let maxDataSizeAddFish = 1024 * 1024 * 1024 // 1GB
     
 }
 
 struct Functions {
+    
+    static func makeLinearGradient(colors: [Color]) -> LinearGradient {
+        LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom)
+    }
+    
+    static func makeLinearGradient(colors: [String]) -> LinearGradient {
+        LinearGradient(colors: colors.map { $0.color }, startPoint: .top, endPoint: .bottom)
+    }
     
     static func getDataFromClipboard() -> (Fish.FishType, Data, Any)? {
         if let types = NSPasteboard.general.types, types.count > 0 {
@@ -280,6 +291,14 @@ extension String {
     
     var color: Color {
         return Color(nsColor)
+    }
+    
+    var linearGradient: LinearGradient {
+        LinearGradient(
+            colors: self.split(separator: "#").map { String($0).color },
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
     }
     
     var icon: Image? {

@@ -9,6 +9,8 @@ struct FishRepositoryView: View {
     @State var isMultSelecting: Bool = false
     @State var multSelectedFishIdentitys: Set<String> = []
     
+    @State var fishItemPosOffset: CGFloat = -1
+    
     @State var fuzzy: String? = nil
     @State var identitys: [String]? = nil
     @State var fishTypes: [Fish.FishType]? = nil
@@ -59,7 +61,7 @@ struct FishRepositoryView: View {
                     if isMultSelecting {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10)
-                                .fill(Constant.selectedItemBackgroundColor.color)
+                                .fill(Constant.selectedItemBackgroundColor)
                             HStack(spacing: 3) {
                                 if isAllMultSelected {
                                     HStack {
@@ -89,7 +91,7 @@ struct FishRepositoryView: View {
                                 Spacer()
                                 // todo: icon move anima when lock
                                 if isAllMultSelectedLocked {
-                                    UnLockButtonView()
+                                    MultUnLockButtonView()
                                         .onTapGesture {
                                             Task {
                                                 for identity in multSelectedFishIdentitys {
@@ -98,7 +100,7 @@ struct FishRepositoryView: View {
                                             }
                                         }
                                 } else {
-                                    LockButtonView()
+                                    MultLockButtonView()
                                         .onTapGesture {
                                             Task {
                                                 for identity in multSelectedFishIdentitys {
@@ -107,7 +109,7 @@ struct FishRepositoryView: View {
                                             }
                                         }
                                     if isAllMultSelectedMarked {
-                                        UnMarkButtonView()
+                                        MultUnMarkButtonView()
                                             .onTapGesture {
                                                 Task {
                                                     for identity in multSelectedFishIdentitys {
@@ -116,7 +118,7 @@ struct FishRepositoryView: View {
                                                 }
                                             }
                                     } else {
-                                        MarkButtonView()
+                                        MultMarkButtonView()
                                             .onTapGesture {
                                                 Task {
                                                     for identity in multSelectedFishIdentitys {
@@ -125,14 +127,14 @@ struct FishRepositoryView: View {
                                                 }
                                             }
                                     }
-                                    DeleteButtonView()
+                                    MultDeleteButtonView()
                                         .onTapGesture {
                                             Task {
                                                 for identity in multSelectedFishIdentitys {
                                                     await Storage.removeFish(identity)
                                                 }
+                                                multSelectedFishIdentitys.removeAll()
                                             }
-                                            multSelectedFishIdentitys.removeAll()
                                         }
                                 }
                             }
@@ -159,7 +161,8 @@ struct FishRepositoryView: View {
                         selectedFishIdentity: $selectedFishIdentity,
                         isEditing: $isEditing,
                         isMultSelecting: $isMultSelecting,
-                        multSelectedFishIdentitys: $multSelectedFishIdentitys
+                        multSelectedFishIdentitys: $multSelectedFishIdentitys,
+                        fishItemPosOffset: $fishItemPosOffset
                     )
                     .frame(width: (Constant.mainWidth - 30)/2)
                 }
@@ -190,8 +193,10 @@ struct FishRepositoryView: View {
         .onReceive(NotificationCenter.default.publisher(for: .FishRefreshed)) { notification in
             if let fish = notification.userInfo?["fish"] as? [String:Fish] {
                 if self.fishs.isEmpty || fish.isEmpty {
-                    withAnimation(.easeIn(duration: 0.2)) {
-                        self.fishs = fish
+                    self.fishs = fish
+                    fishItemPosOffset = -1
+                    withAnimation(.easeOut(duration: 0.4)) {
+                        fishItemPosOffset = 0
                     }
                 } else {
                     withAnimation(.spring(duration: 0.4)) {
@@ -248,4 +253,111 @@ struct FishRepositoryView: View {
         }
     }
 
+}
+
+struct MultLockButtonView: View {
+    
+    @State private var isHovered = false
+    
+    var body: some View {
+        HStack {
+            Image(systemName: isHovered ? "lock.fill" : "lock")
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(Color.white)
+                .frame(width: isHovered ? 28 : 26, height: isHovered ? 23 : 21)
+        }
+        .frame(width: 28, height: 23)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
+    }
+}
+
+struct MultUnLockButtonView: View {
+    
+    @State private var isHovered = false
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "lock.fill")
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(Color.white.opacity(isHovered ? 0.5 : 1.0))
+                .frame(width: isHovered ? 28 : 26, height: isHovered ? 23 : 21)
+        }
+        .frame(width: 28, height: 23)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
+    }
+}
+
+struct MultMarkButtonView: View {
+    
+    @State private var isHovered = false
+    
+    var body: some View {
+        HStack {
+            Image(systemName: isHovered ? "bookmark.fill" : "bookmark")
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(Color.white)
+                .frame(width: isHovered ? 23 : 21, height: isHovered ? 23 : 21)
+        }
+        .frame(width: 23, height: 23)
+        .offset(y:1)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
+    }
+}
+
+struct MultUnMarkButtonView: View {
+    
+    @State private var isHovered = false
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "bookmark.fill")
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(Color.white.opacity(isHovered ? 0.5 : 1.0))
+                .frame(width: isHovered ? 23 : 21, height: isHovered ? 23 : 21)
+        }
+        .frame(width: 23, height: 23)
+        .offset(y:1)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
+    }
+}
+
+struct MultDeleteButtonView: View {
+    
+    @State private var isHovered = false
+    
+    var body: some View {
+        HStack {
+            Image(systemName: isHovered ? "trash.fill" : "trash")
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(isHovered ? .red : .white)
+                .frame(width: isHovered ? 23 : 21, height: isHovered ? 23 : 21)
+        }
+        .frame(width: 23, height: 23)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
+    }
 }

@@ -13,7 +13,7 @@ struct FishRepositorySettingView: View {
                     .bold()
                 Spacer()
                 ZStack {
-                    Constant.commandBarBackgroundColor.color
+                    Constant.commandBarBackgroundColor
                     HStack(spacing: 2) {
                         Image(systemName: "command")
                         Image(systemName: "option")

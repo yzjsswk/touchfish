@@ -80,7 +80,7 @@ struct MessageView: View {
     var body: some View {
         HStack {
             Image(systemName: "circle.fill")
-                .foregroundColor(message.hasRead ? Constant.commandBarBackgroundColor.color : Constant.unreadMessageTipColor.color)
+                .foregroundStyle(message.hasRead ? Constant.commandBarBackgroundColor : Constant.unreadMessageTipColor)
                 .padding(.leading, 10)
             HStack(spacing: 5) {
                 if let source = message.source, let icon = RecipeManager.recipes[source]?.icon {
@@ -132,8 +132,8 @@ struct MessageView: View {
                     .offset(x: isHovered ? 0 : 100, y: 0)
             }
             .background(
-                message.level == .info ? Constant.commandBarBackgroundColor.color : (
-                        message.level == .warning ? .yellow : Constant.errorMessageColor.color
+                message.level == .info ? Constant.commandBarBackgroundColor : (
+                    message.level == .warning ? Functions.makeLinearGradient(colors: [.yellow]) : Constant.errorMessageColor
                 )
             )
             .cornerRadius(10)
