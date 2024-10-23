@@ -19,6 +19,7 @@ struct Constant {
     static let messageItemHeight: CGFloat = 60
     
     static let commandBarBackgroundColor = Functions.makeLinearGradient(colors: ["D8E0FE", "EBEDFE"])
+    static let tagBackgroundColor = Functions.makeLinearGradient(colors: ["C5D2FA", "CACEFB"])
     static let mainBackgroundColor = Functions.makeLinearGradient(colors: ["FCFCFF"])
 //    static let commandBarBackgroundColor = Functions.makeLinearGradient(colors: [Color.white])
     static let selectedItemBackgroundColor = Functions.makeLinearGradient(colors: ["5E71F9", "6077F7", "6A9EF8"])

@@ -27,7 +27,7 @@ struct FishListView: View {
                             multSelectedFishIdentitys: $multSelectedFishIdentitys
                         )
                         .offset(y: idx <= 16 ? (fishItemPosOffset*50*CGFloat(idx+1)) : 0)
-//                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .opacity(fishItemPosOffset == 0 ? 1 : 0)
                         .onHover { isHovered in
                             if isHovered {
                                 selectedFishIdentity = fish.identity

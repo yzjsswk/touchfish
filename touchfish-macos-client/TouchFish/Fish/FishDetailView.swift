@@ -36,31 +36,37 @@ struct FishDetailView: View {
                 }
             }
             Spacer()
-            if showDetail {
-                Divider().background(Color.gray.opacity(0.2))
-            }
-            ArrowView()
-                .rotationEffect(.degrees(180))
-                .offset(y: showDetailWithAnima ? 0 : Constant.mainWidth*0.4)
-                .onTapGesture {
-                    withAnimation {
-                        showDetailWithAnima = false
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                .fill(Constant.commandBarBackgroundColor)
+                .frame(height: showDetailWithAnima ? Constant.mainHeight*0.3 : 0)
+                VStack {
+                    DownArrowView()
+                    .offset(y: showDetailWithAnima ? 15 : Constant.mainHeight*0.6)
+                    .onTapGesture {
+                        withAnimation {
+                            showDetailWithAnima = false
+                        }
+                        showDetail = false
                     }
-                    showDetail = false
-                }
-            if let selectedFish = self.selectedFish {
-                DetailExtraInfoView(fish: selectedFish)
+                    VStack {
+                        if let selectedFish = self.selectedFish {
+                            DetailExtraInfoView(fish: selectedFish)
+                        }
+                    }
                     .frame(height: showDetailWithAnima ? Constant.mainHeight*0.3 : 0)
-            }
-            if !showDetail {
-                ArrowView()
+                }
+                if !showDetail {
+                    UpArrowView()
                     .onTapGesture {
                         withAnimation(.spring) {
                             showDetailWithAnima = true
                         }
                         showDetail = true
                     }
+                }
             }
+            
         }
         .onTapGesture {
             withAnimation {
@@ -74,24 +80,38 @@ struct FishDetailView: View {
 
 struct DetailTagView: View {
     
+    struct TagView: View {
+        
+        var label: String
+        
+        @State var isHovered: Bool = false
+        
+        var body: some View {
+            Text(label)
+            .frame(minWidth: 40)
+            .background(
+                GeometryReader { geometry in
+                    Rectangle()
+                        .cornerRadius(8)
+                        .foregroundStyle(isHovered ? Constant.selectedItemBackgroundColor : Constant.tagBackgroundColor)
+                        .frame(width: geometry.size.width+5, height: geometry.size.height+8)
+                        .offset(x: -2.5, y: -4)
+                }
+            )
+            .foregroundStyle(isHovered ? Functions.makeLinearGradient(colors: [.white]) : Functions.makeLinearGradient(colors: ["444444"]))
+            .onHover { isHovered in
+                self.isHovered = isHovered
+            }
+        }
+    }
+    
     var fish: Fish
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
-                ForEach(Array(fish.tags.enumerated()), id: \.0) { (idx, tg) in
-                    Text(tg)
-                        .frame(minWidth: 40)
-                        .background(
-                            GeometryReader { geometry in
-                                Rectangle()
-                                    .cornerRadius(10)
-                                    .foregroundColor(String(Functions.getMD5(of: tg).suffix(6)).color)
-                                    .frame(width: geometry.size.width+5, height: geometry.size.height+8)
-                                    .offset(x: -2.5, y: -4)
-                            }
-                        )
-                        .foregroundColor(.white)
+                ForEach(Array(fish.tags.enumerated()), id: \.0) { (_, tg) in
+                    TagView(label: tg)
                 }
                 Spacer()
             }
@@ -190,9 +210,8 @@ struct DetailExtraInfoView: View {
                 DetailItemView(itemName: "Create Time", itemValue: fish.createTime)
                 DetailItemView(itemName: "Update Time", itemValue: fish.updateTime)
             }
-            .padding(.vertical, 5)
+            .padding(5)
         }
-//        .frame(height: Config.mainHeight.get()*0.3)
     }
     
 }
@@ -230,7 +249,7 @@ struct DetailItemView: View {
     
 }
 
-struct ArrowView: View {
+struct UpArrowView: View {
     
     @State var isHovered: Bool = false
     
@@ -259,3 +278,31 @@ struct ArrowView: View {
     
 }
 
+struct DownArrowView: View {
+    
+    @State var isHovered: Bool = false
+    
+    struct ArrowShap: Shape {
+        func path(in rect: CGRect) -> Path {
+            var path = Path()
+            path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+            return path
+        }
+    }
+
+    var body: some View {
+        ArrowShap()
+            .stroke(.gray, lineWidth: 2)
+            .frame(width: Constant.mainWidth*0.15, height: 10)
+            .background(Color.gray.opacity(0.01))
+            .offset(y: isHovered ? 0 : -5)
+            .onHover { isHovered in
+                withAnimation {
+                    self.isHovered = isHovered
+                }
+            }
+    }
+    
+}

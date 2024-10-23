@@ -302,7 +302,7 @@ struct DeleteButtonView: View {
             Image(systemName: isHovered ? "trash.fill" : "trash")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(isHovered ? .red : .white)
+                .foregroundStyle(.white)
                 .frame(width: isHovered ? 20 : 18, height: isHovered ? 20 : 18)
         }
         .frame(width: 20, height: 20)

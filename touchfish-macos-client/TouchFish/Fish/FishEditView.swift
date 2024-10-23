@@ -130,19 +130,24 @@ struct TagView: View {
             .background(
                 GeometryReader { geometry in
                     Rectangle()
-                        .cornerRadius(10)
-                        .foregroundColor(String(Functions.getMD5(of: label).suffix(6)).color)
+                        .cornerRadius(8)
+                        .foregroundStyle(Constant.tagBackgroundColor)
                         .frame(width: geometry.size.width+5, height: geometry.size.height+8)
                         .offset(x: -2.5, y: -4)
                 }
             )
-            .foregroundColor(.white)
-            .strikethrough(isHovered, color: .red)
+            .foregroundStyle(Functions.makeLinearGradient(colors: ["444444"]))
+            .opacity(isHovered ? 0.5 : 1.0)
+            .offset(y: isHovered ? 5 : 0)
             .onHover { isHovered in
-                self.isHovered = isHovered
+                withAnimation {
+                    self.isHovered = isHovered
+                }
             }
             .onTapGesture {
-                tags.removeAll(where: { $0 == label } )
+                withAnimation {
+                    tags.removeAll(where: { $0 == label } )
+                }
             }
     }
     
@@ -202,7 +207,9 @@ struct TagEditView: View {
                 }
                 .onTapGesture {
                     if !tags.contains(tagSearchText) {
-                        tags.append(tagSearchText)
+                        withAnimation {
+                            tags.append(tagSearchText)
+                        }
                     }
                     isOpening = false
                     tagSearchText = ""

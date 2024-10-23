@@ -72,7 +72,7 @@ struct BarChartView: View {
                     }
                 }
                 Spacer()
-                if slices[selectedSeriesIdx].count > 12 {
+                if slices[selectedSeriesIdx].reduce(0, {$0 + $1.label.count*3}) + slices[selectedSeriesIdx].count*16 > 300 {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(alignment: .bottom, spacing: 16) {
                             ForEach(Array(slices[selectedSeriesIdx].enumerated()), id: \.0) { (idx, slice) in

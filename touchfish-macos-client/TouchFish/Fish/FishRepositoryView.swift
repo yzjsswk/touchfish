@@ -350,7 +350,7 @@ struct MultDeleteButtonView: View {
             Image(systemName: isHovered ? "trash.fill" : "trash")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(isHovered ? .red : .white)
+                .foregroundStyle(.white)
                 .frame(width: isHovered ? 23 : 21, height: isHovered ? 23 : 21)
         }
         .frame(width: 23, height: 23)
