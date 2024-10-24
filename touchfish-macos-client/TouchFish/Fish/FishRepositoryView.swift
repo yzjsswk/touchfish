@@ -94,45 +94,35 @@ struct FishRepositoryView: View {
                                     MultUnLockButtonView()
                                         .onTapGesture {
                                             Task {
-                                                for identity in multSelectedFishIdentitys {
-                                                    await Storage.unLockFish(identity)
-                                                }
+                                                await Storage.unLockFish(Array(multSelectedFishIdentitys))
                                             }
                                         }
                                 } else {
                                     MultLockButtonView()
                                         .onTapGesture {
                                             Task {
-                                                for identity in multSelectedFishIdentitys {
-                                                    await Storage.lockFish(identity)
-                                                }
+                                                await Storage.lockFish(Array(multSelectedFishIdentitys))
                                             }
                                         }
                                     if isAllMultSelectedMarked {
                                         MultUnMarkButtonView()
                                             .onTapGesture {
                                                 Task {
-                                                    for identity in multSelectedFishIdentitys {
-                                                        await Storage.unMarkFish(identity)
-                                                    }
+                                                    await Storage.unMarkFish(Array(multSelectedFishIdentitys))
                                                 }
                                             }
                                     } else {
                                         MultMarkButtonView()
                                             .onTapGesture {
                                                 Task {
-                                                    for identity in multSelectedFishIdentitys {
-                                                        await Storage.markFish(identity)
-                                                    }
+                                                    await Storage.markFish(Array(multSelectedFishIdentitys))
                                                 }
                                             }
                                     }
                                     MultDeleteButtonView()
                                         .onTapGesture {
                                             Task {
-                                                for identity in multSelectedFishIdentitys {
-                                                    await Storage.removeFish(identity)
-                                                }
+                                                await Storage.removeFish(Array(multSelectedFishIdentitys))
                                                 multSelectedFishIdentitys.removeAll()
                                             }
                                         }

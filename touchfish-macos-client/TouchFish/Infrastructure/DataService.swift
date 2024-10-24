@@ -171,7 +171,7 @@ struct DataService {
         pageNum: Int? = 1,
         pageSize: Int? = 10
     ) async -> Result<DataServiceResponse<SearchFishResp>, AFError> {
-        let url = DataService.urlPrefix + "/search"
+        let url = DataService.urlPrefix + "/fish/search"
         let para: [String:Any?] = [
             "fuzzy": fuzzy,
             "identity": identitys,
@@ -197,7 +197,7 @@ struct DataService {
         isMarked: Bool? = nil,
         isLocked: Bool? = nil
     ) async -> Result<DataServiceResponse<[String]>, AFError> {
-        let url = DataService.urlPrefix + "/delect"
+        let url = DataService.urlPrefix + "/fish/delect"
         let para: [String:Any?] = [
             "fuzzy": fuzzy,
             "identity": identitys,
@@ -213,7 +213,7 @@ struct DataService {
     }
     
     static func pickFish(identity: String) async -> Result<DataServiceResponse<FishResp>, AFError> {
-        let url = DataService.urlPrefix + "/pick/\(identity)"
+        let url = DataService.urlPrefix + "/fish/pick/\(identity)"
         return await AF.request(url).serializingDecodable(DataServiceResponse.self).result
     }
     
@@ -221,7 +221,7 @@ struct DataService {
         fishType: Fish.FishType, fishData: Data, description: String?, tags: [String]?,
         isMarked: Bool?, isLocked: Bool?, extraInfo: String?
     ) async -> Result<DataServiceResponse<FishResp>, AFError> {
-        let url = DataService.urlPrefix + "/add"
+        let url = DataService.urlPrefix + "/fish/add"
         let data = fishData.base64EncodedString()
         let para: [String:Any?] = [
             "fish_type": fishType.rawValue,
@@ -240,7 +240,7 @@ struct DataService {
     static func modifyFish(
         identity: String, description: String? = nil, tags: [String]? = nil, extraInfo: String? = nil
     ) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
-        let url = DataService.urlPrefix + "/modify"
+        let url = DataService.urlPrefix + "/fish/modify"
         let para: [String:Any?] = [
             "identity": identity,
             "desc": description,
@@ -252,38 +252,90 @@ struct DataService {
         ).serializingDecodable(DataServiceResponse.self).result
     }
     
-    static func expireFish(identity: String) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
-        let url = DataService.urlPrefix + "/expire/\(identity)"
-        return await AF.request(url, method: .post).serializingDecodable(DataServiceResponse.self).result
+    static func expireFish(
+        identitys: [String], skipIfNotExists: Bool = true, skipIfLocked: Bool = true
+    ) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
+        let url = DataService.urlPrefix + "/fish/expire"
+        let para: [String:Any?] = [
+            "identitys": identitys,
+            "skip_if_not_exists": skipIfNotExists,
+            "skip_if_locked": skipIfLocked,
+        ]
+        return await AF.request(
+            url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
+        ).serializingDecodable(DataServiceResponse.self).result
     }
     
-    static func markFish(identity: String) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
-        let url = DataService.urlPrefix + "/mark/\(identity)"
-        return await AF.request(url, method: .post).serializingDecodable(DataServiceResponse.self).result
+    static func markFish(
+        identitys: [String], skipIfNotExists: Bool = true, skipIfLocked: Bool = true
+    ) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
+        let url = DataService.urlPrefix + "/fish/mark"
+        let para: [String:Any?] = [
+            "identitys": identitys,
+            "skip_if_not_exists": skipIfNotExists,
+            "skip_if_locked": skipIfLocked,
+        ]
+        return await AF.request(
+            url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
+        ).serializingDecodable(DataServiceResponse.self).result
     }
     
-    static func unMarkFish(identity: String) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
-        let url = DataService.urlPrefix + "/unmark/\(identity)"
-        return await AF.request(url, method: .post).serializingDecodable(DataServiceResponse.self).result
+    static func unMarkFish(
+        identitys: [String], skipIfNotExists: Bool = true, skipIfLocked: Bool = true
+    ) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
+        let url = DataService.urlPrefix + "/fish/unmark"
+        let para: [String:Any?] = [
+            "identitys": identitys,
+            "skip_if_not_exists": skipIfNotExists,
+            "skip_if_locked": skipIfLocked,
+        ]
+        return await AF.request(
+            url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
+        ).serializingDecodable(DataServiceResponse.self).result
     }
     
-    static func lockFish(identity: String) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
-        let url = DataService.urlPrefix + "/lock/\(identity)"
-        return await AF.request(url, method: .post).serializingDecodable(DataServiceResponse.self).result
+    static func lockFish(
+        identitys: [String], skipIfNotExists: Bool = true
+    ) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
+        let url = DataService.urlPrefix + "/fish/lock"
+        let para: [String:Any?] = [
+            "identitys": identitys,
+            "skip_if_not_exists": skipIfNotExists,
+        ]
+        return await AF.request(
+            url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
+        ).serializingDecodable(DataServiceResponse.self).result
     }
     
-    static func unLockFish(identity: String) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
-        let url = DataService.urlPrefix + "/unlock/\(identity)"
-        return await AF.request(url, method: .post).serializingDecodable(DataServiceResponse.self).result
+    static func unLockFish(
+        identitys: [String], skipIfNotExists: Bool = true
+    ) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
+        let url = DataService.urlPrefix + "/fish/unlock"
+        let para: [String:Any?] = [
+            "identitys": identitys,
+            "skip_if_not_exists": skipIfNotExists,
+        ]
+        return await AF.request(
+            url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
+        ).serializingDecodable(DataServiceResponse.self).result
     }
     
-    static func pinFish(identity: String) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
-        let url = DataService.urlPrefix + "/pin/\(identity)"
-        return await AF.request(url, method: .post).serializingDecodable(DataServiceResponse.self).result
+    static func pinFish(
+        identitys: [String], skipIfNotExists: Bool = true, skipIfLocked: Bool = true
+    ) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
+        let url = DataService.urlPrefix + "/fish/pin"
+        let para: [String:Any?] = [
+            "identitys": identitys,
+            "skip_if_not_exists": skipIfNotExists,
+            "skip_if_locked": skipIfLocked,
+        ]
+        return await AF.request(
+            url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
+        ).serializingDecodable(DataServiceResponse.self).result
     }
         
     static func countFish() async -> Result<DataServiceResponse<CountFishResp>, AFError> {
-        let url = DataService.urlPrefix + "/count"
+        let url = DataService.urlPrefix + "/fish/count"
         return await AF.request(url).serializingDecodable(DataServiceResponse.self).result
     }
     

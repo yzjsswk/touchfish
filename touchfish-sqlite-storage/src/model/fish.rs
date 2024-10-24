@@ -165,9 +165,9 @@ impl FishUpdater {
 
 pub struct FishSelecter {
     pub fuzzy: Option<String>,
-    pub identity: Option<Vec<String>>,
+    pub identitys: Option<Vec<String>>,
     pub count: Option<i32>,
-    pub fish_type: Option<Vec<String>>,
+    pub fish_types: Option<Vec<String>>,
     pub desc: Option<String>,
     pub tags: Option<String>,
     pub is_marked: Option<bool>,
@@ -179,15 +179,15 @@ pub struct FishSelecter {
 impl FishSelecter {
     
     pub fn new(
-        fuzzy: Option<String>, identity: Option<Vec<String>>, count: Option<i32>,
-        fish_type: Option<Vec<FishType>>, desc: Option<String>, tags: Option<Vec<String>>, 
+        fuzzy: Option<String>, identitys: Option<Vec<String>>, count: Option<i32>,
+        fish_types: Option<Vec<FishType>>, desc: Option<String>, tags: Option<Vec<String>>, 
         is_marked: Option<bool>, is_locked: Option<bool>, page: Option<(i32, i32)>,
     ) -> YRes<FishSelecter> {
         let fuzzy = match fuzzy {
             Some(x) => Some(format!("%{}%", x)),
             None => None,
         };
-        let fish_type = match fish_type {
+        let fish_types = match fish_types {
             Some(x) => Some(x.into_iter().map(|x| x.to_string()).collect()),
             None => None,
         };
@@ -220,13 +220,13 @@ impl FishSelecter {
             (None, None)
         };
         Ok(FishSelecter {
-            fuzzy, identity, count, fish_type, desc, tags, is_marked, is_locked, limit, offset,
+            fuzzy, identitys, count, fish_types, desc, tags, is_marked, is_locked, limit, offset,
         })
     }
 
     pub fn empty() -> FishSelecter {
         FishSelecter {
-            fuzzy: None, identity: None, count: None, fish_type: None,
+            fuzzy: None, identitys: None, count: None, fish_types: None,
             desc: None, tags: None, is_marked: None, is_locked: None,
             limit: None, offset: None,
         }

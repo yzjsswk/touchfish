@@ -43,3 +43,43 @@ pub struct ModifyFishReq {
     pub tags: Option<Vec<String>>,
     pub extra_info: Option<String>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ExpireFishReq {
+    pub identitys: Vec<String>,
+    pub skip_if_not_exists: bool,
+    pub skip_if_locked: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MarkFishReq {
+    pub identitys: Vec<String>,
+    pub skip_if_not_exists: bool,
+    pub skip_if_locked: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UnmarkFishReq {
+    pub identitys: Vec<String>,
+    pub skip_if_not_exists: bool,
+    pub skip_if_locked: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LockFishReq {
+    pub identitys: Vec<String>,
+    pub skip_if_not_exists: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UnlockFishReq {
+    pub identitys: Vec<String>,
+    pub skip_if_not_exists: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PinFishReq {
+    pub identitys: Vec<String>,
+    pub skip_if_not_exists: bool,
+    pub skip_if_locked: bool,
+}

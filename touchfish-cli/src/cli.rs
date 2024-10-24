@@ -186,7 +186,7 @@ impl Cli {
                 }
             },
             Commands::Expire { identity } => {
-                core.expire_fish(&identity)?;
+                core.expire_fish(vec![&identity], false, false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Modify { 
@@ -216,23 +216,23 @@ impl Cli {
                 Ok(CliOutput::Ok)
             },
             Commands::Mark { identity } => {
-                core.mark_fish(&identity)?;
+                core.mark_fish(vec![&identity], false, false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Unmark { identity } => {
-                core.unmark_fish(&identity)?;
+                core.unmark_fish(vec![&identity], false, false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Lock { identity } => {
-                core.lock_fish(&identity)?;
+                core.lock_fish(vec![&identity], false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Unlock { identity } => {
-                core.unlock_fish(&identity)?;
+                core.unlock_fish(vec![&identity], false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Pin { identity } => {
-                core.pin_fish(&identity)?;
+                core.pin_fish(vec![&identity], false, false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Search {

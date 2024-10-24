@@ -80,7 +80,7 @@ struct BarChartView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 5)
+                    .padding(.horizontal)
                 } else {
                     HStack(alignment: .bottom, spacing: 16) {
                         ForEach(Array(slices[selectedSeriesIdx].enumerated()), id: \.0) { (idx, slice) in

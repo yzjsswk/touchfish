@@ -57,8 +57,19 @@ impl SqliteStorage {
         Ok(cnt)
     }
 
+    fn fish__delete_batch(&self, conn: &mut SqliteConnection, ids: &Vec<i32>) -> Result<usize, Error> {
+        let cnt = diesel::delete(fish::table.filter(fish::id.eq_any(ids))).execute(conn)?;
+        Ok(cnt)
+    }
+
     fn fish__update(&self, conn: &mut SqliteConnection, identity: &str, updater: &FishUpdater) -> Result<usize, Error> {
         diesel::update(fish::table.filter(fish::identity.eq(identity)))
+            .set(updater)
+            .execute(conn)
+    }
+
+    fn fish__update_batch(&self, conn: &mut SqliteConnection, identitys: &Vec<&str>, updater: &FishUpdater) -> Result<usize, Error> {
+        diesel::update(fish::table.filter(fish::identity.eq_any(identitys)))
             .set(updater)
             .execute(conn)
     }
@@ -69,8 +80,20 @@ impl SqliteStorage {
         .execute(conn)
     }
 
+    fn fish__inc_cnt_batch(&self, conn: &mut SqliteConnection, identitys: &Vec<&str>) -> Result<usize, Error> {
+        diesel::update(fish::table.filter(fish::identity.eq_any(identitys)))
+        .set(fish::count.eq(fish::count+1))
+        .execute(conn)
+    }
+
     fn fish__dec_cnt(&self, conn: &mut SqliteConnection, identity: &str) -> Result<usize, Error> {
         diesel::update(fish::table.filter(fish::identity.eq(identity)))
+        .set(fish::count.eq(fish::count-1))
+        .execute(conn)
+    }
+
+    fn fish__dec_cnt_batch(&self, conn: &mut SqliteConnection, identitys: &Vec<&str>) -> Result<usize, Error> {
+        diesel::update(fish::table.filter(fish::identity.eq_any(identitys)))
         .set(fish::count.eq(fish::count-1))
         .execute(conn)
     }
@@ -88,14 +111,14 @@ impl SqliteStorage {
         if let Some(fuzzy) = &selecter.fuzzy {
             query = query.filter(fish::desc.like(fuzzy).or(sql::<Bool>("fish_data LIKE ").bind::<Text, _>(fuzzy)))
         }
-        if let Some(identity) = &selecter.identity {
-            query = query.filter(fish::identity.eq_any(identity));
+        if let Some(identitys) = &selecter.identitys {
+            query = query.filter(fish::identity.eq_any(identitys));
         }
         if let Some(count) = selecter.count {
             query = query.filter(fish::count.eq(count));
         }
-        if let Some(fish_type) = &selecter.fish_type {
-            query = query.filter(fish::fish_type.eq_any(fish_type));
+        if let Some(fish_types) = &selecter.fish_types {
+            query = query.filter(fish::fish_type.eq_any(fish_types));
         }
         if let Some(desc) = &selecter.desc {
             query = query.filter(fish::desc.like(desc));
@@ -127,14 +150,14 @@ impl SqliteStorage {
         if let Some(fuzzy) = &selecter.fuzzy {
             query = query.filter(fish::desc.like(fuzzy).or(sql::<Bool>("fish_data LIKE ").bind::<Text, _>(fuzzy)))
         }
-        if let Some(identity) = &selecter.identity {
-            query = query.filter(fish::identity.eq_any(identity));
+        if let Some(identitys) = &selecter.identitys {
+            query = query.filter(fish::identity.eq_any(identitys));
         }
         if let Some(count) = selecter.count {
             query = query.filter(fish::count.eq(count));
         }
-        if let Some(fish_type) = &selecter.fish_type {
-            query = query.filter(fish::fish_type.eq_any(fish_type));
+        if let Some(fish_types) = &selecter.fish_types {
+            query = query.filter(fish::fish_type.eq_any(fish_types));
         }
         if let Some(desc) = &selecter.desc {
             query = query.filter(fish::desc.like(desc));
@@ -165,14 +188,14 @@ impl SqliteStorage {
         if let Some(fuzzy) = &selecter.fuzzy {
             query = query.filter(fish::desc.like(fuzzy).or(sql::<Bool>("fish_data LIKE ").bind::<Text, _>(fuzzy)))
         }
-        if let Some(identity) = &selecter.identity {
-            query = query.filter(fish::identity.eq_any(identity));
+        if let Some(identitys) = &selecter.identitys {
+            query = query.filter(fish::identity.eq_any(identitys));
         }
         if let Some(count) = selecter.count {
             query = query.filter(fish::count.eq(count));
         }
-        if let Some(fish_type) = &selecter.fish_type {
-            query = query.filter(fish::fish_type.eq_any(fish_type));
+        if let Some(fish_types) = &selecter.fish_types {
+            query = query.filter(fish::fish_type.eq_any(fish_types));
         }
         if let Some(desc) = &selecter.desc {
             query = query.filter(fish::desc.like(desc));
@@ -203,14 +226,14 @@ impl SqliteStorage {
         if let Some(fuzzy) = &selecter.fuzzy {
             query = query.filter(fish_expired::desc.like(fuzzy).or(sql::<Bool>("fish_data LIKE ").bind::<Text, _>(fuzzy)))
         }
-        if let Some(identity) = &selecter.identity {
-            query = query.filter(fish_expired::identity.eq_any(identity));
+        if let Some(identitys) = &selecter.identitys {
+            query = query.filter(fish_expired::identity.eq_any(identitys));
         }
         if let Some(count) = selecter.count {
             query = query.filter(fish_expired::count.eq(count));
         }
-        if let Some(fish_type) = &selecter.fish_type {
-            query = query.filter(fish_expired::fish_type.eq_any(fish_type));
+        if let Some(fish_types) = &selecter.fish_types {
+            query = query.filter(fish_expired::fish_type.eq_any(fish_types));
         }
         if let Some(desc) = &selecter.desc {
             query = query.filter(fish_expired::desc.like(desc));
@@ -308,26 +331,34 @@ impl FishStorage for SqliteStorage {
         Ok(Fish::try_from(fish)?)
     }
 
-    fn expire_fish(&self, identity: &str) -> YRes<()> {
+    fn expire_fish(&self, identitys: Vec<&str>) -> YRes<()> {
         let mut conn = self.get_conn()?;
-        let to_expire_fish = self.fish__pick(&mut conn, identity).map_err(|e| 
-            err!(DataBaseError::"expire fish": "query to delete fish failed", identity, e)
+        let selecter = FishSelecter::new(
+            None, Some(identitys.iter().map(|x| x.to_string()).collect()),
+            None, None, None, None, None, None, None,
+        )?;
+        let to_expire_fish = self.fish__select(&mut conn, &selecter).map_err(|e| 
+            err!(DataBaseError::"expire fish": "query to delete fish failed", identitys, e)
         )?;
         if to_expire_fish.is_empty() {
-            return Err(err!(DataBaseError::"expire fish": "to delete fish not exist", identity));
+            return Ok(())
         }
-        if to_expire_fish.len() > 1 {
-            return Err(err!(DataBaseError::"expire fish": "to delete fish more than one", identity));
+        let to_expire_fish_ids = to_expire_fish.iter().map(|x| x.id).collect::<Vec<i32>>();
+        let mut expired_fish_inserters: Vec<FishExpiredInserter> = Vec::new();
+        for fish in to_expire_fish {
+            let fish_id = fish.id;
+            expired_fish_inserters.push(FishExpiredInserter::new(fish).trace(
+                ctx!("expire fish -> build fish expired inserter from to expired fish model": "build failed", fish_id)
+            )?)
         }
-        let to_expire_fish = to_expire_fish.into_iter().next().unwrap();
-        let to_expire_fish_id = to_expire_fish.id;
-        let expired_fish_inserter = FishExpiredInserter::new(to_expire_fish)?;
         conn.transaction::<_, Error, _>(|conn| {
-            let cnt = self.fish__delete(conn, to_expire_fish_id)?;
-            if cnt != 1 {
+            let cnt = self.fish__delete_batch(conn, &to_expire_fish_ids)?;
+            if cnt != to_expire_fish_ids.len() {
                 return Err(Error::RollbackTransaction)
             }
-            self.fish_expired__insert(conn, &expired_fish_inserter)?;
+            for inserter in expired_fish_inserters {
+                self.fish_expired__insert(conn, &inserter)?;
+            }
             Ok(())
         }).map_err(|e| err!(DataBaseError::"expire fish": "execute transaction failed", e))
     }
@@ -343,64 +374,64 @@ impl FishStorage for SqliteStorage {
         Ok(())
     }
 
-    fn mark_fish(&self, identity: &str) -> YRes<()> {
+    fn mark_fish(&self, identitys: Vec<&str>) -> YRes<()> {
         let mut conn = self.get_conn()?;
-        self.fish__update(&mut conn, identity, &FishUpdater::new(
+        self.fish__update_batch(&mut conn, &identitys, &FishUpdater::new(
             None, None, None, None, None,
             None, None, Some(true), None, None,
-        )?).map_err(|e| err!(DataBaseError::"mark fish", identity, e))?;
+        )?).map_err(|e| err!(DataBaseError::"mark fish", identitys, e))?;
         Ok(())
     }
     
-    fn unmark_fish(&self, identity: &str) -> YRes<()> {
+    fn unmark_fish(&self, identitys: Vec<&str>) -> YRes<()> {
         let mut conn = self.get_conn()?;
-        self.fish__update(&mut conn, identity, &FishUpdater::new(
+        self.fish__update_batch(&mut conn, &identitys, &FishUpdater::new(
             None, None, None, None, None,
             None, None, Some(false), None, None,
-        )?).map_err(|e| err!(DataBaseError::"unmark fish", identity, e))?;
+        )?).map_err(|e| err!(DataBaseError::"unmark fish", identitys, e))?;
         Ok(())
     }
     
-    fn lock_fish(&self, identity: &str) -> YRes<()> {
+    fn lock_fish(&self, identitys: Vec<&str>) -> YRes<()> {
         let mut conn = self.get_conn()?;
-        self.fish__update(&mut conn, identity, &FishUpdater::new(
+        self.fish__update_batch(&mut conn, &identitys, &FishUpdater::new(
             None, None, None, None, None,
             None, None, None, Some(true), None,
-        )?).map_err(|e| err!(DataBaseError::"lock fish", identity, e))?;
+        )?).map_err(|e| err!(DataBaseError::"lock fish", identitys, e))?;
         Ok(())
     }
     
-    fn unlock_fish(&self, identity: &str) -> YRes<()> {
+    fn unlock_fish(&self, identitys: Vec<&str>) -> YRes<()> {
         let mut conn = self.get_conn()?;
-        self.fish__update(&mut conn, identity, &FishUpdater::new(
+        self.fish__update_batch(&mut conn, &identitys, &FishUpdater::new(
             None, None, None, None, None,
             None, None, None, Some(false), None,
-        )?).map_err(|e| err!(DataBaseError::"unlock fish", identity, e))?;
+        )?).map_err(|e| err!(DataBaseError::"unlock fish", identitys, e))?;
         Ok(())
     }
     
-    fn pin_fish(&self, identity: &str) -> YRes<()> {
+    fn pin_fish(&self, identitys: Vec<&str>) -> YRes<()> {
         let mut conn = self.get_conn()?;
-        self.fish__update(&mut conn, identity, &FishUpdater::empty())
-            .map_err(|e| err!(DataBaseError::"pin fish", identity, e))?;
+        self.fish__update_batch(&mut conn, &identitys, &FishUpdater::empty())
+            .map_err(|e| err!(DataBaseError::"pin fish", identitys, e))?;
         Ok(())
     }
 
-    fn increase_count(&self, identity: &str) -> YRes<()> {
+    fn increase_count(&self, identitys: Vec<&str>) -> YRes<()> {
         let mut conn = self.get_conn()?;
         conn.transaction::<_, Error, _>(|conn| {
-            self.fish__inc_cnt(conn, identity)?;
-            self.fish__update(conn, identity, &FishUpdater::empty())?;
+            self.fish__inc_cnt_batch(conn, &identitys)?;
+            self.fish__update_batch(conn, &identitys, &FishUpdater::empty())?;
             Ok(())
         }).map_err(|e| err!(DataBaseError::"increase fish count": "execute transaction failed", e))?;
         Ok(())
     }
 
-    fn decrease_count(&self, identity: &str) -> YRes<()> {
+    fn decrease_count(&self, identitys: Vec<&str>) -> YRes<()> {
         let mut conn = self.get_conn()?;
         conn.transaction::<_, Error, _>(|conn| {
-            self.fish__dec_cnt(conn, identity)?;
-            self.fish__update(conn, identity, &FishUpdater::empty())?;
+            self.fish__dec_cnt_batch(conn, &identitys)?;
+            self.fish__update_batch(conn, &identitys, &FishUpdater::empty())?;
             Ok(())
         }).map_err(|e| err!(DataBaseError::"decrease fish count": "execute transaction failed", e))?;
         Ok(())
@@ -422,14 +453,14 @@ impl FishStorage for SqliteStorage {
     }
 
     fn page_fish(
-        &self, fuzzy: Option<String>, identity: Option<Vec<String>>, count: Option<i32>,
-        fish_type: Option<Vec<touchfish_core::FishType>>, desc: Option<String>,
+        &self, fuzzy: Option<String>, identitys: Option<Vec<String>>, count: Option<i32>,
+        fish_types: Option<Vec<touchfish_core::FishType>>, desc: Option<String>,
         tags: Option<Vec<String>>, is_marked: Option<bool>, is_locked: Option<bool>,
         page_num: i32, page_size: i32,
     ) -> YRes<Page<Fish>> {
         let mut conn = self.get_conn()?;
         let mut selecter = FishSelecter::new(
-            fuzzy, identity, count, fish_type, desc, tags, is_marked, is_locked, Some((page_num, page_size),)
+            fuzzy, identitys, count, fish_types, desc, tags, is_marked, is_locked, Some((page_num, page_size),)
         )?;
         let fish_list = self.fish__select(&mut conn, &selecter)
             .map_err(|e| err!(DataBaseError::"page fish", e))?;
@@ -444,13 +475,13 @@ impl FishStorage for SqliteStorage {
     }
     
     fn detect_fish(
-        &self, fuzzy: Option<String>, identity: Option<Vec<String>>, count: Option<i32>,
-        fish_type: Option<Vec<FishType>>, desc: Option<String>, tags: Option<Vec<String>>, 
+        &self, fuzzy: Option<String>, identitys: Option<Vec<String>>, count: Option<i32>,
+        fish_types: Option<Vec<FishType>>, desc: Option<String>, tags: Option<Vec<String>>, 
         is_marked: Option<bool>, is_locked: Option<bool>,
     ) -> YRes<Vec<String>> {
         let mut conn = self.get_conn()?;
         let selecter = FishSelecter::new(
-            fuzzy, identity, count, fish_type, desc, tags, is_marked, is_locked, None,
+            fuzzy, identitys, count, fish_types, desc, tags, is_marked, is_locked, None,
         )?;
         self.fish__select_identity(&mut conn, &selecter).map_err(|e| err!(DataBaseError::"detect fish", e))
     }

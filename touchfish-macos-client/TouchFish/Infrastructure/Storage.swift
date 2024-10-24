@@ -170,14 +170,16 @@ struct Storage {
         }
     }
     
-    static func removeFish(_ identity: String) async {
-        let result = await DataService.expireFish(identity: identity)
+    static func removeFish(_ identitys: [String]) async {
+        let result = await DataService.expireFish(identitys: identitys)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.removeFish - fail: resp is not ok, resp.status=\(resp.status)")
             }
-            fishCache.removeValue(forKey: identity)
+            for identity in identitys {
+                fishCache.removeValue(forKey: identity)
+            }
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -187,14 +189,16 @@ struct Storage {
         }
     }
     
-    static func markFish(_ identity: String) async {
-        let result = await DataService.markFish(identity: identity)
+    static func markFish(_ identitys: [String]) async {
+        let result = await DataService.markFish(identitys: identitys)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.markFish - fail: resp is not ok, resp.status=\(resp.status)")
             }
-            fishCache.removeValue(forKey: identity)
+            for identity in identitys {
+                fishCache.removeValue(forKey: identity)
+            }
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -204,14 +208,16 @@ struct Storage {
         }
     }
     
-    static func unMarkFish(_ identity: String) async {
-        let result = await DataService.unMarkFish(identity: identity)
+    static func unMarkFish(_ identitys: [String]) async {
+        let result = await DataService.unMarkFish(identitys: identitys)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.unMarkFish - fail: resp is not ok, resp.status=\(resp.status)")
             }
-            fishCache.removeValue(forKey: identity)
+            for identity in identitys {
+                fishCache.removeValue(forKey: identity)
+            }
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -221,14 +227,16 @@ struct Storage {
         }
     }
     
-    static func lockFish(_ identity: String) async {
-        let result = await DataService.lockFish(identity: identity)
+    static func lockFish(_ identitys: [String]) async {
+        let result = await DataService.lockFish(identitys: identitys)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.lockFish - fail: resp is not ok, resp.status=\(resp.status)")
             }
-            fishCache.removeValue(forKey: identity)
+            for identity in identitys {
+                fishCache.removeValue(forKey: identity)
+            }
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -238,14 +246,16 @@ struct Storage {
         }
     }
     
-    static func unLockFish(_ identity: String) async {
-        let result = await DataService.unLockFish(identity: identity)
+    static func unLockFish(_ identitys: [String]) async {
+        let result = await DataService.unLockFish(identitys: identitys)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.unLockFish - fail: resp is not ok, resp.status=\(resp.status)")
             }
-            fishCache.removeValue(forKey: identity)
+            for identity in identitys {
+                fishCache.removeValue(forKey: identity)
+            }
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -255,14 +265,16 @@ struct Storage {
         }
     }
     
-    static func pinFish(_ identity: String) async {
-        let result = await DataService.pinFish(identity: identity)
+    static func pinFish(_ identitys: [String]) async {
+        let result = await DataService.pinFish(identitys: identitys)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.pinFish - fail: resp is not ok, resp.status=\(resp.status)")
             }
-            fishCache.removeValue(forKey: identity)
+            for identity in identitys {
+                fishCache.removeValue(forKey: identity)
+            }
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }

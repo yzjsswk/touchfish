@@ -75,14 +75,14 @@ struct FishListItemView: View {
                             UnLockButtonView()
                                 .onTapGesture {
                                     Task {
-                                        await Storage.unLockFish(fish.identity)
+                                        await Storage.unLockFish([fish.identity])
                                     }
                                 }
                         } else {
                             LockButtonView()
                                 .onTapGesture {
                                     Task {
-                                        await Storage.lockFish(fish.identity)
+                                        await Storage.lockFish([fish.identity])
                                     }
                                 }
                             EditButtonView()
@@ -93,21 +93,21 @@ struct FishListItemView: View {
                                 UnMarkButtonView()
                                     .onTapGesture {
                                         Task {
-                                            await Storage.unMarkFish(fish.identity)
+                                            await Storage.unMarkFish([fish.identity])
                                         }
                                     }
                             } else {
                                 MarkButtonView()
                                     .onTapGesture {
                                         Task {
-                                            await Storage.markFish(fish.identity)
+                                            await Storage.markFish([fish.identity])
                                         }
                                     }
                             }
                             DeleteButtonView()
                                 .onTapGesture {
                                     Task {
-                                        await Storage.removeFish(fish.identity)
+                                        await Storage.removeFish([fish.identity])
                                     }
                                 }
                         }
