@@ -2,7 +2,7 @@ import SwiftUI
 
 struct FishListItemView: View {
     
-    @State var fish: Fish
+    @Binding var fish: Fish
     @Binding var selectedFishIdentity: String?
     @Binding var hoveringFishIdentity: String?
     
@@ -11,6 +11,8 @@ struct FishListItemView: View {
     @Binding var multSelectedFishIdentitys: Set<String>
     
     @State var showCopyed: Bool = false
+    
+    @Namespace private var animationNamespace
     
     var isSelected: Bool {
         selectedFishIdentity == fish.identity
@@ -28,18 +30,18 @@ struct FishListItemView: View {
                         Image(systemName: "checkmark.square")
                         .resizable()
                         .scaledToFit()
-                        .foregroundColor(isSelected ? Color.white: Color.black)
+                        .foregroundColor(isSelected ? "27295F".color : Color.black)
                     } else {
                         Image(systemName: "square")
                         .resizable()
                         .scaledToFit()
-                        .foregroundColor(isSelected ? Color.white: Color.black)
+                        .foregroundColor(isSelected ? "27295F".color : Color.black)
                     }
                 } else {
                     fish.fishIcon
                     .resizable()
                     .scaledToFit()
-                    .foregroundColor(isSelected ? Color.white: fish.fishIconColor)
+                    .foregroundColor(isSelected ? "27295F".color : Color.black)
                 }
             }
             .frame(width: Constant.fishItemIconWidth)
@@ -48,19 +50,23 @@ struct FishListItemView: View {
                     if fish.isMarked {
                         Text(fish.linePreview)
                             .font(.title3)
-                            .foregroundColor(isSelected ? Color.white: Color.black)
+                            .foregroundColor(isSelected ? Color.black: "222D59".color)
                     } else {
                         Text(fish.linePreview)
                             .font(.title3)
-                            .foregroundColor(isSelected ? Color.white: Color.gray)
+                            .foregroundColor(isSelected ? "666970".color : Color.gray )
                     }
                     Spacer()
+                    if fish.isLocked && !isHovering {
+                        UnLockButtonView()
+                        .matchedGeometryEffect(id: "unlock_button", in: animationNamespace)
+                    }
                 }
                 if isHovering {
                     HStack(spacing: 3) {
                         Text(fish.identity)
                             .font(.caption)
-                            .foregroundStyle(Functions.makeLinearGradient(colors: ["BBCCFD"]))
+                            .foregroundStyle(.gray)
                             CopyButtonView()
                             .onTapGesture {
                                 if let data = fish.identity.data(using: .utf8) {
@@ -73,122 +79,44 @@ struct FishListItemView: View {
                         // todo: icon move anima when lock
                         if fish.isLocked {
                             UnLockButtonView()
-                                .onTapGesture {
-                                    fish = fish.withLock(isLocked: false)
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                        if self.isHovering {
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                if self.isHovering {
-                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                        Task {
-                                                            await Storage.unLockFish([fish.identity])
-                                                        }
-                                                    }
-                                                } else {
-                                                    Task {
-                                                        await Storage.unLockFish([fish.identity])
-                                                    }
-                                                }
-                                            }
-                                        } else {
-                                            Task {
-                                                await Storage.unLockFish([fish.identity])
-                                            }
-                                        }
-                                    }
-
+                            .matchedGeometryEffect(id: "unlock_button", in: animationNamespace)
+                            .onTapGesture {
+                                Task {
+                                    await Storage.unLockFish([fish.identity])
                                 }
+                            }
                         } else {
                             LockButtonView()
-                                .onTapGesture {
-                                    fish = fish.withLock(isLocked: true)
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                        if self.isHovering {
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                if self.isHovering {
-                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                        Task {
-                                                            await Storage.lockFish([fish.identity])
-                                                        }
-                                                    }
-                                                } else {
-                                                    Task {
-                                                        await Storage.lockFish([fish.identity])
-                                                    }
-                                                }
-                                            }
-                                        } else {
-                                            Task {
-                                                await Storage.lockFish([fish.identity])
-                                            }
-                                        }
-                                    }
-
+                            .onTapGesture {
+                                Task {
+                                    await Storage.lockFish([fish.identity])
                                 }
+                            }
                             EditButtonView()
-                                .onTapGesture {
-                                    isEditing = true
-                                }
+                            .onTapGesture {
+                                isEditing = true
+                            }
                             if fish.isMarked {
                                 UnMarkButtonView()
-                                    .onTapGesture {
-                                        fish = fish.withMark(isMarked: false)
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            if self.isHovering {
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                    if self.isHovering {
-                                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                            Task {
-                                                                await Storage.unMarkFish([fish.identity])
-                                                            }
-                                                        }
-                                                    } else {
-                                                        Task {
-                                                            await Storage.unMarkFish([fish.identity])
-                                                        }
-                                                    }
-                                                }
-                                            } else {
-                                                Task {
-                                                    await Storage.unMarkFish([fish.identity])
-                                                }
-                                            }
-                                        }
-
-                                    }
-                            } else {
-                                MarkButtonView()
-                                    .onTapGesture {
-                                        fish = fish.withMark(isMarked: true)
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            if self.isHovering {
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                    if self.isHovering {
-                                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                            Task {
-                                                                await Storage.markFish([fish.identity])
-                                                            }
-                                                        }
-                                                    } else {
-                                                        Task {
-                                                            await Storage.markFish([fish.identity])
-                                                        }
-                                                    }
-                                                }
-                                            } else {
-                                                Task {
-                                                    await Storage.markFish([fish.identity])
-                                                }
-                                            }
-                                        }
-                                    }
-                            }
-                            DeleteButtonView()
                                 .onTapGesture {
                                     Task {
-                                        await Storage.removeFish([fish.identity])
+                                        await Storage.unMarkFish([fish.identity])
                                     }
                                 }
+                            } else {
+                                MarkButtonView()
+                                .onTapGesture {
+                                    Task {
+                                        await Storage.markFish([fish.identity])
+                                    }
+                                }
+                            }
+                            DeleteButtonView()
+                            .onTapGesture {
+                                Task {
+                                    await Storage.removeFish([fish.identity])
+                                }
+                            }
                         }
                     }
                 }
@@ -196,7 +124,7 @@ struct FishListItemView: View {
         }
         .frame(maxWidth: Constant.mainWidth)
         .padding(5)
-        .background(isSelected ? Constant.selectedItemBackgroundColor : Functions.makeLinearGradient(colors: [.clear]))
+        .background(isSelected ? "EEF2FD".color : .clear)
 //        .shadow(color: Color.gray.opacity(0.3), radius: 2, x: 0, y: 2)
         .cornerRadius(5)
         .frame(width: (Constant.mainWidth-30)/2, height: isHovering ? Constant.fishItemHeight+20 : Constant.fishItemHeight)
@@ -239,7 +167,6 @@ struct FishListItemView: View {
             }
             multSelectedFishIdentitys.insert(fish.identity)
         }
-
     }
 }
 
@@ -252,7 +179,7 @@ struct CopyButtonView: View {
             Image(systemName: isHovered ? "list.clipboard.fill" : "list.clipboard")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.white)
+                .foregroundColor("27295F".color)
                 .frame(width: isHovered ? 20 : 18, height: isHovered ? 20 : 18)
         }
         .frame(width: 20, height: 20)
@@ -273,7 +200,7 @@ struct EditButtonView: View {
             Image(systemName: "square.and.pencil")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(.white)
+                .foregroundColor("27295F".color)
                 .frame(width: isHovered ? 20 : 18, height: isHovered ? 20 : 18)
         }
         .frame(width: 20, height: 20)
@@ -295,7 +222,7 @@ struct LockButtonView: View {
             Image(systemName: isHovered ? "lock.fill" : "lock")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.white)
+                .foregroundColor("27295F".color)
                 .frame(width: isHovered ? 25 : 23, height: isHovered ? 20 : 18)
         }
         .frame(width: 25, height: 20)
@@ -316,7 +243,7 @@ struct UnLockButtonView: View {
             Image(systemName: "lock.fill")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.white.opacity(isHovered ? 0.5 : 1.0))
+                .foregroundColor("27295F".color.opacity(isHovered ? 0.5 : 1.0))
                 .frame(width: isHovered ? 25 : 23, height: isHovered ? 20 : 18)
         }
         .frame(width: 25, height: 20)
@@ -337,7 +264,7 @@ struct MarkButtonView: View {
             Image(systemName: isHovered ? "bookmark.fill" : "bookmark")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.white)
+                .foregroundColor("27295F".color)
                 .frame(width: isHovered ? 20 : 18, height: isHovered ? 20 : 18)
         }
         .frame(width: 20, height: 20)
@@ -359,7 +286,7 @@ struct UnMarkButtonView: View {
             Image(systemName: "bookmark.fill")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.white.opacity(isHovered ? 0.5 : 1.0))
+                .foregroundColor("27295F".color.opacity(isHovered ? 0.5 : 1.0))
                 .frame(width: isHovered ? 20 : 18, height: isHovered ? 20 : 18)
         }
         .frame(width: 20, height: 20)
@@ -381,7 +308,7 @@ struct DeleteButtonView: View {
             Image(systemName: isHovered ? "trash.fill" : "trash")
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(.white)
+                .foregroundStyle("27295F".color)
                 .frame(width: isHovered ? 20 : 18, height: isHovered ? 20 : 18)
         }
         .frame(width: 20, height: 20)

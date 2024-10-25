@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftUICharts
 
 struct StatsView: View {
     

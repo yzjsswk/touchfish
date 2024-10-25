@@ -35,11 +35,6 @@ class CommandFieldViewController: NSViewController, NSTextFieldDelegate {
 
     var textField: NSTextField!
     
-    lazy var textColor: NSColor = {
-        let color = Color.black
-        return NSColor(color)
-    }()
-    
     override func loadView() {
         textField = NSTextField()
         textField.cell = NSTextFieldCell()
@@ -49,7 +44,7 @@ class CommandFieldViewController: NSViewController, NSTextFieldDelegate {
         textField.delegate = self
         textField.stringValue = text
         textField.backgroundColor = .white
-        textField.textColor = textColor
+        textField.textColor = Constant.mainTextColor.nsColor
         textField.font = NSFont(name: "Menlo", size: 22)
         textField.isBordered = false
         textField.focusRingType = .none

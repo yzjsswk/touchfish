@@ -2,7 +2,7 @@ import SwiftUI
 
 struct FishListView: View {
     
-    var fishList: [Fish]
+    @Binding var fishList: [Fish]
     @Binding var selectedFishIdentity: String?
     @State var hoveringFishIdentity: String?
     @State var lastHoverTs: TimeInterval = Date().timeIntervalSince1970
@@ -19,7 +19,7 @@ struct FishListView: View {
                 VStack {
                     ForEach(Array(fishList.enumerated()), id: \.1.identity) { (idx, fish) in
                         FishListItemView(
-                            fish: fish,
+                            fish: $fishList[idx],
                             selectedFishIdentity: $selectedFishIdentity,
                             hoveringFishIdentity: $hoveringFishIdentity,
                             isEditing: $isEditing,

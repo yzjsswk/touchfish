@@ -157,17 +157,6 @@ class Fish {
         }
     }
     
-    var fishIconColor: Color {
-        switch self.fishType {
-        case .Text:
-            return .black
-        case .Image:
-            return .blue
-        default:
-            return .black
-        }
-    }
-    
     func copyToClipboard() {
         Functions.copyDataToClipboard(data: self.fishData, type: self.fishType)
     }

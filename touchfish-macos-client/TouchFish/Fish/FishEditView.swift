@@ -7,7 +7,7 @@ struct FishEditView: View {
     var identity: String
     
     @State var description: String
-    @State var tags: [String]
+    @State var tags: [String:Bool]
     
     @State var showSaveAlert = false
     @State var alertMessage = ""
@@ -28,7 +28,7 @@ struct FishEditView: View {
                 SaveButtonView()
                     .onTapGesture {
                         Task {
-                            let ok = await Storage.modifyFish(identity, description: description, tags: tags)
+                            let ok = await Storage.modifyFish(identity, description: description, tags: tags.filter({ $0.value }).map({$0.key}))
                             if ok {
                                 isEditing = false
                                 NotificationCenter.default.post(name: .CommandBarShouldFocus, object: nil, userInfo: nil)
@@ -49,28 +49,39 @@ struct FishEditView: View {
             Divider().background(Color.gray.opacity(0.2))
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
-                    HStack(spacing: 12) {
-                        Text("Tag")
-                            .font(.title2)
-                            .bold()
-                        ForEach(tags, id: \.self) { tg in
-                            TagView(label: tg, tags: $tags)
+                    VStack(alignment: .leading) {
+                        HStack(spacing: 12) {
+                            Text("Tag")
+                                .font(.title2)
+                            TagAddView(tags: $tags)
+                                .offset(y: 1)
                         }
-                        .offset(y: 1)
-                        TagEditView(tags: $tags)
-                        .offset(y: 1)
+                        .padding(.vertical, 5)
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill("EEF2FD".color)
+                                .frame(height: 40)
+                            // TODO: tag view change line
+                            HStack(spacing: 12) {
+                                ForEach(Array(tags.keys.sorted()), id: \.self) { tg in
+                                    TagView(label: tg, tags: $tags)
+                                }
+                                Spacer()
+                            }
+                            .padding(.horizontal)
+                        }
                     }
-                    .padding(.top)
                     Text("Description")
                         .font(.title2)
-                        .bold()
                     ZStack {
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke("A1A9C6".color, lineWidth: 3)
                         VStack {
                             Spacer()
                             TextEditor(text: $description)
                                 .font(.custom("Menlo", size: 16))
                             Spacer()
-                        }
+                        }.padding(.horizontal, 5)
                     }
                     .background(Color.white)
                     .cornerRadius(5)
@@ -79,6 +90,17 @@ struct FishEditView: View {
                 }
             }
             .padding()
+        }
+        .onAppear {
+            Task {
+                if let stats = await Storage.countFish() {
+                    for tg in stats.tagCount.keys {
+                        if !tg.isEmpty && !tags.keys.contains(tg) {
+                            tags[tg] = false
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -119,41 +141,31 @@ struct SaveButtonView: View {
 struct TagView: View {
     
     var label: String
-    
-    @State private var isHovered = false
-    
-    @Binding var tags: [String]
+    @Binding var tags: [String:Bool]
     
     var body: some View {
         Text(label)
             .frame(minWidth: 40)
             .background(
                 GeometryReader { geometry in
-                    Rectangle()
-                        .cornerRadius(8)
-                        .foregroundStyle(Constant.tagBackgroundColor)
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke("A1A9C6".color, lineWidth: tags[label, default: false] ? 0 : 1)
+                        .fill(
+                            tags[label, default: false] ? "5B5BCF".color : Color.clear
+                        )
                         .frame(width: geometry.size.width+5, height: geometry.size.height+8)
                         .offset(x: -2.5, y: -4)
                 }
             )
-            .foregroundStyle(Functions.makeLinearGradient(colors: ["444444"]))
-            .opacity(isHovered ? 0.5 : 1.0)
-            .offset(y: isHovered ? 5 : 0)
-            .onHover { isHovered in
-                withAnimation {
-                    self.isHovered = isHovered
-                }
-            }
+            .foregroundStyle(tags[label, default: false] ? Color.white : "222D59".color)
             .onTapGesture {
-                withAnimation {
-                    tags.removeAll(where: { $0 == label } )
-                }
+                tags[label]?.toggle()
             }
     }
     
 }
 
-struct TagEditView: View {
+struct TagAddView: View {
     
     @State private var isOpening = false
     
@@ -161,11 +173,9 @@ struct TagEditView: View {
     @State private var isHovered2 = false
     @State private var isHovered3 = false
     
-    @State private var tagSearchText = ""
-    @State private var isShowTagPreview = false
-    @State private var tagPreviewList: [String] = []
+    @State private var tag = ""
     
-    @Binding var tags: [String]
+    @Binding var tags: [String:Bool]
     
     var body: some View {
         
@@ -173,7 +183,7 @@ struct TagEditView: View {
             Image(systemName: "plus.circle")
             .resizable()
             .frame(width: 20, height: 20)
-            .foregroundStyle(isHovered1 ? Constant.selectedItemBackgroundColor : Functions.makeLinearGradient(colors: [.gray]))
+            .foregroundStyle(isHovered1 ? "27295F".color : .gray)
             .onHover { isHovered in
                 self.isHovered1 = isHovered
             }
@@ -182,77 +192,37 @@ struct TagEditView: View {
             }
         } else {
             HStack {
-                TextField("Search", text: $tagSearchText)
+                TextField("", text: $tag)
                 .frame(width: 100, height: 20)
-                .onChange(of: tagSearchText) {
-                    let allTags: [String] = []
-                    tagPreviewList = allTags.filter { tg in
-                        return tg.lowercased().contains(tagSearchText.lowercased())
-                    }
-                    isShowTagPreview = !tagPreviewList.isEmpty
-                }
-                .popover(isPresented: $isShowTagPreview, arrowEdge: .bottom) {
-                    VStack {
-                        ForEach(tagPreviewList, id: \.self) { item in
-                            TagPreviewView(label: item, tagSearchText: $tagSearchText)
-                        }
-                    }
-                }
-                Image(systemName: "checkmark.circle.fill")
+                Image(systemName: "checkmark.circle")
                 .resizable()
                 .frame(width: 20, height: 20)
-                .foregroundColor(isHovered2 ? .green : .gray)
+                .foregroundColor(isHovered2 ? "27295F".color : .gray)
                 .onHover { isHovered in
                     self.isHovered2 = isHovered
                 }
                 .onTapGesture {
-                    if !tags.contains(tagSearchText) {
+                    if !tags.keys.contains(tag) {
                         withAnimation {
-                            tags.append(tagSearchText)
+                            tags[tag] = true
                         }
                     }
                     isOpening = false
-                    tagSearchText = ""
-                    tagPreviewList = []
+                    tag = ""
                 }
-                Image(systemName: "xmark.circle.fill")
+                Image(systemName: "xmark.circle")
                 .resizable()
                 .frame(width: 20, height: 20)
-                .foregroundColor(isHovered3 ? .red : .gray)
+                .foregroundColor(isHovered3 ? "27295F".color : .gray)
                 .onHover { isHovered in
                     self.isHovered3 = isHovered
                 }
                 .onTapGesture {
                     isOpening = false
-                    tagSearchText = ""
-                    tagPreviewList = []
+                    tag = ""
                 }
             }
         }
     }
 
 }
-
-struct TagPreviewView: View {
-    
-    var label: String
-    
-    @State private var isHovered = false
-    
-    @Binding var tagSearchText: String
-    
-    var body: some View {
-        Text(label)
-            .padding()
-            .foregroundColor(isHovered ? .black : .gray)
-//            .font(isHovered ? .custom("Menlo", size: 12) : .custom("Menlo", size: 10))
-            .onHover { isHovered in
-                self.isHovered = isHovered
-            }
-            .onTapGesture {
-                tagSearchText = label
-            }
-    }
-    
-}
-

@@ -151,17 +151,17 @@ struct AddInfoView: View {
                 .pickerStyle(.menu)
             }
             
-            HStack(spacing: 12) {
-                Text("Tag")
-                    .font(.title2)
-                    .bold()
-                ForEach(addInfo.tags, id: \.self) { tg in
-                    TagView(label: tg, tags: $addInfo.tags)
-                }
-                .offset(y: 1)
-                TagEditView(tags: $addInfo.tags)
-                .offset(y: 1)
-            }
+//            HStack(spacing: 12) {
+//                Text("Tag")
+//                    .font(.title2)
+//                    .bold()
+//                ForEach(addInfo.tags, id: \.self) { tg in
+//                    TagView(label: tg, tags: $tags)
+//                }
+//                .offset(y: 1)
+//                TagEditView(tags: $addInfo.tags)
+//                .offset(y: 1)
+//            }
             
             Text("Description")
                 .font(.title2)

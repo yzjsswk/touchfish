@@ -14,7 +14,7 @@ struct RecipeItemView: View {
                 recipe.icon
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(isSelected ? Color.white: Color.black)
+                .foregroundColor(isSelected ? Constant.mainTextColor.color: Constant.mainTextColor.color)
             }
             .frame(width: Constant.recipeItemHeight)
             .padding(.leading, 2.5)
@@ -22,18 +22,18 @@ struct RecipeItemView: View {
                 HStack {
                     Text(recipe.name)
                         .font(.title3)
-                        .foregroundColor(isSelected ? Color.white: Color.black)
+                        .foregroundColor(isSelected ? Constant.mainTextColor.color: Constant.mainTextColor.color)
                     if let command = recipe.command {
                         Text(command)
                             .font(.footnote)
                             .fontWeight(.bold)
-                            .foregroundColor(isSelected ? Color.white: Color.black)
+                            .foregroundColor(isSelected ? Constant.mainTextColor.color: Constant.mainTextColor.color)
                     }
                 }
                 if let desc = recipe.description, isSelected {
                     Text(desc)
                         .font(.caption)
-                        .foregroundStyle(Functions.makeLinearGradient(colors: ["BBCCFD"]))
+                        .foregroundStyle(.gray)
                 }
             }
             Spacer()
@@ -51,7 +51,7 @@ struct RecipeItemView: View {
         }
         .padding(5)
         .frame(width: Constant.mainWidth-30, height: isSelected ? Constant.recipeItemSelectedHeight : Constant.recipeItemHeight)
-        .background(isSelected ? Constant.selectedItemBackgroundColor : Functions.makeLinearGradient(colors: [Color.clear]))
+        .background(isSelected ? "F0F0F3".color : Color.clear)
 //        .saturation(1.0)
         .cornerRadius(10)
         .onHover { isHovered in

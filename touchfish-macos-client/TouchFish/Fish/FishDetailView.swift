@@ -40,21 +40,11 @@ struct FishDetailView: View {
                 RoundedRectangle(cornerRadius: 10)
                 .fill(Constant.commandBarBackgroundColor)
                 .frame(height: showDetailWithAnima ? Constant.mainHeight*0.3 : 0)
-                VStack {
-                    DownArrowView()
-                    .offset(y: showDetailWithAnima ? 15 : Constant.mainHeight*0.6)
-                    .onTapGesture {
-                        withAnimation {
-                            showDetailWithAnima = false
-                        }
-                        showDetail = false
-                    }
-                    VStack {
-                        if let selectedFish = self.selectedFish {
-                            DetailExtraInfoView(fish: selectedFish)
-                        }
-                    }
+                if let selectedFish = self.selectedFish {
+                    DetailExtraInfoView(fish: selectedFish)
                     .frame(height: showDetailWithAnima ? Constant.mainHeight*0.3 : 0)
+                    .padding(.top, 8)
+                    .padding(.horizontal, 5)
                 }
                 if !showDetail {
                     UpArrowView()
@@ -70,6 +60,10 @@ struct FishDetailView: View {
         }
         .onTapGesture {
             withAnimation {
+                showDetailWithAnima = false
+            }
+            showDetail = false
+            withAnimation {
                 isMultSelecting = false
             }
             multSelectedFishIdentitys.removeAll()
@@ -84,24 +78,18 @@ struct DetailTagView: View {
         
         var label: String
         
-        @State var isHovered: Bool = false
-        
         var body: some View {
             Text(label)
             .frame(minWidth: 40)
             .background(
                 GeometryReader { geometry in
-                    Rectangle()
-                        .cornerRadius(8)
-                        .foregroundStyle(isHovered ? Constant.selectedItemBackgroundColor : Constant.tagBackgroundColor)
+                    RoundedRectangle(cornerRadius: 5)
+                        .fill("5B5BCF".color)
                         .frame(width: geometry.size.width+5, height: geometry.size.height+8)
                         .offset(x: -2.5, y: -4)
                 }
             )
-            .foregroundStyle(isHovered ? Functions.makeLinearGradient(colors: [.white]) : Functions.makeLinearGradient(colors: ["444444"]))
-            .onHover { isHovered in
-                self.isHovered = isHovered
-            }
+            .foregroundStyle(.white)
         }
     }
     
@@ -190,6 +178,7 @@ struct DetailExtraInfoView: View {
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading) {
+                Spacer()
                 DetailItemView(itemName: "Type", itemValue: fish.fishType.rawValue)
                 DetailItemView(itemName: "Repeats Number", itemValue: fish.count)
                 DetailItemView(itemName: "Source Application", itemValue: fish.extraInfo.sourceAppName)
@@ -209,8 +198,8 @@ struct DetailExtraInfoView: View {
                 }
                 DetailItemView(itemName: "Create Time", itemValue: fish.createTime)
                 DetailItemView(itemName: "Update Time", itemValue: fish.updateTime)
+                Spacer()
             }
-            .padding(5)
         }
     }
     
@@ -238,9 +227,11 @@ struct DetailItemView: View {
             HStack {
                 Text(itemName)
                     .font(.system(.caption2, design: .monospaced))
+                    .foregroundStyle(.black)
                     .bold()
                 Spacer()
                 Text(itemValue)
+                    .foregroundStyle(.black)
                     .font(.system(.body, design: .monospaced))
             }
             .frame(height: Constant.fishDetailItemHeight)
@@ -265,39 +256,10 @@ struct UpArrowView: View {
 
     var body: some View {
         ArrowShap()
-            .stroke(.gray, lineWidth: 2)
+            .stroke("27295F".color.opacity(isHovered ? 1 : 0.5), lineWidth: 2)
             .frame(width: Constant.mainWidth*0.15, height: 10)
             .background(Color.gray.opacity(0.01))
             .offset(y: isHovered ? 0 : 5)
-            .onHover { isHovered in
-                withAnimation {
-                    self.isHovered = isHovered
-                }
-            }
-    }
-    
-}
-
-struct DownArrowView: View {
-    
-    @State var isHovered: Bool = false
-    
-    struct ArrowShap: Shape {
-        func path(in rect: CGRect) -> Path {
-            var path = Path()
-            path.move(to: CGPoint(x: rect.minX, y: rect.minY))
-            path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
-            path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
-            return path
-        }
-    }
-
-    var body: some View {
-        ArrowShap()
-            .stroke(.gray, lineWidth: 2)
-            .frame(width: Constant.mainWidth*0.15, height: 10)
-            .background(Color.gray.opacity(0.01))
-            .offset(y: isHovered ? 0 : -5)
             .onHover { isHovered in
                 withAnimation {
                     self.isHovered = isHovered

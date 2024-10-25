@@ -50,6 +50,10 @@ struct MainView: View {
                 .shadow(radius: 5)
         )
         .onAppear {
+            Task {
+                let fishs = await Storage.searchFish()
+                NotificationCenter.default.post(name: .FishRefreshed, object: nil, userInfo: ["fish":fishs])
+            }
             withAnimation {
                 RecipeManager.refresh()
                 recipeList = RecipeManager.orderedRecipeList

@@ -18,22 +18,20 @@ struct Constant {
     static let fishDetailItemHeight: CGFloat = 10
     static let messageItemHeight: CGFloat = 60
     
-    static let commandBarBackgroundColor = Functions.makeLinearGradient(colors: ["D8E0FE", "EBEDFE"])
+//    static let commandBarBackgroundColor = Functions.makeLinearGradient(colors: ["D8E0FE", "EBEDFE"])
+    static let commandBarBackgroundColor = Functions.makeLinearGradient(colors: ["F0F1FD"])
     static let tagBackgroundColor = Functions.makeLinearGradient(colors: ["C5D2FA", "CACEFB"])
-    static let mainBackgroundColor = Functions.makeLinearGradient(colors: ["FCFCFF"])
-//    static let commandBarBackgroundColor = Functions.makeLinearGradient(colors: [Color.white])
-    static let selectedItemBackgroundColor = Functions.makeLinearGradient(colors: ["5E71F9", "6077F7", "6A9EF8"])
-//    static let selectedItemBackgroundColor = Functions.makeLinearGradient(colors: [.blue, .purple])
-    //    static let mainBackgroundColor: String = "ECEEF1"
-//    static let commandBarBackgroundColor: String = "D8D8DB"
-//    static let selectedItemBackgroundColor: String = "502A70"
-//    static let commandFieldBackgroundColor = Functions.makeLinearGradient(colors: ["282A36"])
+    static let mainBackgroundColor = Functions.makeLinearGradient(colors: ["#FDFDFD"])
+//    static let selectedItemBackgroundColor = Functions.makeLinearGradient(colors: ["5E71F9", "6077F7", "6A9EF8"])
+    static let selectedItemBackgroundColor = Functions.makeLinearGradient(colors: ["5B5BCF"])
+//        static let selectedItemBackgroundColor = Functions.makeLinearGradient(colors: ["F0F0F3"])
     static let internalRecipeItemColor = Functions.makeLinearGradient(colors: ["D8D8DB"])
     static let userDefinedRecipeDefaultIemColor = Functions.makeLinearGradient(colors: ["D8D8DB"])
     static let errorMessageColor = Functions.makeLinearGradient(colors: ["DA5448"])
     static let unreadMessageTipColor = Functions.makeLinearGradient(colors: ["E2503F"])
+    static let mainTextColor = "1D2024"
     
-    static let maxDataSizeAddFish = 1024 * 1024 * 1024 // 1GB
+    static let maxDataSizeAddFish = 1024 * 1024 * 10 // 10MB
     
 }
 
@@ -258,26 +256,6 @@ struct Functions {
 }
 
 extension String {
-
-    subscript(idx: Int) -> String {
-        String(self[index(startIndex, offsetBy: idx)])
-    }
-    
-    public func firstCharacterCapitalized() -> String {
-        let capitalizedFirstCharacter = self.first!.uppercased()
-        let stringWithoutFirstCharacter = self.dropFirst()
-        
-        return capitalizedFirstCharacter + stringWithoutFirstCharacter
-    }
-    
-    func splitOnce(separator: Character) -> (String, String)? {
-        if let index = self.firstIndex(of: separator) {
-            let before = self[..<index]
-            let after = self[self.index(after: index)...]
-            return (String(before), String(after))
-        }
-        return nil
-    }
     
     var nsColor: NSColor {
         let hexString = self.replacingOccurrences(of: "#", with: "").replacingOccurrences(of: "0x", with: "")

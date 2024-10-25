@@ -3,8 +3,9 @@ import SwiftUI
 struct FishRepositoryView: View {
     
     @State var fishs: [String:Fish] = [:]
-    @State var selectedFishIdentity: String?
+    @State var fishList: [Fish] = []
     
+    @State var selectedFishIdentity: String?
     @State var isEditing: Bool = false
     @State var isMultSelecting: Bool = false
     @State var multSelectedFishIdentitys: Set<String> = []
@@ -54,7 +55,7 @@ struct FishRepositoryView: View {
                     isEditing: $isEditing,
                     identity: editingFish.identity,
                     description: editingFish.description,
-                    tags: editingFish.tags
+                    tags: Dictionary(uniqueKeysWithValues: editingFish.tags.map { ($0, true) })
                 )
                 .frame(width: Constant.mainWidth-30)
             } else {
@@ -62,14 +63,14 @@ struct FishRepositoryView: View {
                     if isMultSelecting {
                         ZStack {
                             RoundedRectangle(cornerRadius: 10)
-                                .fill(Constant.selectedItemBackgroundColor)
+                                .fill("C6C7F4".color)
                             HStack(spacing: 3) {
                                 if isAllMultSelected {
                                     HStack {
                                         Image(systemName: "checkmark.square")
                                             .resizable()
                                             .scaledToFit()
-                                            .foregroundStyle(.white)
+                                            .foregroundStyle("27295F".color)
                                             .onTapGesture {
                                                 multSelectedFishIdentitys.removeAll()
                                             }
@@ -80,7 +81,7 @@ struct FishRepositoryView: View {
                                         Image(systemName: "square")
                                             .resizable()
                                             .scaledToFit()
-                                            .foregroundStyle(.white)
+                                            .foregroundStyle("27295F".color)
                                             .onTapGesture {
                                                 for identity in fishs.keys {
                                                     multSelectedFishIdentitys.insert(identity)
@@ -135,20 +136,7 @@ struct FishRepositoryView: View {
                         .frame(height: 40)
                     }
                     FishListView(
-                        fishList: fishs.values.sorted(by: {
-                            if sortField.lowercased() == "create" {
-                                return $0.createTime == $1.createTime ? $0.identity > $1.identity : $0.createTime > $1.createTime
-                            }
-                            if sortField.lowercased() == "type" {
-                                return $0.fishType == $1.fishType ? $0.identity > $1.identity : $0.fishType.rawValue > $1.fishType.rawValue
-                            }
-                            if sortField.lowercased() == "size" {
-                                let size0 = $0.dataInfo.byteCount ?? -1
-                                let size1 = $1.dataInfo.byteCount ?? -1
-                                return size0 == $1.dataInfo.byteCount ? $0.identity > $1.identity : size0 > size1
-                            }
-                            return $0.updateTime == $1.updateTime ? $0.identity > $1.identity : $0.updateTime > $1.updateTime
-                        }),
+                        fishList: $fishList,
                         selectedFishIdentity: $selectedFishIdentity,
                         isEditing: $isEditing,
                         isMultSelecting: $isMultSelecting,
@@ -169,7 +157,6 @@ struct FishRepositoryView: View {
         .padding(.horizontal, 5)
         .onAppear {
             isEditing = false
-            // TODO: appear animation
             NotificationCenter.default.post(name: .CommandBarShouldFocus, object: nil, userInfo: nil)
             NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
         }
@@ -184,8 +171,23 @@ struct FishRepositoryView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .FishRefreshed)) { notification in
             if let fish = notification.userInfo?["fish"] as? [String:Fish] {
+                let fishList = fish.values.sorted(by: {
+                    if sortField.lowercased() == "create" {
+                        return $0.createTime == $1.createTime ? $0.identity > $1.identity : $0.createTime > $1.createTime
+                    }
+                    if sortField.lowercased() == "type" {
+                        return $0.fishType == $1.fishType ? $0.identity > $1.identity : $0.fishType.rawValue > $1.fishType.rawValue
+                    }
+                    if sortField.lowercased() == "size" {
+                        let size0 = $0.dataInfo.byteCount ?? -1
+                        let size1 = $1.dataInfo.byteCount ?? -1
+                        return size0 == $1.dataInfo.byteCount ? $0.identity > $1.identity : size0 > size1
+                    }
+                    return $0.updateTime == $1.updateTime ? $0.identity > $1.identity : $0.updateTime > $1.updateTime
+                })
                 if self.fishs.isEmpty || fish.isEmpty {
                     self.fishs = fish
+                    self.fishList = fishList
                     fishItemPosOffset = -1
                     withAnimation(.easeOut(duration: 0.4)) {
                         fishItemPosOffset = 0
@@ -193,6 +195,7 @@ struct FishRepositoryView: View {
                 } else {
                     withAnimation(.spring(duration: 0.4)) {
                         self.fishs = fish
+                        self.fishList = fishList
                     }
                 }
             }
@@ -262,7 +265,7 @@ struct MultLockButtonView: View {
             Image(systemName: isHovered ? "lock.fill" : "lock")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.white)
+                .foregroundColor("27295F".color)
                 .frame(width: isHovered ? 28 : 26, height: isHovered ? 23 : 21)
         }
         .frame(width: 28, height: 23)
@@ -283,7 +286,7 @@ struct MultUnLockButtonView: View {
             Image(systemName: "lock.fill")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.white.opacity(isHovered ? 0.5 : 1.0))
+                .foregroundColor("27295F".color.opacity(isHovered ? 0.5 : 1.0))
                 .frame(width: isHovered ? 28 : 26, height: isHovered ? 23 : 21)
         }
         .frame(width: 28, height: 23)
@@ -304,7 +307,7 @@ struct MultMarkButtonView: View {
             Image(systemName: isHovered ? "bookmark.fill" : "bookmark")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.white)
+                .foregroundColor("27295F".color)
                 .frame(width: isHovered ? 23 : 21, height: isHovered ? 23 : 21)
         }
         .frame(width: 23, height: 23)
@@ -326,7 +329,7 @@ struct MultUnMarkButtonView: View {
             Image(systemName: "bookmark.fill")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(Color.white.opacity(isHovered ? 0.5 : 1.0))
+                .foregroundColor("27295F".color.opacity(isHovered ? 0.5 : 1.0))
                 .frame(width: isHovered ? 23 : 21, height: isHovered ? 23 : 21)
         }
         .frame(width: 23, height: 23)
@@ -348,7 +351,7 @@ struct MultDeleteButtonView: View {
             Image(systemName: isHovered ? "trash.fill" : "trash")
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(.white)
+                .foregroundStyle("27295F".color)
                 .frame(width: isHovered ? 23 : 21, height: isHovered ? 23 : 21)
         }
         .frame(width: 23, height: 23)
