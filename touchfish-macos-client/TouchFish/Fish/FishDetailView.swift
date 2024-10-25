@@ -56,9 +56,9 @@ struct FishDetailView: View {
                     }
                 }
             }
-            
         }
         .onTapGesture {
+            // TODO: when there is no fish, click not take effect
             withAnimation {
                 showDetailWithAnima = false
             }

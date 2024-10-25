@@ -15,36 +15,11 @@ struct FishEditView: View {
     var body: some View {
         VStack {
             HStack {
-                BackButtonView()
-                    .onTapGesture {
-                        isEditing = false
-                        NotificationCenter.default.post(name: .CommandBarShouldFocus, object: nil, userInfo: nil)
-                    }
                 Spacer()
                 Text("Editing of \(identity)")
                     .font(.caption)
                     .foregroundColor(.gray)
                 Spacer()
-                SaveButtonView()
-                    .onTapGesture {
-                        Task {
-                            let ok = await Storage.modifyFish(identity, description: description, tags: tags.filter({ $0.value }).map({$0.key}))
-                            if ok {
-                                isEditing = false
-                                NotificationCenter.default.post(name: .CommandBarShouldFocus, object: nil, userInfo: nil)
-                            } else {
-                                showSaveAlert = true
-                                alertMessage = "save failed"
-                            }
-                        }
-                    }
-                    .alert(isPresented: $showSaveAlert) {
-                        Alert(
-                            title: Text("Modify Fish"),
-                            message: Text(alertMessage),
-                            dismissButton: .default(Text("Ok"))
-                        )
-                    }
             }
             Divider().background(Color.gray.opacity(0.2))
             ScrollView(showsIndicators: false) {
@@ -86,8 +61,39 @@ struct FishEditView: View {
                     .background(Color.white)
                     .cornerRadius(5)
                     .frame(height: Constant.mainWidth*0.3)
-                    
                 }
+            }
+            .padding()
+            HStack(spacing: 200) {
+                Spacer()
+                ButtonView(label: "Cancel")
+                .frame(width: 80, height: 40)
+                .onTapGesture {
+                    isEditing = false
+                    NotificationCenter.default.post(name: .CommandBarShouldFocus, object: nil, userInfo: nil)
+                }
+                ButtonView(label: "Apply")
+                .frame(width: 80, height: 40)
+                .onTapGesture {
+                    Task {
+                        let ok = await Storage.modifyFish(identity, description: description, tags: tags.filter({ $0.value }).map({$0.key}))
+                        if ok {
+                            isEditing = false
+                            NotificationCenter.default.post(name: .CommandBarShouldFocus, object: nil, userInfo: nil)
+                        } else {
+                            showSaveAlert = true
+                            alertMessage = "Save failed."
+                        }
+                    }
+                }
+                .alert(isPresented: $showSaveAlert) {
+                    Alert(
+                        title: Text("Modify Fish"),
+                        message: Text(alertMessage),
+                        dismissButton: .default(Text("Ok"))
+                    )
+                }
+                Spacer()
             }
             .padding()
         }
@@ -106,31 +112,22 @@ struct FishEditView: View {
     
 }
 
-struct BackButtonView: View {
-    
-    @State private var isHovered = false
-    
-    var body: some View {
-        Image(systemName: "arrow.backward.square")
-        .resizable()
-        .frame(width: 25, height: 25)
-        .foregroundColor(isHovered ? .yellow : .gray)
-        .onHover { isHovered in
-            self.isHovered = isHovered
-        }
-    }
-    
-}
+struct ButtonView: View {
 
-struct SaveButtonView: View {
+    var label: String
     
-    @State private var isHovered = false
+    @State var isHovered: Bool = false
     
     var body: some View {
-        Image(systemName: "checkmark.square.fill")
-        .resizable()
-        .frame(width: 25, height: 25)
-        .foregroundColor(isHovered ? .green : .gray)
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(isHovered ? "B8B9F4".color : "D6D6F9".color, lineWidth: 2)
+                .fill(isHovered ? "F8F8FE".color : .white)
+            Text(label)
+                .font(.title3)
+                .foregroundStyle(isHovered ? "27295F".color : "4C4C4C".color)
+                .padding(3)
+        }
         .onHover { isHovered in
             self.isHovered = isHovered
         }
@@ -178,7 +175,6 @@ struct TagAddView: View {
     @Binding var tags: [String:Bool]
     
     var body: some View {
-        
         if !isOpening {
             Image(systemName: "plus.circle")
             .resizable()
@@ -224,5 +220,4 @@ struct TagAddView: View {
             }
         }
     }
-
 }

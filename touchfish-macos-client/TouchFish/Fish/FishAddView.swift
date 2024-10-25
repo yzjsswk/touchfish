@@ -11,19 +11,23 @@ struct FishAddView: View {
                 Picker("", selection: $selectedFile) {
                     let urls = Array(toAddFiles.keys).sorted {$0.path < $1.path}
                     ForEach(urls, id: \.self) { url in
-                        Text(url.lastPathComponent)
+                        Text(url.lastPathComponent + "\((toAddFiles[url]?.exists ?? false) ? " (Exists)" : "")")
                     }
                 }
                 .pickerStyle(.segmented)
             }
+            .padding(.horizontal, 5)
             if let addInfo = toAddFiles[selectedFile] {
                 ScrollView(showsIndicators: false) {
                     AddInfoView(selectedFile: selectedFile, addInfo: addInfo)
                 }
-                .padding()
+                .padding(.horizontal)
+                .padding(.vertical, 5)
                 HStack {
                     Spacer()
-                    AddButtonView(addFileCount: toAddFiles.count) {
+                    ButtonView(label: "Add \(toAddFiles.count) File\(toAddFiles.count == 1 ? "":"s")")
+                    .frame(width: 150, height: 40)
+                    .onTapGesture {
                         for (url, info) in toAddFiles {
                             if let data = FileManager.default.contents(atPath: url.path) {
                                 if let type = Fish.FishType(rawValue: info.selectedType) {
@@ -32,7 +36,7 @@ struct FishAddView: View {
                                             type,
                                             data,
                                             description: info.description,
-                                            tags: info.tags,
+                                            tags: info.tags.filter({ $0.value }).map({$0.key}),
                                             isMarked: true,
                                             extraInfo: Fish.ExtraInfo(sourceAppName: "TouchFish")
                                         )
@@ -68,29 +72,45 @@ struct FishAddView: View {
             if res == .OK && panel.urls.count > 0 {
                 let urls = panel.urls.sorted {$0.path < $1.path}
                 for url in urls {
-                    if let fileSize = Functions.getFileSize(atPath: url.path) {
+                    if let fileSize = Functions.getFileSize(atPath: url.path), let data = FileManager.default.contents(atPath: url.path) {
                         if fileSize > Constant.maxDataSizeAddFish {
                             Log.warning("select file to add fish - skip a file: size out of limited, url=\(url.path), size=\(fileSize), limited=\(Constant.maxDataSizeAddFish)")
                             continue
                         }
                         let addInfo = AddInfo(fileSize: Int(fileSize))
                         let ext = url.pathExtension.lowercased()
-                        switch ext {
-                        case "txt", "json", "cpp", "go", "py":
-                            addInfo.selectedType = "Text"
-                        case "png", "jpg", "jpeg":
+                        if ["png", "jpg", "jpeg", "tiff"].contains(ext) {
                             addInfo.selectedType = "Image"
-                        default:
+                        } else if let _ = String(data: data, encoding: .utf8) {
+                            addInfo.selectedType = "Text"
+                        } else {
                             addInfo.selectedType = "Other"
                         }
                         addInfo.description = url.lastPathComponent
                         toAddFiles[url] = addInfo
+                        Task {
+                            let identity = Functions.getMD5(of: data)
+                            if let fish = await Storage.pickFish(identity: identity) {
+                                toAddFiles[url] = addInfo.withExists()
+                            }
+                        }
                     } else {
-                        Log.error("select file to add fish - skip a file: got size of the file failed, url=\(url.path)")
+                        Log.error("select file to add fish - skip a file: read file data failed, url=\(url.path)")
                         continue
                     }
                 }
                 selectedFile = urls[0]
+                Task {
+                    if let stats = await Storage.countFish() {
+                        for tg in stats.tagCount.keys {
+                            for addInfo in toAddFiles.values {
+                                if !tg.isEmpty && !addInfo.tags.keys.contains(tg) {
+                                    addInfo.tags[tg] = false
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 RecipeManager.goToRecipe(recipeId: nil)
             }
@@ -129,19 +149,20 @@ struct AddInfoView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            
-            HStack(spacing: 10) {
+            HStack(spacing: 20) {
                 Text("Data")
                     .font(.title2)
-                    .bold()
                 Text("\(selectedFile.path) (\(Functions.descByteCount(addInfo.fileSize)))")
                     .font(.title3)
+//                if addInfo.exists {
+//                    Text("(Data Exists)")
+//                    .font(.title3)
+//                    .foregroundStyle(.red)
+//                }
             }
-            
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 Text("Type")
                     .font(.title2)
-                    .bold()
                 Picker("", selection: $addInfo.selectedType) {
                     ForEach(Fish.FishType.allCases, id: \.rawValue) { type in
                         Text(type.rawValue)
@@ -149,47 +170,67 @@ struct AddInfoView: View {
                 }
                 .frame(width: Constant.mainWidth*0.1)
                 .pickerStyle(.menu)
+                .offset(y: 1)
             }
-            
-//            HStack(spacing: 12) {
-//                Text("Tag")
-//                    .font(.title2)
-//                    .bold()
-//                ForEach(addInfo.tags, id: \.self) { tg in
-//                    TagView(label: tg, tags: $tags)
-//                }
-//                .offset(y: 1)
-//                TagEditView(tags: $addInfo.tags)
-//                .offset(y: 1)
-//            }
-            
-            Text("Description")
-                .font(.title2)
-                .bold()
+            VStack(alignment: .leading) {
+                HStack(spacing: 12) {
+                    Text("Tag")
+                        .font(.title2)
+                    TagAddView(tags: $addInfo.tags)
+                        .offset(y: 1)
+                }
+                .padding(.vertical, 5)
                 ZStack {
-                    VStack {
-                        Spacer()
-                        TextEditor(text: $addInfo.description)
-                            .font(.custom("Menlo", size: 16))
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill("EEF2FD".color)
+                        .frame(height: 40)
+                    HStack(spacing: 12) {
+                        ForEach(Array(addInfo.tags.keys.sorted()), id: \.self) { tg in
+                            TagView(label: tg, tags: $addInfo.tags)
+                        }
                         Spacer()
                     }
+                    .padding(.horizontal)
                 }
-                .background(Color.white)
-                .cornerRadius(5)
-                .frame(height: Constant.mainWidth*0.3)
+            }
+            Text("Description")
+                .font(.title2)
+            ZStack {
+                RoundedRectangle(cornerRadius: 5)
+                    .stroke("A1A9C6".color, lineWidth: 3)
+                VStack {
+                    Spacer()
+                    TextEditor(text: $addInfo.description)
+                        .font(.custom("Menlo", size: 16))
+                    Spacer()
+                }.padding(.horizontal, 5)
+            }
+            .background(Color.white)
+            .cornerRadius(5)
+            .frame(height: Constant.mainWidth*0.3)
         }
     }
     
 }
 
 class AddInfo: ObservableObject {
-    @Published var description: String = ""
-    @Published var tags: [String] = []
+    @Published var description = ""
+    @Published var tags: [String:Bool] = [:]
     @Published var selectedType = "Other"
+    @Published var exists = false
     var fileSize: Int
     
     init(fileSize: Int) {
         self.fileSize = fileSize
+    }
+    
+    func withExists() -> AddInfo {
+        var ret = AddInfo(fileSize: self.fileSize)
+        ret.description = self.description
+        ret.tags = self.tags
+        ret.selectedType = self.selectedType
+        ret.exists = true
+        return ret
     }
     
 }
