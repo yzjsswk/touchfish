@@ -100,6 +100,22 @@ class Fish {
         self.imageData = imageData
     }
     
+    func withMark(isMarked: Bool) -> Fish {
+        Fish(
+            identity: self.identity, count: self.count, fishType: self.fishType, fishData: self.fishData, dataInfo: self.dataInfo,
+            description: self.description, tags: self.tags, isMarked: isMarked, isLocked: self.isLocked, extraInfo: self.extraInfo,
+            createTime: self.createTime, updateTime: self.updateTime
+        )
+    }
+    
+    func withLock(isLocked: Bool) -> Fish {
+        Fish(
+            identity: self.identity, count: self.count, fishType: self.fishType, fishData: self.fishData, dataInfo: self.dataInfo,
+            description: self.description, tags: self.tags, isMarked: self.isMarked, isLocked: isLocked, extraInfo: self.extraInfo,
+            createTime: self.createTime, updateTime: self.updateTime
+        )
+    }
+    
     var defaultLinePreview: String {
         return "\(self.fishType.rawValue):\(self.identity)"
     }

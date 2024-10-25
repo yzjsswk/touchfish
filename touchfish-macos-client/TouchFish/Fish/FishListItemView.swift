@@ -2,7 +2,7 @@ import SwiftUI
 
 struct FishListItemView: View {
     
-    var fish: Fish
+    @State var fish: Fish
     @Binding var selectedFishIdentity: String?
     @Binding var hoveringFishIdentity: String?
     
@@ -74,16 +74,56 @@ struct FishListItemView: View {
                         if fish.isLocked {
                             UnLockButtonView()
                                 .onTapGesture {
-                                    Task {
-                                        await Storage.unLockFish([fish.identity])
+                                    fish = fish.withLock(isLocked: false)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        if self.isHovering {
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                if self.isHovering {
+                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                        Task {
+                                                            await Storage.unLockFish([fish.identity])
+                                                        }
+                                                    }
+                                                } else {
+                                                    Task {
+                                                        await Storage.unLockFish([fish.identity])
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            Task {
+                                                await Storage.unLockFish([fish.identity])
+                                            }
+                                        }
                                     }
+
                                 }
                         } else {
                             LockButtonView()
                                 .onTapGesture {
-                                    Task {
-                                        await Storage.lockFish([fish.identity])
+                                    fish = fish.withLock(isLocked: true)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        if self.isHovering {
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                if self.isHovering {
+                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                        Task {
+                                                            await Storage.lockFish([fish.identity])
+                                                        }
+                                                    }
+                                                } else {
+                                                    Task {
+                                                        await Storage.lockFish([fish.identity])
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            Task {
+                                                await Storage.lockFish([fish.identity])
+                                            }
+                                        }
                                     }
+
                                 }
                             EditButtonView()
                                 .onTapGesture {
@@ -92,15 +132,54 @@ struct FishListItemView: View {
                             if fish.isMarked {
                                 UnMarkButtonView()
                                     .onTapGesture {
-                                        Task {
-                                            await Storage.unMarkFish([fish.identity])
+                                        fish = fish.withMark(isMarked: false)
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                            if self.isHovering {
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                    if self.isHovering {
+                                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                            Task {
+                                                                await Storage.unMarkFish([fish.identity])
+                                                            }
+                                                        }
+                                                    } else {
+                                                        Task {
+                                                            await Storage.unMarkFish([fish.identity])
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                Task {
+                                                    await Storage.unMarkFish([fish.identity])
+                                                }
+                                            }
                                         }
+
                                     }
                             } else {
                                 MarkButtonView()
                                     .onTapGesture {
-                                        Task {
-                                            await Storage.markFish([fish.identity])
+                                        fish = fish.withMark(isMarked: true)
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                            if self.isHovering {
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                    if self.isHovering {
+                                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                            Task {
+                                                                await Storage.markFish([fish.identity])
+                                                            }
+                                                        }
+                                                    } else {
+                                                        Task {
+                                                            await Storage.markFish([fish.identity])
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                Task {
+                                                    await Storage.markFish([fish.identity])
+                                                }
+                                            }
                                         }
                                     }
                             }
