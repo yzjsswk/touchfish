@@ -52,6 +52,7 @@ impl SqliteStorage {
         Ok(inserted)
     }
 
+    #[allow(unused)]
     fn fish__delete(&self, conn: &mut SqliteConnection, id: i32) -> Result<usize, Error> {
         let cnt = diesel::delete(fish::table.filter(fish::id.eq(id))).execute(conn)?;
         Ok(cnt)
@@ -74,6 +75,7 @@ impl SqliteStorage {
             .execute(conn)
     }
 
+    #[allow(unused)]
     fn fish__inc_cnt(&self, conn: &mut SqliteConnection, identity: &str) -> Result<usize, Error> {
         diesel::update(fish::table.filter(fish::identity.eq(identity)))
         .set(fish::count.eq(fish::count+1))
@@ -86,6 +88,7 @@ impl SqliteStorage {
         .execute(conn)
     }
 
+    #[allow(unused)]
     fn fish__dec_cnt(&self, conn: &mut SqliteConnection, identity: &str) -> Result<usize, Error> {
         diesel::update(fish::table.filter(fish::identity.eq(identity)))
         .set(fish::count.eq(fish::count-1))
