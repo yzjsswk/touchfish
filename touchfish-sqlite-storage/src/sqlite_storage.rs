@@ -132,6 +132,9 @@ impl SqliteStorage {
         if let Some(is_locked) = selecter.is_locked {
             query = query.filter(fish::is_locked.eq(is_locked));
         }
+        if let Some(update_before) = &selecter.update_before {
+            query = query.filter(fish::update_time.le(update_before))
+        }
         if let Some(limit) = selecter.limit {
             query = query.limit(limit as i64);
         }
@@ -171,12 +174,16 @@ impl SqliteStorage {
         if let Some(is_locked) = selecter.is_locked {
             query = query.filter(fish::is_locked.eq(is_locked));
         }
+        if let Some(update_before) = &selecter.update_before {
+            query = query.filter(fish::update_time.le(update_before))
+        }
         if let Some(limit) = selecter.limit {
             query = query.limit(limit as i64);
         }
         if let Some(offset) = selecter.offset {
             query = query.offset(offset as i64);
         }
+        // println!("{}", diesel::debug_query::<diesel::sqlite::Sqlite, _>(&query));
         let selected: Vec<String> = query
             .select(fish::identity)
             .load(conn)?;
@@ -208,6 +215,9 @@ impl SqliteStorage {
         }
         if let Some(is_locked) = selecter.is_locked {
             query = query.filter(fish::is_locked.eq(is_locked));
+        }
+        if let Some(update_before) = &selecter.update_before {
+            query = query.filter(fish::update_time.le(update_before))
         }
         if let Some(limit) = selecter.limit {
             query = query.limit(limit as i64);
@@ -246,6 +256,9 @@ impl SqliteStorage {
         }
         if let Some(is_locked) = selecter.is_locked {
             query = query.filter(fish_expired::is_locked.eq(is_locked));
+        }
+        if let Some(update_before) = &selecter.update_before {
+            query = query.filter(fish_expired::update_time.le(update_before))
         }
         if let Some(limit) = selecter.limit {
             query = query.limit(limit as i64);
@@ -335,7 +348,7 @@ impl FishStorage for SqliteStorage {
         let mut conn = self.get_conn()?;
         let selecter = FishSelecter::new(
             None, Some(identitys.iter().map(|x| x.to_string()).collect()),
-            None, None, None, None, None, None, None,
+            None, None, None, None, None, None, None, None,
         )?;
         let to_expire_fish = self.fish__select(&mut conn, &selecter).map_err(|e| 
             err!(DataBaseError::"expire fish": "query to delete fish failed", identitys, e)
@@ -456,11 +469,11 @@ impl FishStorage for SqliteStorage {
         &self, fuzzy: Option<String>, identitys: Option<Vec<String>>, count: Option<i32>,
         fish_types: Option<Vec<touchfish_core::FishType>>, desc: Option<String>,
         tags: Option<Vec<String>>, is_marked: Option<bool>, is_locked: Option<bool>,
-        page_num: i32, page_size: i32,
+        passed_hours: Option<i32>, page_num: i32, page_size: i32,
     ) -> YRes<Page<Fish>> {
         let mut conn = self.get_conn()?;
         let mut selecter = FishSelecter::new(
-            fuzzy, identitys, count, fish_types, desc, tags, is_marked, is_locked, Some((page_num, page_size),)
+            fuzzy, identitys, count, fish_types, desc, tags, is_marked, is_locked, passed_hours, Some((page_num, page_size),)
         )?;
         let fish_list = self.fish__select(&mut conn, &selecter)
             .map_err(|e| err!(DataBaseError::"page fish", e))?;
@@ -477,11 +490,11 @@ impl FishStorage for SqliteStorage {
     fn detect_fish(
         &self, fuzzy: Option<String>, identitys: Option<Vec<String>>, count: Option<i32>,
         fish_types: Option<Vec<FishType>>, desc: Option<String>, tags: Option<Vec<String>>, 
-        is_marked: Option<bool>, is_locked: Option<bool>,
+        is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
     ) -> YRes<Vec<String>> {
         let mut conn = self.get_conn()?;
         let selecter = FishSelecter::new(
-            fuzzy, identitys, count, fish_types, desc, tags, is_marked, is_locked, None,
+            fuzzy, identitys, count, fish_types, desc, tags, is_marked, is_locked, passed_hours, None,
         )?;
         self.fish__select_identity(&mut conn, &selecter).map_err(|e| err!(DataBaseError::"detect fish", e))
     }

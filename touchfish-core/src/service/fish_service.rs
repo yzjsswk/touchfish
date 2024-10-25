@@ -244,10 +244,10 @@ impl<S> FishService<S> where S: FishStorage {
         &self, fuzzy: Option<String>, identitys: Option<Vec<String>>, 
         fish_types: Option<Vec<FishType>>, desc: Option<String>,
         tags: Option<Vec<String>>, is_marked: Option<bool>, is_locked: Option<bool>, 
-        page_num: Option<i32>, page_size: Option<i32>,
+        passed_hours: Option<i32>, page_num: Option<i32>, page_size: Option<i32>, 
     ) -> YRes<Page<Fish>> {
         self.storage.page_fish(
-            fuzzy, identitys, None, fish_types, desc, tags, is_marked, is_locked,
+            fuzzy, identitys, None, fish_types, desc, tags, is_marked, is_locked, passed_hours,
             page_num.unwrap_or(1), page_size.unwrap_or(10),
         )
     }
@@ -256,9 +256,10 @@ impl<S> FishService<S> where S: FishStorage {
         &self, fuzzy: Option<String>, identitys: Option<Vec<String>>, 
         fish_types: Option<Vec<FishType>>, desc: Option<String>,
         tags: Option<Vec<String>>, is_marked: Option<bool>, is_locked: Option<bool>,
+        passed_hours: Option<i32>, 
     ) -> YRes<Vec<String>> {
         self.storage.detect_fish(
-            fuzzy, identitys, None, fish_types, desc, tags, is_marked, is_locked,
+            fuzzy, identitys, None, fish_types, desc, tags, is_marked, is_locked, passed_hours,
         )
     }
 

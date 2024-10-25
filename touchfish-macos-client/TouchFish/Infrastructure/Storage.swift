@@ -11,7 +11,8 @@ struct Storage {
         description: String? = nil,
         tags: [String]? = nil,
         isMarked: Bool? = nil,
-        isLocked: Bool? = nil
+        isLocked: Bool? = nil,
+        passedHours: Int? = nil
     ) async -> [String:Fish] {
         var ret: [String:Fish] = [:]
         let result = await DataService.delectFish(
@@ -21,7 +22,8 @@ struct Storage {
             description: description,
             tags: tags,
             isMarked: isMarked,
-            isLocked: isLocked
+            isLocked: isLocked,
+            passedHours: passedHours
         )
         var identitys: [String] = []
         switch result {

@@ -168,6 +168,7 @@ struct DataService {
         tags: [String]? = nil,
         isMarked: Bool? = nil,
         isLocked: Bool? = nil,
+        passedHours: Int? = nil,
         pageNum: Int? = 1,
         pageSize: Int? = 10
     ) async -> Result<DataServiceResponse<SearchFishResp>, AFError> {
@@ -180,6 +181,7 @@ struct DataService {
             "tags": tags,
             "is_marked": isMarked,
             "is_locked": isLocked,
+            "passed_hours": passedHours,
             "page_num": pageNum,
             "page_size": pageSize,
         ]
@@ -195,7 +197,8 @@ struct DataService {
         description: String? = nil,
         tags: [String]? = nil,
         isMarked: Bool? = nil,
-        isLocked: Bool? = nil
+        isLocked: Bool? = nil,
+        passedHours: Int? = nil
     ) async -> Result<DataServiceResponse<[String]>, AFError> {
         let url = DataService.urlPrefix + "/fish/delect"
         let para: [String:Any?] = [
@@ -206,6 +209,7 @@ struct DataService {
             "tags": tags,
             "is_marked": isMarked,
             "is_locked": isLocked,
+            "passed_hours": passedHours
         ]
         return await AF.request(
             url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default

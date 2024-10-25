@@ -267,8 +267,7 @@ impl Cli {
                     )).collect::<YRes<Vec<_>>>()?),
                 };
                 let res = core.search_fish(
-                    fuzzy, identitys, fish_types, desc, tags,
-                    is_marked, is_locked, page_num, page_size,
+                    fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked, None, page_num, page_size,
                 )?;
                 if original_data {
                     Ok(CliOutput::Text(res.to_json(false)?))
@@ -315,7 +314,7 @@ impl Cli {
                     )).collect::<YRes<Vec<_>>>()?),
                 };
                 let res = core.detect_fish(
-                    fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked, 
+                    fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked, None,
                 )?;
                 Ok(CliOutput::Text(res.join(",")))
             }

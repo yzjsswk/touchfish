@@ -55,14 +55,15 @@ pub trait FishStorage {
     fn page_fish(
         &self, fuzzy: Option<String>, identitys: Option<Vec<String>>, count: Option<i32>,
         fish_types: Option<Vec<FishType>>, desc: Option<String>, tags: Option<Vec<String>>, 
-        is_marked: Option<bool>, is_locked: Option<bool>, page_num: i32, page_size: i32,
+        is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
+        page_num: i32, page_size: i32,
     ) -> YRes<Page<Fish>>;
 
     // select all fish.identity by condition
     fn detect_fish(
         &self, fuzzy: Option<String>, identitys: Option<Vec<String>>, count: Option<i32>,
         fish_types: Option<Vec<FishType>>, desc: Option<String>, tags: Option<Vec<String>>, 
-        is_marked: Option<bool>, is_locked: Option<bool>,
+        is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
     ) -> YRes<Vec<String>>;
 
     // select some fish statistics

@@ -172,6 +172,7 @@ pub struct FishSelecter {
     pub tags: Option<String>,
     pub is_marked: Option<bool>,
     pub is_locked: Option<bool>,
+    pub update_before: Option<String>,
     pub limit: Option<i32>,
     pub offset: Option<i32>,
 }
@@ -181,7 +182,8 @@ impl FishSelecter {
     pub fn new(
         fuzzy: Option<String>, identitys: Option<Vec<String>>, count: Option<i32>,
         fish_types: Option<Vec<FishType>>, desc: Option<String>, tags: Option<Vec<String>>, 
-        is_marked: Option<bool>, is_locked: Option<bool>, page: Option<(i32, i32)>,
+        is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>,
+        page: Option<(i32, i32)>,
     ) -> YRes<FishSelecter> {
         let fuzzy = match fuzzy {
             Some(x) => Some(format!("%{}%", x)),
@@ -208,6 +210,10 @@ impl FishSelecter {
             }
             None => None,
         };
+        let update_before = match passed_hours {
+            Some(x) => Some(YTime::now().duration((x as i64) * -3600).to_str()),
+            None => None,
+        };
         let (limit, offset) = if let Some((page_num, page_size)) = page {
             if page_num <= 0 {
                 return Err(err!(BusinessError::"build fish selecter": "page num must be a positive number", page_num))
@@ -220,7 +226,7 @@ impl FishSelecter {
             (None, None)
         };
         Ok(FishSelecter {
-            fuzzy, identitys, count, fish_types, desc, tags, is_marked, is_locked, limit, offset,
+            fuzzy, identitys, count, fish_types, desc, tags, is_marked, is_locked, update_before, limit, offset,
         })
     }
 
@@ -228,7 +234,7 @@ impl FishSelecter {
         FishSelecter {
             fuzzy: None, identitys: None, count: None, fish_types: None,
             desc: None, tags: None, is_marked: None, is_locked: None,
-            limit: None, offset: None,
+            update_before: None, limit: None, offset: None,
         }
     }
 

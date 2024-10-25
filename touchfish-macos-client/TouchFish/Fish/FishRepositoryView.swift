@@ -17,6 +17,7 @@ struct FishRepositoryView: View {
     @State var tags: [String]? = nil
     @State var isMarked: Bool? = nil
     @State var isLocked: Bool? = nil
+    @State var passedHours: Int? = nil
     @State var sortField: String = ""
     
     var isAllMultSelected: Bool {
@@ -175,7 +176,8 @@ struct FishRepositoryView: View {
         .onReceive(NotificationCenter.default.publisher(for: .ShouldRefreshFish)) { _ in
             Task {
                 let fishs = await Storage.searchFish(
-                    fuzzy: fuzzy, identitys: identitys, fishTypes: fishTypes, tags: tags, isMarked: isMarked, isLocked: isLocked
+                    fuzzy: fuzzy, identitys: identitys, fishTypes: fishTypes,
+                    tags: tags, isMarked: isMarked, isLocked: isLocked, passedHours: passedHours
                 )
                 NotificationCenter.default.post(name: .FishRefreshed, object: nil, userInfo: ["fish":fishs])
             }
@@ -208,6 +210,7 @@ struct FishRepositoryView: View {
             tags = nil
             isMarked = nil
             isLocked = nil
+            passedHours = nil
             sortField = ""
             for (argName, argValue) in RecipeManager.activeRecipeArg {
                 if argName == "identity" {
@@ -233,6 +236,11 @@ struct FishRepositoryView: View {
                     }
                     if argValue[0].lowercased() == "false" || argValue[0] == "0" {
                         isLocked = false
+                    }
+                }
+                if argName == "passed", argValue.count > 0 {
+                    if let value = Int(argValue[0]) {
+                        passedHours = value
                     }
                 }
                 if argName == "sort", argValue.count > 0 {

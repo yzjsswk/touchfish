@@ -403,6 +403,7 @@ struct RecipeManager {
                 Recipe.Parameter(name: "tag", separator: ","),
                 Recipe.Parameter(name: "marked"),
                 Recipe.Parameter(name: "locked"),
+                Recipe.Parameter(name: "passed"),
                 Recipe.Parameter(name: "sort")
             ],
             color: Constant.internalRecipeItemColor,
