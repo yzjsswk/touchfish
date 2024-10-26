@@ -23,17 +23,21 @@ struct FishDetailView: View {
                 selectedFish.tags.count > 0 || selectedFish.description.count > 0 {
                 VStack {
                     if selectedFish.tags.count > 0 {
-                        DetailTagView(fish: selectedFish)
+                        DetailTagView(fish: .constant(selectedFish))
                     }
                     if selectedFish.description.count > 0 {
-                        DetailDescView(fish: selectedFish)
+                        DetailDescView(fish: .constant(selectedFish))
                     }
                 }
             }
             if let selectedFish = self.selectedFish {
                 ScrollView {
-                    DetailValueView(fish: selectedFish)
+                    DetailValueView(fish: .constant(selectedFish))
                 }
+            } else {
+                Color.clear
+                .contentShape(Rectangle())
+                .frame(height: Constant.mainHeight*0.5)
             }
             Spacer()
             ZStack {
@@ -41,7 +45,7 @@ struct FishDetailView: View {
                 .fill(Constant.commandBarBackgroundColor)
                 .frame(height: showDetailWithAnima ? Constant.mainHeight*0.3 : 0)
                 if let selectedFish = self.selectedFish {
-                    DetailExtraInfoView(fish: selectedFish)
+                    DetailExtraInfoView(fish: .constant(selectedFish))
                     .frame(height: showDetailWithAnima ? Constant.mainHeight*0.3 : 0)
                     .padding(.top, 8)
                     .padding(.horizontal, 5)
@@ -93,7 +97,7 @@ struct DetailTagView: View {
         }
     }
     
-    var fish: Fish
+    @Binding var fish: Fish
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -113,7 +117,7 @@ struct DetailTagView: View {
     
 struct DetailDescView: View {
     
-    var fish: Fish
+    @Binding var fish: Fish
     
     var body: some View {
         HStack {
@@ -129,7 +133,7 @@ struct DetailDescView: View {
 
 struct DetailValueView: View {
     
-    var fish: Fish
+    @Binding var fish: Fish
     
     var body: some View {
         switch fish.fishType {
@@ -173,7 +177,7 @@ struct DetailValueView: View {
 
 struct DetailExtraInfoView: View {
     
-    var fish: Fish
+    @Binding var fish: Fish
     
     var body: some View {
         ScrollView(showsIndicators: false) {

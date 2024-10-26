@@ -45,7 +45,7 @@ struct StatsTabView: View {
             ZStack {
                 isSelected ? Constant.selectedItemBackgroundColor.opacity(1.0) : (
                     isHovered ? Constant.selectedItemBackgroundColor.opacity(0.6) :
-                        Functions.makeLinearGradient(colors: [.white]).opacity(1.0)
+                        Constant.commandBarBackgroundColor.opacity(1.0)
                 )
                 Text(title)
                     .font(.title3)
