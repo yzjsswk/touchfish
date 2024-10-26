@@ -10,10 +10,13 @@ mod req;
 mod resp;
 
 static CORE: Lazy<TouchFishCore<SqliteStorage>> = Lazy::new(|| {
-    let args: Vec<String> = std::env::args().collect();
-    let db_url = args.get(1)
+    let db_url = std::env::var("TFDS_DB_URL")
         .expect("database url is required");
-    let storage: SqliteStorage = SqliteStorage::connect(db_url)
+    let do_init = match std::env::var("TFDS_INIT") {
+        Ok(x) => x.parse().expect(&format!("parse env var TFDS_INIT failed, TFDS_INIT={x}")),
+        Err(_) => false,   
+    };
+    let storage: SqliteStorage = SqliteStorage::connect(&db_url, do_init)
         .expect("connect to data base failed");
     let core = TouchFishCore::new(storage)
         .expect("init touchfish core failed");
@@ -109,8 +112,11 @@ async fn pin_fish(req: Json<PinFishReq>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
+    let port = match std::env::var("TFDS_PORT") {
+        Ok(v) => v.parse().expect(&format!("env var TFDS_PORT parse failed, TFDS_PORT={}", v)),
+        Err(_) => 56173,
+    };
     let _ = &*CORE;
     HttpServer::new(|| {
         App::new()
@@ -127,9 +133,8 @@ async fn main() -> std::io::Result<()> {
             .service(lock_fish)
             .service(unlock_fish)
             .service(pin_fish)
-            
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("127.0.0.1", port))?
     .run()
     .await
 }

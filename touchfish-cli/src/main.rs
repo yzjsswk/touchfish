@@ -17,7 +17,7 @@ fn main() -> YRes<()> {
         println!("database url is required");
         return Ok(());
     }
-    let storage = SqliteStorage::connect(&args[1])?;
+    let storage = SqliteStorage::connect(&args[1], false)?;
     let core = TouchFishCore::new(storage)?;
     loop {
         write_str_to_stdout("> ")?;

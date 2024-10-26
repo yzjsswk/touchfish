@@ -20,17 +20,26 @@ pub struct SqliteStorage {
 
 impl SqliteStorage {
 
-    pub fn connect(db_url: &str) -> YRes<Self> {
-        if !std::path::Path::new(db_url).exists() {
-            return Err(err!(DataBaseError::"connect to sqlite": "db url is not exists", db_url))
-        }
+    pub fn connect(db_url: &str, init_db_if_not_exits: bool) -> YRes<Self> {
+        let init_table = if std::path::Path::new(db_url).exists() {
+            false
+        } else {
+            if !init_db_if_not_exits {
+                return Err(err!(DataBaseError::"connect to sqlite": "db url is not exists", db_url))
+            }
+            true
+        };
         let manager = ConnectionManager::<SqliteConnection>::new(db_url);
         let pool = r2d2::Pool::builder()
             .max_size(8)
             .connection_timeout(Duration::new(5, 0))
             .build(manager)
             .map_err(|err| err!(DataBaseError::"connect to sqlite": "build connection pool failed", db_url, err))?;
-        Ok(SqliteStorage { pool })
+        let storage = SqliteStorage { pool };
+        if init_table {
+            storage.init_table()?;
+        }
+        Ok(storage)
     }
 
     pub fn get_conn(&self) -> YRes<PooledConnection<ConnectionManager<SqliteConnection>>> {
@@ -41,7 +50,57 @@ impl SqliteStorage {
             err!(DataBaseError::"get connection from pool": "set timeout failed", e)
         )?;
         Ok(conn)
+    }
 
+    pub fn init_table(&self) -> YRes<()> {
+        let sqls = [r#"
+create table fish (
+    id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+    identity varchar(64) NOT NULL,
+    count integer NOT NULL DEFAULT 1,
+    fish_type varchar(16) NOT NULL,
+    fish_data blob NOT NULL,
+    data_info text NOT NULL,
+    desc text NOT NULL DEFAULT '',
+    tags text NOT NULL DEFAULT '',
+    is_marked tinyint NOT NUll DEFAULT 0,
+    is_locked tinyint NOT NUll DEFAULT 0,
+    extra_info text NOT NULL DEFAULT '',
+    create_time varchar(64) NOT NULL,
+    update_time varchar(64) NOT NULL,
+    CONSTRAINT unique_data UNIQUE (identity)
+);
+            "#, r#"
+create index idx__identity on fish (identity);
+            "#, r#"
+create index idx__update_time on fish (update_time);
+            "#, r#"
+create table fish_expired (
+    id integer PRIMARY KEY NOT NULL,
+    identity varchar(64) NOT NULL,
+    count integer NOT NULL,
+    fish_type varchar(16) NOT NULL,
+    fish_data blob NOT NULL,
+    data_info text NOT NULL,
+    desc text NOT NULL,
+    tags text NOT NULL,
+    is_marked tinyint NOT NUll,
+    is_locked tinyint NOT NUll,
+    extra_info text NOT NULL,
+    create_time varchar(64) NOT NULL,
+    update_time varchar(64) NOT NULL,
+    expire_time varchar(64) NOT NULL
+);
+            "#,
+        ];
+        let mut conn = self.get_conn()?;
+        conn.transaction::<_, Error, _>(|conn| {
+            for sql in sqls {
+                diesel::sql_query(sql).execute(conn)?;
+            }
+            Ok(())
+        }).map_err(|e| err!(DataBaseError::"init table": "execute transaction failed", e))?;
+        Ok(())
     }
 
     fn fish__insert(&self, conn: &mut SqliteConnection, inserter: &FishInserter) -> Result<FishModel, Error> {
