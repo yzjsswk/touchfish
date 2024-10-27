@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  server:
+    image: touchfish-data-server:latest
+    container_name: touchfish-data-server
+    environment:
+      - TFDS_DB_URL=/data/tfds.db
+      - TFDS_INIT=true
+      - RUST_LOG=debug
+    restart: always
+    volumes:
+      - ./touchfish-data-server:/data
+    ports:
+      - "56173:56173"

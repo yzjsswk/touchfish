@@ -134,7 +134,7 @@ async fn main() -> std::io::Result<()> {
             .service(unlock_fish)
             .service(pin_fish)
     })
-    .bind(("127.0.0.1", port))?
+    .bind(("0.0.0.0", port))?
     .run()
     .await
 }

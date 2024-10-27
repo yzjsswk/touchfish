@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-yfunc-rust = { path = "../../YFunc/yfunc-rust" }
+yfunc-rust = "0.1"
 uuid = { version = "1.10.0", features = ["v4", "fast-rng", "macro-diagnostics", "serde"] }
 strum = "0.26"
 strum_macros = "0.26"
