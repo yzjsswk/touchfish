@@ -1,0 +1,36 @@
+bundle_id = "com.yzjsswk.WebBookmark"
+version = 1
+author = "yzjsswk"
+recipe_type = "View"
+name = "Web Bookmark"
+command = "bm"
+icon = "system:globe"
+
+[[parameters]]
+name = "tag"
+separator = ","
+
+[[parameters]]
+name = "marked"
+
+[[actions]]
+action_type = "Shell"
+
+    [[actions.arguments]]
+    arg_type = "Plain"
+    value = "/usr/local/bin/python3"
+
+    [[actions.arguments]]
+    arg_type = "File"
+    value = "web_bookmark.py"
+
+    [[actions.arguments]]
+    arg_type = "Context"
+    value = "host"
+
+    [[actions.arguments]]
+    arg_type = "Context"
+    value = "port"
+
+    [[actions.arguments]]
+    arg_type = "CommandBarText"

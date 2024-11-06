@@ -2,14 +2,14 @@ use actix_web::{get, middleware::Logger, post, web::{Json, Path}, App, HttpServe
 use once_cell::sync::Lazy;
 use req::{AddFishReq, DelectFishReq, ExpireFishReq, LockFishReq, MarkFishReq, ModifyFishReq, PinFishReq, SearchFishReq, UnlockFishReq, UnmarkFishReq};
 use resp::ToResp;
-use touchfish_core::TouchFishCore;
+use touchfish_core::FishApi;
 use touchfish_sqlite_storage::SqliteStorage;
 use yfunc_rust::{prelude::*, YBytes};
 
 mod req;
 mod resp;
 
-static CORE: Lazy<TouchFishCore<SqliteStorage>> = Lazy::new(|| {
+static API: Lazy<FishApi<SqliteStorage>> = Lazy::new(|| {
     let db_url = std::env::var("TFDS_DB_URL")
         .expect("database url is required");
     let do_init = match std::env::var("TFDS_INIT") {
@@ -18,14 +18,14 @@ static CORE: Lazy<TouchFishCore<SqliteStorage>> = Lazy::new(|| {
     };
     let storage: SqliteStorage = SqliteStorage::connect(&db_url, do_init)
         .expect("connect to data base failed");
-    let core = TouchFishCore::new(storage)
-        .expect("init touchfish core failed");
-    core
+    let api = FishApi::new(storage)
+        .expect("init fish api failed");
+    api
 });
 
 #[post("/fish/search")]
 async fn search_fish(req: Json<SearchFishReq>) -> impl Responder {
-    CORE.search_fish(
+    API.search_fish(
         req.fuzzy.clone(), req.identity.clone(), req.fish_type.clone(), req.desc.clone(),
         req.tags.clone(), req.is_marked, req.is_locked, req.passed_hours, req.page_num, req.page_size,
     ).to_resp()
@@ -33,7 +33,7 @@ async fn search_fish(req: Json<SearchFishReq>) -> impl Responder {
 
 #[post("/fish/delect")]
 async fn delect_fish(req: Json<DelectFishReq>) -> impl Responder {
-    CORE.detect_fish(
+    API.detect_fish(
         req.fuzzy.clone(), req.identity.clone(), req.fish_type.clone(), req.desc.clone(),
         req.tags.clone(), req.is_marked, req.is_locked, req.passed_hours,
     ).to_resp()
@@ -41,19 +41,19 @@ async fn delect_fish(req: Json<DelectFishReq>) -> impl Responder {
 
 #[get("/fish/pick/{identity}")]
 async fn pick_fish(identity: Path<String>) -> impl Responder {
-    CORE.pick_fish(&identity).to_resp()
+    API.pick_fish(&identity).to_resp()
 }
 
 #[get("/fish/count")]
 async fn count_fish() -> impl Responder {
-    CORE.count_fish().to_resp()
+    API.count_fish().to_resp()
 }
 
 #[post("/fish/add")]
 async fn add_fish(req: Json<AddFishReq>) -> impl Responder {
     let res = YBytes::from_base64(&req.fish_data);
     if let Ok(fish_data) = res {
-        return CORE.add_fish(
+        return API.add_fish(
             req.fish_type, fish_data, req.desc.clone(), req.tags.clone(),
             req.is_marked, req.is_locked, req.extra_info.clone(),
         ).to_resp()
@@ -63,49 +63,49 @@ async fn add_fish(req: Json<AddFishReq>) -> impl Responder {
 
 #[post("/fish/modify")]
 async fn modify_fish(req: Json<ModifyFishReq>) -> impl Responder {
-    CORE.modify_fish(
+    API.modify_fish(
         &req.identity, req.desc.clone(), req.tags.clone(), req.extra_info.clone(),
     ).to_resp()
 }
 
 #[post("/fish/expire")]
 async fn expire_fish(req: Json<ExpireFishReq>) -> impl Responder {
-    CORE.expire_fish(
+    API.expire_fish(
         req.identitys.iter().map(|x| x.as_str()).collect(), req.skip_if_not_exists, req.skip_if_locked,
     ).to_resp()
 }
 
 #[post("/fish/mark")]
 async fn mark_fish(req: Json<MarkFishReq>) -> impl Responder {
-    CORE.mark_fish(
+    API.mark_fish(
         req.identitys.iter().map(|x| x.as_str()).collect(), req.skip_if_not_exists, req.skip_if_locked,
     ).to_resp()
 }
 
 #[post("/fish/unmark")]
 async fn unmark_fish(req: Json<UnmarkFishReq>) -> impl Responder {
-    CORE.unmark_fish(
+    API.unmark_fish(
         req.identitys.iter().map(|x| x.as_str()).collect(), req.skip_if_not_exists, req.skip_if_locked,
     ).to_resp()
 }
 
 #[post("/fish/lock")]
 async fn lock_fish(req: Json<LockFishReq>) -> impl Responder {
-    CORE.lock_fish(
+    API.lock_fish(
         req.identitys.iter().map(|x| x.as_str()).collect(), req.skip_if_not_exists,
     ).to_resp()
 }
 
 #[post("/fish/unlock")]
 async fn unlock_fish(req: Json<UnlockFishReq>) -> impl Responder {
-    CORE.unlock_fish(
+    API.unlock_fish(
         req.identitys.iter().map(|x| x.as_str()).collect(), req.skip_if_not_exists,
     ).to_resp()
 }
 
 #[post("/fish/pin")]
 async fn pin_fish(req: Json<PinFishReq>) -> impl Responder {
-    CORE.pin_fish(
+    API.pin_fish(
         req.identitys.iter().map(|x| x.as_str()).collect(), req.skip_if_not_exists, req.skip_if_locked,
     ).to_resp()
 }
@@ -117,7 +117,7 @@ async fn main() -> std::io::Result<()> {
         Ok(v) => v.parse().expect(&format!("env var TFDS_PORT parse failed, TFDS_PORT={}", v)),
         Err(_) => 56173,
     };
-    let _ = &*CORE;
+    let _ = &*API;
     HttpServer::new(|| {
         App::new()
             .wrap(Logger::default())

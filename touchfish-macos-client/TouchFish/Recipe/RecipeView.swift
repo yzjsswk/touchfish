@@ -13,9 +13,9 @@ struct RecipeView: View {
             if let activeRecipeBundleId = activeRecipeBundleId,
                let activeRecipe = RecipeManager.activeRecipe {
                 switch activeRecipe.type {
-                case .task, .commit:
+                case .Task, .Commit:
                     RecipeListView(recipeList: $recipeList)
-                case .view:
+                case .View:
                     if let userDefinedRecipeView = userDefinedRecipeView {
                        switch userDefinedRecipeView.type {
                        case .empty:
@@ -85,17 +85,17 @@ struct RecipeView: View {
 //        }
         // todo: carefully controll event, avoid repeat execute
         .onReceive(NotificationCenter.default.publisher(for: .RecipeStatusChanged)) { _ in
-            if let recipe = RecipeManager.activeRecipe, recipe.type != .commit {
+            if let recipe = RecipeManager.activeRecipe, recipe.type != .Commit {
                 recipe.execute()
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .RecipeCommited)) { _ in
-            if let recipe = RecipeManager.activeRecipe, recipe.type == .commit {
+            if let recipe = RecipeManager.activeRecipe, recipe.type == .Commit {
                 recipe.execute()
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .CommandBarEndEditing)) { notification in
-            if let recipe = RecipeManager.activeRecipe, recipe.type == .view {
+            if let recipe = RecipeManager.activeRecipe, recipe.type == .View {
                 recipe.execute()
             }
         }

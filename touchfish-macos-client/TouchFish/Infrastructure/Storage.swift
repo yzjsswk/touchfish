@@ -304,6 +304,36 @@ struct Storage {
             return nil
         }
     }
+    
+    static func searchRecipe() async -> [Recipe] {
+        var ret: [Recipe] = []
+        for server in Config.recipeServiceConfigs.values {
+            let urlPrefix = "http://\(server.host):\(server.port)"
+            RecipeService.urlPrefix = urlPrefix
+            let result = await RecipeService.listRecipe()
+            switch result {
+            case .success(let resp):
+                if !resp.isOk() {
+                    Log.error("Storage.searchRecipe - fail: resp is not ok, resp.status=\(resp.status), urlPrefix=\(urlPrefix)")
+                }
+                guard let data = resp.data else {
+                    Log.error("Storage.searchRecipe - fail: resp.data=nil, resp.status=\(resp.status), urlPrefix=\(urlPrefix)")
+                    continue
+                }
+                for recipeResp in data {
+                    guard let recipe = recipeResp.toRecipe() else {
+                        Log.warning("Storage.searchRecipe - skip a recipe: parse recipeResp to recipe failed, bundleId=\(recipeResp.bundleId), urlPrefix=\(urlPrefix)")
+                        continue
+                    }
+                    ret.append(recipe)
+                }
+            case .failure(let err):
+                Log.error("Storage.searchRecipe - fail: request recipe server failed, urlPrefix=\(urlPrefix), err=\(err)")
+                continue
+            }
+        }
+        return ret
+    }
   
 }
 

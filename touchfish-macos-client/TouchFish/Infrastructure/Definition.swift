@@ -299,6 +299,7 @@ extension Notification.Name {
     static let CommandKeyWasPressed = Notification.Name("CommandKeyWasPressed")
     static let ShouldRefreshFish = Notification.Name("ShouldRefreshFish")
     static let FishRefreshed = Notification.Name("FishRefreshed")
+    static let RecipeRefreshed = Notification.Name("RecipeRefreshed")
     static let RecipeStatusChanged = Notification.Name("RecipeStatusChanged")
     static let CommandTextChanged = Notification.Name("CommandTextChanged")
     static let CommandBarEndEditing = Notification.Name("CommandBarEndEditing")

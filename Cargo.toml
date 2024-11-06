@@ -2,6 +2,10 @@
 members = [ 
     "touchfish-cli",
     "touchfish-core", 
-    "touchfish-data-server",
+    "touchfish-data-server", 
+    "touchfish-recipe-server",
     "touchfish-sqlite-storage",
 ]
+
+[replace]
+"yfunc-rust:0.1.0" = { path = "../YFunc/yfunc-rust" }

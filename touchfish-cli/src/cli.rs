@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use clap::{Parser, Subcommand};
-use touchfish_core::{FishPreview, FishType, TouchFishCore};
+use touchfish_core::{FishPreview, FishType, FishApi};
 use touchfish_sqlite_storage::SqliteStorage;
 use yfunc_rust::{prelude::*, write_str_to_stdout, Page, VariableFormat, YBytes};
 
@@ -136,7 +136,7 @@ pub struct Cli {
 
 impl Cli {
 
-    pub fn handle(self, core: &TouchFishCore<SqliteStorage>) -> YRes<CliOutput> {
+    pub fn handle(self, api: &FishApi<SqliteStorage>) -> YRes<CliOutput> {
         match self.command {
             Commands::Add { 
                 fish_type, fish_data, desc, 
@@ -176,7 +176,7 @@ impl Cli {
                         }
                     }
                 };
-                let fish = core.add_fish(
+                let fish = api.add_fish(
                     fish_type, fish_data, desc, tags, is_marked, is_locked, extra_info,
                 )?;
                 if original_data {
@@ -186,7 +186,7 @@ impl Cli {
                 }
             },
             Commands::Expire { identity } => {
-                core.expire_fish(vec![&identity], false, false)?;
+                api.expire_fish(vec![&identity], false, false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Modify { 
@@ -212,27 +212,27 @@ impl Cli {
                         }
                     }
                 };
-                core.modify_fish(&identity, desc, tags, extra_info)?;
+                api.modify_fish(&identity, desc, tags, extra_info)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Mark { identity } => {
-                core.mark_fish(vec![&identity], false, false)?;
+                api.mark_fish(vec![&identity], false, false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Unmark { identity } => {
-                core.unmark_fish(vec![&identity], false, false)?;
+                api.unmark_fish(vec![&identity], false, false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Lock { identity } => {
-                core.lock_fish(vec![&identity], false)?;
+                api.lock_fish(vec![&identity], false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Unlock { identity } => {
-                core.unlock_fish(vec![&identity], false)?;
+                api.unlock_fish(vec![&identity], false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Pin { identity } => {
-                core.pin_fish(vec![&identity], false, false)?;
+                api.pin_fish(vec![&identity], false, false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Search {
@@ -266,7 +266,7 @@ impl Cli {
                             err!(ParseError::"handle search command": "parse fish_type failed", y, e)
                     )).collect::<YRes<Vec<_>>>()?),
                 };
-                let res = core.search_fish(
+                let res = api.search_fish(
                     fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked, None, page_num, page_size,
                 )?;
                 if original_data {
@@ -313,13 +313,13 @@ impl Cli {
                             err!(ParseError::"handle delect command": "parse fish_type failed", y, e)
                     )).collect::<YRes<Vec<_>>>()?),
                 };
-                let res = core.detect_fish(
+                let res = api.detect_fish(
                     fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked, None,
                 )?;
                 Ok(CliOutput::Text(res.join(",")))
             }
             Commands::Pick { identity , original_data} => {
-                let fish = core.pick_fish(&identity)?;
+                let fish = api.pick_fish(&identity)?;
                 match fish {
                     Some(x) => if original_data {
                         Ok(CliOutput::Text(x.json_with_data()?))
@@ -330,7 +330,7 @@ impl Cli {
                 }
             },
             Commands::Count { original_data } => {
-                let stats = core.count_fish()?;
+                let stats = api.count_fish()?;
                 Ok(CliOutput::Text(stats.to_json(!original_data)?))
             }
         }

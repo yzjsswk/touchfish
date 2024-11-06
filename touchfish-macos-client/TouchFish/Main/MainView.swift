@@ -50,12 +50,14 @@ struct MainView: View {
                 .shadow(radius: 5)
         )
         .onAppear {
+            RecipeManager.refresh()
             Task {
                 let fishs = await Storage.searchFish()
                 NotificationCenter.default.post(name: .FishRefreshed, object: nil, userInfo: ["fish":fishs])
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .RecipeRefreshed)) { _ in
             withAnimation {
-                RecipeManager.refresh()
                 recipeList = RecipeManager.orderedRecipeList
             }
         }
@@ -68,6 +70,7 @@ struct MainView: View {
                     commandCell.append("\(k):\(v)")
                 }
             } else {
+                RecipeManager.refresh()
                 activeRecipeBundleId = nil
                 commandCell.removeAll()
             }

@@ -23,7 +23,7 @@ For other platforms, please refer to [sdcv](https://github.com/Dushistov/sdcv)
 
 move the dictionary data to ~/.stardict/dic
 
-for example, to use **stardict-quick_eng-zh_CN-2.4.2**, you can run the following command (may need to create the folder first)
+for example, to use **stardict-quick_eng-zh_CN-2.4.2**, you can run the following command (create folder first if required)
 
 ```
 cp -r /stardict/stardict-quick_eng-zh_CN-2.4.2 ~/.stardict/dic

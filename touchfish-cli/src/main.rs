@@ -5,7 +5,7 @@ use std::env;
 
 use clap::Parser;
 use cli::Cli;
-use touchfish_core::TouchFishCore;
+use touchfish_core::FishApi;
 use touchfish_sqlite_storage::SqliteStorage;
 use yfunc_rust::{prelude::*, write_str_to_stdout};
 
@@ -18,7 +18,7 @@ fn main() -> YRes<()> {
         return Ok(());
     }
     let storage = SqliteStorage::connect(&args[1], false)?;
-    let core = TouchFishCore::new(storage)?;
+    let api = FishApi::new(storage)?;
     loop {
         write_str_to_stdout("> ")?;
         let mut input = String::new();
@@ -37,7 +37,7 @@ fn main() -> YRes<()> {
         let args = input.split_ascii_whitespace();
         match Cli::try_parse_from(args) {
             Ok(cli) => {
-                match cli.handle(&core) {
+                match cli.handle(&api) {
                     Ok(output) => output.write_to_stdout()?,
                     Err(err) => write_str_to_stdout(&format!("{:?}\n", err))?,
                 }

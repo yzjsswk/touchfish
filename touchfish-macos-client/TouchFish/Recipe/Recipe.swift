@@ -18,9 +18,9 @@ struct Recipe {
     var enabled: Bool = true
     
     enum RecipeType: String, Codable {
-        case task
-        case view
-        case commit
+        case Task
+        case View
+        case Commit
     }
     
     struct Parameter: Codable {
@@ -84,43 +84,53 @@ struct RecipeAction: Codable {
     var type: ActionType
     var arguments: [Argument] = []
     
+    enum CodingKeys: String, CodingKey {
+        case type = "action_type"
+        case arguments = "arguments"
+    }
+    
     enum ActionType: String, Codable {
-        case back
-        case hide
-        case copy
-        case open
-        case shell
+        case Back
+        case Hide
+        case Copy
+        case Open
+        case Shell
     }
     
     struct Argument: Codable {
         var type: ArgumentType
         var value: String?
         
+        enum CodingKeys: String, CodingKey {
+            case type = "arg_type"
+            case value = "value"
+        }
+        
         enum ArgumentType: String, Codable {
-            case plain
-            case para
-            case commandBarText
-            case file
-            case context
+            case Plain
+            case Para
+            case CommandBarText
+            case File
+            case Context
         }
         
         func getValue() -> String {
             switch type {
-            case .plain:
+            case .Plain:
                 return value ?? ""
-            case .para:
+            case .Para:
                 if let value = value {
                     return RecipeManager.activeRecipeOriginalArg[value, default: ""]
                 }
                 return ""
-            case .commandBarText:
+            case .CommandBarText:
                 return CommandManager.commandText
-            case .file:
+            case .File:
                 if let value = value, let location = RecipeManager.activeRecipe?.location {
                     return location.appendingPathComponent(value).path
                 }
                 return ""
-            case .context:
+            case .Context:
                 if let value = value {
                     if value == "host" {
                         return Config.enableDataServiceConfig?.host ?? ""
@@ -141,22 +151,22 @@ struct RecipeAction: Codable {
     
     func execute() {
         switch type {
-        case .back:
+        case .Back:
             RecipeManager.goToRecipe(recipeId: nil)
-        case .hide:
+        case .Hide:
             TouchFishApp.deactivate()
-        case .copy:
+        case .Copy:
             if let data = arguments.first?.getValue().data(using: .utf8) {
                 Functions.copyDataToClipboard(data: data, type: .Text)
             } else {
                 Log.warning("run recipe action: skip copy action: to copy data=nil, recipe=\(RecipeManager.activeRecipe?.bundleId ?? "nil")")
             }
-        case .open:
+        case .Open:
             if let arg = arguments.first?.getValue(), arg.count > 0 {
                 // todo: browser config
                 AppleScriptRunner.openWebUrl(with: "Google Chrome", url: arg)
             }
-        case .shell:
+        case .Shell:
             var cmd: String? = nil
             var argments: [String] = []
             for (index, argument) in arguments.enumerated() {
@@ -176,7 +186,7 @@ struct RecipeAction: Codable {
                 let executeResultText = AppleScriptRunner.doShellScript(cmd: cmd, args: argments)
                 let endTime = Date()
                 let timeCost = Int(endTime.timeIntervalSince(startTime)*1000)
-                if RecipeManager.activeRecipe?.type == .view {
+                if RecipeManager.activeRecipe?.type == .View {
                     var view: UserDefinedRecipeView
                     if let executeResultText = executeResultText {
                         view = UserDefinedRecipeView.parse(jsonText: executeResultText)
@@ -268,25 +278,18 @@ struct RecipeManager {
         for recipe in internalRecipeList {
             recipes[recipe.bundleId] = recipe
         }
-        for dir in Config.recipeDirectorys {
-            for fileURL in Functions.getAllFiles(in: dir) {
-                if !(fileURL.lastPathComponent == "recipe.json") {
-                    continue
-                }
-                guard let recipe = Recipe.RecipeJson.parse(recipePath: fileURL) else {
-                    Log.warning("load recipe - ignore a recipe: RecipeJson.parse return nil, path=\(fileURL.path)")
-                    continue
-                }
+        Task {
+            for recipe in await Storage.searchRecipe() {
                 if !recipe.enabled {
                     continue
                 }
                 if internalRecipeList.map({$0.bundleId}).contains(recipe.bundleId) {
-                    Log.warning("load recipe - ignore a recipe: bundledId conflicts with internal recipes, bundleId=\(recipe.bundleId), path=\(fileURL.path)")
+                    Log.warning("load recipe - ignore a recipe: bundledId conflicts with internal recipes, bundleId=\(recipe.bundleId)")
                     continue
                 }
                 if let existsRecipe = recipes[recipe.bundleId] {
                     if existsRecipe.version == recipe.version {
-                        Log.warning("load recipe - ignore a recipe: duplicate version number, bundleId=\(recipe.bundleId), ignored path = \(fileURL.path)")
+                        Log.warning("load recipe - ignore a recipe: duplicate version number, bundleId=\(recipe.bundleId)")
                     }
                     if existsRecipe.version < recipe.version {
                         recipes[recipe.bundleId] = recipe
@@ -294,6 +297,9 @@ struct RecipeManager {
                 } else {
                     recipes[recipe.bundleId] = recipe
                 }
+            }
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .RecipeRefreshed, object: nil)
             }
         }
     }
@@ -392,7 +398,7 @@ struct RecipeManager {
             bundleId: "com.touchfish.FishRepository",
             author: "yzjsswk",
             version: 0,
-            type: .view,
+            type: .View,
             name: "Fish Repository",
             description: "master your information",
             icon: Image(systemName: "fish"),
@@ -413,7 +419,7 @@ struct RecipeManager {
             bundleId: "com.touchfish.AddFish",
             author: "yzjsswk",
             version: 0,
-            type: .view,
+            type: .View,
             name: "Add Fish",
             icon: Image(systemName: "plus.square"),
             command: "add",
@@ -424,7 +430,7 @@ struct RecipeManager {
             bundleId: "com.touchfish.Setting",
             author: "yzjsswk",
             version: 0,
-            type: .view,
+            type: .View,
             name: "Setting",
             icon: Image(systemName: "gearshape"),
             command: "set",
@@ -435,7 +441,7 @@ struct RecipeManager {
             bundleId: "com.touchfish.MessageCenter",
             author: "yzjsswk",
             version: 0,
-            type: .view,
+            type: .View,
             name: "Message Center",
             icon: Image(systemName: "ellipsis.message"),
             command: "msg",
@@ -449,7 +455,7 @@ struct RecipeManager {
             bundleId: "com.touchfish.Statistics",
             author: "yzjsswk",
             version: 0,
-            type: .view,
+            type: .View,
             name: "Statistics",
             icon: Image(systemName: "chart.line.uptrend.xyaxis.circle.fill"),
             command: "stats",
@@ -460,7 +466,7 @@ struct RecipeManager {
             bundleId: "com.touchfish.RecipeStore",
             author: "yzjsswk",
             version: 0,
-            type: .view,
+            type: .View,
             name: "Recipe Store",
             icon: Image(systemName: "books.vertical"),
             command: "store",

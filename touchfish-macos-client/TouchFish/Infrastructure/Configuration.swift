@@ -46,16 +46,20 @@ struct Configuration: Codable {
     var recipeDirectorys: [URL] = []
     var hideMainWindowWhenClickOutSideEnable = true
     
-    // data service
-    struct DataServiceConfiguration: Codable {
+    struct ServerConfig: Codable {
         var host: String
         var port: String
     }
-    var dataServiceConfigs: [String:DataServiceConfiguration] = ["local": DataServiceConfiguration(host: "127.0.0.1", port: "8080")]
+    
+    // data service
+    var dataServiceConfigs: [String:ServerConfig] = ["local": ServerConfig(host: "127.0.0.1", port: "56173")]
     var enableDataServiceConfigName = "local"
-    var enableDataServiceConfig: DataServiceConfiguration? {
+    var enableDataServiceConfig: ServerConfig? {
         return dataServiceConfigs[enableDataServiceConfigName]
     }
+    
+    // recipe service
+    var recipeServiceConfigs: [String:ServerConfig] = ["default": ServerConfig(host: "127.0.0.1", port: "56189")]
     
     // fish repository
     var fishRepositoryActiveKeyShortcut = KeyboardShortcut(keyCode: 9, modifiers: [.command, .option], events: [.keyDown])
