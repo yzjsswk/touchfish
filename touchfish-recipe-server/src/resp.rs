@@ -1,6 +1,6 @@
 use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
-use yfunc_rust::YRes;
+use yfunc_rust::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Resp<T> {
@@ -36,7 +36,7 @@ impl<T> ToResp for YRes<T> where T: Serialize {
         match self {
             Ok(data) => HttpResponse::Ok().json(Resp::ok(data)),
             Err(err) => {
-                log::error!("{:?}", err);
+                error!("{:?}", err);
                 HttpResponse::BadRequest().json(Resp::<Vec<String>>::err(&err.code, &err.msg))
             },
         }

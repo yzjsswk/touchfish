@@ -720,7 +720,7 @@ impl FishStorage for SqliteStorage {
         )?;
         let count__by_type = count__by_type.into_iter().fold(HashMap::new(), |mut acc, it| {
             let Ok(fish_type) = FishType::from_name(&it.fish_type) else {
-                // todo: log
+                warn!("count fish -> count fish by type - skip a type: not a valid fish type, CountByType={:?}", it);
                 return acc
             };
             acc.insert(fish_type, it.count);

@@ -2183,7 +2183,6 @@ version = "0.1.0"
 dependencies = [
  "actix-web",
  "env_logger",
- "log",
  "once_cell",
  "serde",
  "serde_json",
@@ -2199,7 +2198,6 @@ version = "0.1.0"
 dependencies = [
  "actix-web",
  "env_logger",
- "log",
  "once_cell",
  "serde",
  "serde_json",
@@ -2213,7 +2211,6 @@ name = "touchfish-sqlite-storage"
 version = "0.1.0"
 dependencies = [
  "diesel",
- "log",
  "r2d2",
  "serde",
  "serde_json",
@@ -2521,6 +2518,7 @@ dependencies = [
  "base64",
  "chrono",
  "diesel",
+ "log",
  "md5",
  "serde",
  "serde_json",
