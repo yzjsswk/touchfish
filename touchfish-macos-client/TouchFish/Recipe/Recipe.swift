@@ -34,49 +34,6 @@ struct Recipe {
         }
     }
     
-    struct RecipeJson: Codable {
-        
-        var bundleId: String
-        var author: String
-        var version: Int
-        var type: RecipeType
-        var name: String
-        var description: String?
-        var icon: String? // system:xxx fish:xxx
-        var command: String?
-        var parameters: [Parameter]?
-        var actions: [RecipeAction]?
-        var color: String?
-        var order: Int?
-        var enabled: Bool?
-        
-        static func parse(recipePath: URL) -> Recipe? {
-            guard let recipeJsonData = try? Data(contentsOf: recipePath) else {
-                return nil
-            }
-            guard let recipeJson = try? JSONDecoder().decode(RecipeJson.self, from: recipeJsonData) else {
-                return nil
-            }
-            return Recipe(
-                location: recipePath.deletingLastPathComponent(),
-                bundleId: recipeJson.bundleId,
-                author: recipeJson.author,
-                version: recipeJson.version,
-                type: recipeJson.type,
-                name: recipeJson.name,
-                description: recipeJson.description,
-                icon: recipeJson.icon?.icon ?? Image(systemName: "frying.pan"),
-                command: recipeJson.command,
-                parameters: recipeJson.parameters ?? [],
-                actions: recipeJson.actions ?? [],
-                color: recipeJson.color?.linearGradient ?? Constant.userDefinedRecipeDefaultIemColor,
-                order: recipeJson.order ?? 0,
-                enabled: recipeJson.enabled ?? true
-            )
-        }
-        
-    }
-    
 }
 
 struct RecipeAction: Codable {

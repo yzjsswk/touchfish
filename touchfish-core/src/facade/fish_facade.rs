@@ -2,14 +2,14 @@ use yfunc_rust::{Page, YBytes, YRes};
 
 use crate::{Fish, FishService, FishStorage, FishType, Statistics};
 
-pub struct FishApi<S> where S: FishStorage {
+pub struct FishFacade<S> where S: FishStorage {
     fish_service: FishService<S>,
 }
 
-impl<S> FishApi<S> where S: FishStorage {
+impl<S> FishFacade<S> where S: FishStorage {
 
-    pub fn new(storage: S) -> YRes<FishApi<S>> {
-        Ok(FishApi {
+    pub fn new(storage: S) -> YRes<FishFacade<S>> {
+        Ok(FishFacade {
             fish_service: FishService::new(storage),
         })
     }

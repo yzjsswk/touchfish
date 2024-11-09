@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use touchfish_core::{FishPreview, FishType, FishApi};
+use touchfish_core::{FishPreview, FishType, FishFacade};
 use touchfish_sqlite_storage::SqliteStorage;
 use yfunc_rust::{prelude::*, write_str_to_stdout, Page, VariableFormat, YBytes};
 
@@ -134,7 +134,7 @@ pub struct Cli {
 
 impl Cli {
 
-    pub fn handle(self, api: &FishApi<SqliteStorage>) -> YRes<CliOutput> {
+    pub fn handle(self, facade: &FishFacade<SqliteStorage>) -> YRes<CliOutput> {
         match self.command {
             Commands::Add { 
                 fish_type, fish_data, desc, 
@@ -174,7 +174,7 @@ impl Cli {
                         }
                     }
                 };
-                let fish = api.add_fish(
+                let fish = facade.add_fish(
                     fish_type, fish_data, desc, tags, is_marked, is_locked, extra_info,
                 )?;
                 if original_data {
@@ -184,7 +184,7 @@ impl Cli {
                 }
             },
             Commands::Expire { identity } => {
-                api.expire_fish(vec![&identity], false, false)?;
+                facade.expire_fish(vec![&identity], false, false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Modify { 
@@ -210,27 +210,27 @@ impl Cli {
                         }
                     }
                 };
-                api.modify_fish(&identity, desc, tags, extra_info)?;
+                facade.modify_fish(&identity, desc, tags, extra_info)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Mark { identity } => {
-                api.mark_fish(vec![&identity], false, false)?;
+                facade.mark_fish(vec![&identity], false, false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Unmark { identity } => {
-                api.unmark_fish(vec![&identity], false, false)?;
+                facade.unmark_fish(vec![&identity], false, false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Lock { identity } => {
-                api.lock_fish(vec![&identity], false)?;
+                facade.lock_fish(vec![&identity], false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Unlock { identity } => {
-                api.unlock_fish(vec![&identity], false)?;
+                facade.unlock_fish(vec![&identity], false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Pin { identity } => {
-                api.pin_fish(vec![&identity], false, false)?;
+                facade.pin_fish(vec![&identity], false, false)?;
                 Ok(CliOutput::Ok)
             },
             Commands::Search {
@@ -271,7 +271,7 @@ impl Cli {
                         Some(fish_types)
                     }
                 };
-                let res = api.search_fish(
+                let res = facade.search_fish(
                     fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked, None, page_num, page_size,
                 )?;
                 if original_data {
@@ -325,13 +325,13 @@ impl Cli {
                         Some(fish_types)
                     }
                 };
-                let res = api.detect_fish(
+                let res = facade.detect_fish(
                     fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked, None,
                 )?;
                 Ok(CliOutput::Text(res.join(",")))
             }
             Commands::Pick { identity , original_data} => {
-                let fish = api.pick_fish(&identity)?;
+                let fish = facade.pick_fish(&identity)?;
                 match fish {
                     Some(x) => if original_data {
                         Ok(CliOutput::Text(x.to_json_str()?))
@@ -342,7 +342,7 @@ impl Cli {
                 }
             },
             Commands::Count { original_data } => {
-                let stats = api.count_fish()?;
+                let stats = facade.count_fish()?;
                 if original_data {
                     Ok(CliOutput::Text(stats.to_json_str()?))
                 } else {
