@@ -4,21 +4,24 @@ use yfunc_rust::YRes;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Resp<T> {
-    pub status: String,
+    pub code: String,
+    pub msg: String,
     pub data: Option<T>,
 }
 
 impl<T> Resp<T> {
     pub fn ok(data: T) -> Resp<T> {
         Resp {
-            status: String::from("Ok"),
+            code: String::from("OK"),
+            msg: String::from("ok"),
             data: Some(data),
         }
     }
 
-    pub fn err(msg: &str) -> Resp<T> {
+    pub fn err(code: &str, msg: &str) -> Resp<T> {
         Resp {
-            status: msg.to_string(),
+            code: code.to_string(),
+            msg: msg.to_string(),
             data: None,
         }
     }
@@ -34,7 +37,7 @@ impl<T> ToResp for YRes<T> where T: Serialize {
             Ok(data) => HttpResponse::Ok().json(Resp::ok(data)),
             Err(err) => {
                 log::error!("{:?}", err);
-                HttpResponse::BadRequest().json(Resp::<Vec<String>>::err(&err.to_string()))
+                HttpResponse::BadRequest().json(Resp::<Vec<String>>::err(&err.code, &err.msg))
             },
         }
     }

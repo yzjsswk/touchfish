@@ -1,6 +1,6 @@
 use diesel::prelude::*;
 use touchfish_core::{FishType, DataInfo, Fish};
-use yfunc_rust::{ctx, err, Trace, Unique, YBytes, YError, YRes, YTime};
+use yfunc_rust::{prelude::*, Unique, YBytes, YTime};
 
 use crate::schema;
 
@@ -29,8 +29,8 @@ impl TryFrom<FishModel> for Fish {
     type Error = YError;
 
     fn try_from(model: FishModel) -> YRes<Self> {
-        let fish_type = FishType::new(&model.fish_type).trace(
-            ctx!("try from FishModel to Fish": "parse fish_type failed", model.fish_type, model.id)
+        let fish_type = FishType::from_name(&model.fish_type).trace(
+            ctx!("try from FishModel to Fish -> parse fish_type: FishType::from_name failed", model.fish_type, model.id)
         )?;
         let fish_data = YBytes::new(model.fish_data);
         let tags = if model.tags.len() > 0 {
@@ -38,14 +38,14 @@ impl TryFrom<FishModel> for Fish {
         } else {
             vec![]
         };
-        let data_info: DataInfo = serde_json::from_str(&model.data_info).map_err(|err|
-            err!(ParseError::"try from FishModel to Fish": "parse data_info failed", model.data_info, model.id, err)
+        let data_info = DataInfo::from_json_str(&model.data_info).trace(
+            ctx!("try from FishModel to Fish -> parse data_info: DataInfo::from_json_str failed", model.data_info, model.id)
         )?;
         let create_time = YTime::from_str(&model.create_time).trace(
-            ctx!("try from FishModel to Fish": "parse create_time failed", model.create_time, model.id)
+            ctx!("try from FishModel to Fish -> parse create_time: YTime::from_str failed", model.create_time, model.id)
         )?;
         let update_time = YTime::from_str(&model.update_time).trace(
-            ctx!("try from FishModel to Fish": "parse update_time failed", model.update_time, model.id)
+            ctx!("try from FishModel to Fish -> parse update_time: YTime::from_str failed", model.update_time, model.id)
         )?;
         Ok(Fish {
             identity: model.identity, count: model.count, fish_type, fish_data, data_info,
@@ -86,8 +86,8 @@ impl FishInserter {
         let mut tags = tags.unique();
         tags.sort();
         let tags = tags.join(",");
-        let data_info = serde_json::to_string(&data_info).map_err(
-            |_| err!(ParseError::"build fish inserter", "parse data_info to string failed"),
+        let data_info = data_info.to_json_str().trace(
+            ctx!("build fish inserter -> parse data_info to json string: data_info.to_json_str() failed")
         )?;
         let create_time = YTime::now().to_str();
         let update_time = YTime::now().to_str();
@@ -139,8 +139,8 @@ impl FishUpdater {
             None => None,
         };
         let data_info = match data_info {
-            Some(x) => Some(serde_json::to_string(&x).map_err(
-                |_| err!(ParseError::"build fish updater", "parse data_info to string failed"),
+            Some(x) => Some(x.to_json_str().trace(
+                ctx!("build fish updater -> parse data_info to json string: data_info.to_json_str() failed")
             )?),
             None => None,
         };
@@ -216,10 +216,14 @@ impl FishSelecter {
         };
         let (limit, offset) = if let Some((page_num, page_size)) = page {
             if page_num <= 0 {
-                return Err(err!(BusinessError::"build fish selecter": "page num must be a positive number", page_num))
+                return Err(err!("build fish selecter failed").trace(
+                    ctx!("build fish selecter -> check page num: page num <= 0", page_num)
+                ));
             }
             if page_size <= 0 {
-                return Err(err!(BusinessError::"build fish selecter": "page size must be a positive number", page_size))
+                return Err(err!("build fish selecter failed").trace(
+                    ctx!("build fish selecter -> check page size: page size <= 0", page_size)
+                ));
             }
             (Some(page_size), Some((page_num-1) * page_size))
         } else {
@@ -241,10 +245,14 @@ impl FishSelecter {
     pub fn set_page(&mut self, page: Option<(i32, i32)>) -> YRes<()> {
         let (limit, offset) = if let Some((page_num, page_size)) = page {
             if page_num <= 0 {
-                return Err(err!(BusinessError::"set page of fish selecter": "page num must be a positive number", page_num))
+                return Err(err!("set page of fish selecter failed").trace(
+                    ctx!("set page of fish selecter -> check page num: page num <= 0", page_num)
+                ));
             }
             if page_size <= 0 {
-                return Err(err!(BusinessError::"set page of fish selecter": "page size must be a positive number", page_size))
+                return Err(err!("set page of fish selecter failed").trace(
+                    ctx!("set page of fish selecter -> check page size: page size <= 0", page_size)
+                ));
             }
             (Some(page_size), Some((page_num-1) * page_size))
         } else {

@@ -1,10 +1,9 @@
-use std::str::FromStr;
-
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use strum_macros::{Display, EnumString};
-use yfunc_rust::{YBytes, YTime, prelude::*};
+use yfunc_rust::{prelude::*, YBytes, YTime};
 
+#[yfunc]
 #[derive(Serialize, Debug)]
 pub struct Fish {
     pub identity: String,
@@ -23,20 +22,17 @@ pub struct Fish {
 
 impl Fish {
 
-    pub fn json_with_data(&self) -> YRes<String> {
-        serde_json::to_string(self).map_err(|e|
-            err!(ParseError::"parse fish to json string", e)
-        )
-    }
-
-    pub fn json_with_preview(&self) -> YRes<String> {
-        serde_json::to_string_pretty(&FishPreview::from_fish(self)?).map_err(|e|
-            err!(ParseError::"parse fish preview to json string", e)
+    pub fn to_preview_json(&self) -> YRes<String> {
+        FishPreview::from_fish(self).trace(
+            ctx!("serialize Fish to preview style json string -> build FishPreview from Fish: FishPreview::from_fish failed", self.identity)
+        )?.to_pretty_json_str().trace(
+            ctx!("serialize Fish to preview style json string -> serialize FishPreview to json: FishPreview::to_pretty_json_str failed", self.identity)
         )
     }
 
 }
 
+#[yfunc]
 #[derive(Serialize, Debug)]
 pub struct FishPreview {
     pub identity: String,
@@ -58,13 +54,19 @@ impl FishPreview {
     pub fn from_fish(fish: &Fish) -> YRes<FishPreview> {
         let data_preview = match fish.fish_type {
             FishType::Text => {
-                let preview = fish.fish_data.to_str()?;
+                let preview = fish.fish_data.to_str().trace(
+                    ctx!("build FishPreview by Fish -> parse fish_data to text for text type fish: fish.fish_data.to_str() failed", fish.identity)
+                )?;
                 Some(preview.chars().take(80).collect())
             },
             _ => None,
         };
-        let create_time = fish.create_time.east8();
-        let update_time = fish.update_time.east8();
+        let create_time = fish.create_time.east8().trace(
+            ctx!("build FishPreview by Fish -> get east8 time string of create_time: fish.create_time.east8() failed", fish.identity)
+        )?;
+        let update_time = fish.update_time.east8().trace(
+            ctx!("build FishPreview by Fish -> get east8 time string of update_time: fish.update_time.east8() failed", fish.identity)
+        )?;
         Ok(FishPreview { 
             identity: fish.identity.clone(), count: fish.count, fish_type: fish.fish_type,
             data_preview, data_info: fish.data_info.clone(), desc: fish.desc.clone(), tags: fish.tags.clone(),
@@ -75,6 +77,7 @@ impl FishPreview {
 
 }
 
+#[yfunc]
 #[derive(Serialize, Deserialize, Debug, EnumString, Display, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum FishType {
     Text,
@@ -82,16 +85,7 @@ pub enum FishType {
     Other,
 }
 
-impl FishType {
-
-    pub fn new(s: &str) -> YRes<FishType> {
-        FishType::from_str(s).map_err(|e|
-            err!(ParseError::"build FishType from str", s, e)
-        )
-    }
-
-}
-
+#[yfunc]
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DataInfo {

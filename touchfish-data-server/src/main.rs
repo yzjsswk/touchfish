@@ -58,7 +58,11 @@ async fn add_fish(req: Json<AddFishReq>) -> impl Responder {
             req.is_marked, req.is_locked, req.extra_info.clone(),
         ).to_resp()
     }
-    return res.trace(ctx!("add fish": "decode fish data failed")).to_resp()
+    return res.upgrade(
+        err!("DATA_INVALID": "decode fish data failed, fish data should be a base64 encoded text")
+    ).trace(
+        ctx!("add fish -> decode fish data as base64 encoded string: YBytes::from_base64 failed")
+    ).to_resp()
 }
 
 #[post("/fish/modify")]

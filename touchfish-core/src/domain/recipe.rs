@@ -1,9 +1,8 @@
-use std::str::FromStr;
-
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 use yfunc_rust::prelude::*;
 
+#[yfunc]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Recipe {
     pub bundle_id: String,
@@ -36,21 +35,12 @@ fn default_enabled() -> bool {
     true
 }
 
+#[yfunc]
 #[derive(Serialize, Deserialize, Debug, EnumString, Display, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum RecipeType {
     Task,
     View,
     Commit,
-}
-
-impl RecipeType {
-
-    pub fn new(s: &str) -> YRes<RecipeType> {
-        RecipeType::from_str(s).map_err(|e|
-            err!(ParseError::"build RecipeType from str", s, e)
-        )
-    }
-
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -65,6 +55,7 @@ pub struct RecipeAction {
     pub arguments: Vec<RecipeActionArg>,
 }
 
+#[yfunc]
 #[derive(Serialize, Deserialize, Debug, EnumString, Display, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum RecipeActionType {
     Back,
@@ -74,22 +65,13 @@ pub enum RecipeActionType {
     Shell,
 }
 
-impl RecipeActionType {
-
-    pub fn new(s: &str) -> YRes<RecipeActionType> {
-        RecipeActionType::from_str(s).map_err(|e|
-            err!(ParseError::"build RecipeActionType from str", s, e)
-        )
-    }
-
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RecipeActionArg {
     pub arg_type: RecipeActionArgType,
     pub value: Option<String>,
 }
 
+#[yfunc]
 #[derive(Serialize, Deserialize, Debug, EnumString, Display, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum RecipeActionArgType {
     Plain,
@@ -98,14 +80,3 @@ pub enum RecipeActionArgType {
     File,
     Context,
 }
-
-impl RecipeActionArgType {
-
-    pub fn new(s: &str) -> YRes<RecipeActionArgType> {
-        RecipeActionArgType::from_str(s).map_err(|e|
-            err!(ParseError::"build RecipeActionArgType from str", s, e)
-        )
-    }
-
-}
-

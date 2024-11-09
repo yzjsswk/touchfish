@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use clap::{Parser, Subcommand};
 use touchfish_core::{FishPreview, FishType, FishApi};
 use touchfish_sqlite_storage::SqliteStorage;
@@ -144,8 +142,8 @@ impl Cli {
                 extra_info, use_file, base64_input, original_data,
             } => {
                 let fish_type = fish_type.Aabb();
-                let fish_type = FishType::from_str(&fish_type).map_err(|e|
-                    err!(ParseError::"handle add command": "parse fish_type failed", fish_type, e)
+                let fish_type = FishType::from_name(&fish_type).trace(
+                    ctx!("handle add command -> parse fish_type argument: FishType::from_name failed", fish_type)
                 )?;
                 let fish_data: YBytes = if use_file {
                     YBytes::open_file(&fish_data)?
@@ -180,9 +178,9 @@ impl Cli {
                     fish_type, fish_data, desc, tags, is_marked, is_locked, extra_info,
                 )?;
                 if original_data {
-                    Ok(CliOutput::Text(fish.json_with_data()?))
+                    Ok(CliOutput::Text(fish.to_json_str()?))
                 } else {
-                    Ok(CliOutput::Text(fish.json_with_preview()?))
+                    Ok(CliOutput::Text(fish.to_preview_json()?))
                 }
             },
             Commands::Expire { identity } => {
@@ -262,15 +260,22 @@ impl Cli {
                 };
                 let fish_types = match fish_types {
                     None => None,
-                    Some(x) => Some(x.into_iter().map(|y| FishType::from_str(&y.Aabb()).map_err(|e|
-                            err!(ParseError::"handle search command": "parse fish_type failed", y, e)
-                    )).collect::<YRes<Vec<_>>>()?),
+                    Some(x) => {
+                        let fish_types = x.into_iter().try_fold::<_, _, YRes<_>>(Vec::new(), |mut acc, it| {
+                            let fish_type = FishType::from_name(&it).trace(
+                                ctx!("handle search command -> parse fish_types argument: FishType::from_name failed", it)
+                            )?;
+                            acc.push(fish_type);
+                            Ok(acc)
+                        })?;
+                        Some(fish_types)
+                    }
                 };
                 let res = api.search_fish(
                     fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked, None, page_num, page_size,
                 )?;
                 if original_data {
-                    Ok(CliOutput::Text(res.to_json(false)?))
+                    Ok(CliOutput::Text(res.to_json_str()?))
                 } else {
                     let preview_data = res.data.into_iter().map(|x|FishPreview::from_fish(&x)).collect::<YRes<Vec<_>>>()?;
                     let preview_page = Page {
@@ -279,7 +284,7 @@ impl Cli {
                         page_size: res.page_size,
                         data: preview_data,
                     };
-                    Ok(CliOutput::Text(preview_page.to_json(true)?))
+                    Ok(CliOutput::Text(preview_page.to_pretty_json_str()?))
                 }
             },
             Commands::Delect { 
@@ -309,9 +314,16 @@ impl Cli {
                 };
                 let fish_types = match fish_types {
                     None => None,
-                    Some(x) => Some(x.into_iter().map(|y| FishType::from_str(&y.Aabb()).map_err(|e|
-                            err!(ParseError::"handle delect command": "parse fish_type failed", y, e)
-                    )).collect::<YRes<Vec<_>>>()?),
+                    Some(x) => {
+                        let fish_types = x.into_iter().try_fold::<_, _, YRes<_>>(Vec::new(), |mut acc, it| {
+                            let fish_type = FishType::from_name(&it).trace(
+                                ctx!("handle delect command -> parse fish_types argument: FishType::from_name failed", it)
+                            )?;
+                            acc.push(fish_type);
+                            Ok(acc)
+                        })?;
+                        Some(fish_types)
+                    }
                 };
                 let res = api.detect_fish(
                     fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked, None,
@@ -322,16 +334,20 @@ impl Cli {
                 let fish = api.pick_fish(&identity)?;
                 match fish {
                     Some(x) => if original_data {
-                        Ok(CliOutput::Text(x.json_with_data()?))
+                        Ok(CliOutput::Text(x.to_json_str()?))
                     } else {
-                        Ok(CliOutput::Text(x.json_with_preview()?))
+                        Ok(CliOutput::Text(x.to_preview_json()?))
                     },
                     None => Ok(CliOutput::None),
                 }
             },
             Commands::Count { original_data } => {
                 let stats = api.count_fish()?;
-                Ok(CliOutput::Text(stats.to_json(!original_data)?))
+                if original_data {
+                    Ok(CliOutput::Text(stats.to_json_str()?))
+                } else {
+                    Ok(CliOutput::Text(stats.to_pretty_json_str()?))
+                }
             }
         }
     }

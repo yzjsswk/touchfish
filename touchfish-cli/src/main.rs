@@ -25,7 +25,9 @@ fn main() -> YRes<()> {
         std::io::stdin()
             .read_line(&mut input)
             .map_err(|e|
-                err!(IOError::"read line from stdin", e)
+                err!("read input failed").trace(
+                    ctx!("read input: std::io::stdin().read_line failed", e)
+                )
             )?;
         let input = input.trim();
         if input.is_empty() {
