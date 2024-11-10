@@ -14,7 +14,7 @@ action_type = "Shell"
     value = "/usr/local/bin/python3"
 
     [[actions.arguments]]
-    arg_type = "File"
+    arg_type = "Plain"
     value = "dictionary.py"
 
     [[actions.arguments]]

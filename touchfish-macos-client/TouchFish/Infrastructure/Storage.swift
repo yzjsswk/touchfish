@@ -29,11 +29,11 @@ struct Storage {
         switch result {
         case .success(let resp):
             if !resp.isOk() {
-                Log.error("Storage.searchFish - fail: delectFish.resp.status is not ok, resp.status=\(resp.status)")
+                Log.error("Storage.searchFish - fail: delectFish.resp.code is not ok, resp.code=\(resp.code)")
                 return ret
             }
             guard let data = resp.data else {
-                Log.error("Storage.searchFish - fail: delectFish.resp.data=nil, resp.status=\(resp.status)")
+                Log.error("Storage.searchFish - fail: delectFish.resp.data=nil, resp.code=\(resp.code)")
                 return ret
             }
             identitys = data
@@ -50,11 +50,11 @@ struct Storage {
             switch result {
             case .success(let resp):
                 if !resp.isOk() {
-                    Log.warning("Storage.searchFish - ignore one fish: pickFish.resp.status is not ok, resp.status=\(resp.status), fish.identity=\(identity)")
+                    Log.warning("Storage.searchFish - ignore one fish: pickFish.resp.code is not ok, resp.code=\(resp.code), fish.identity=\(identity)")
                     continue
                 }
                 guard let data = resp.data else {
-                    Log.warning("Storage.searchFish - ignore one fish: pickFish.resp.data=nil, resp.status=\(resp.status), fish.identity=\(identity)")
+                    Log.warning("Storage.searchFish - ignore one fish: pickFish.resp.data=nil, resp.code=\(resp.code), fish.identity=\(identity)")
                     
                     continue
                 }
@@ -80,7 +80,7 @@ struct Storage {
         switch result {
         case .success(let resp):
             if !resp.isOk() {
-                Log.error("Storage.pickFish - failed: pickFish.resp.status is not ok, resp.status=\(resp.status), fish.identity=\(identity)")
+                Log.error("Storage.pickFish - failed: pickFish.resp.code is not ok, resp.code=\(resp.code), fish.identity=\(identity)")
                 return nil
             }
             guard let data = resp.data else {
@@ -120,15 +120,15 @@ struct Storage {
         switch result {
         case .success(let resp):
             if !resp.isOk() {
-                Log.error("Storage.addFish - fail: resp is not ok, resp.status=\(resp.status)")
+                Log.error("Storage.addFish - fail: resp is not ok, resp.code=\(resp.code)")
                 return nil
             }
             guard let data = resp.data else {
-                Log.error("Storage.addFish - fail: resp.data=nil, resp.status=\(resp.status)")
+                Log.error("Storage.addFish - fail: resp.data=nil, resp.code=\(resp.code)")
                 return nil
             }
             guard let fish = data.toFish() else {
-                Log.error("Storage.addFish - return nil: parse fishResp to Fish failed, resp.status=\(resp.status)")
+                Log.error("Storage.addFish - return nil: parse fishResp to Fish failed, resp.code=\(resp.code)")
                 return nil
             }
             fishCache[fish.identity] = fish
@@ -157,7 +157,7 @@ struct Storage {
         switch result {
         case .success(let resp):
             if !resp.isOk() {
-                Log.error("Storage.modifyFish - fail: resp is not ok, resp.status=\(resp.status)")
+                Log.error("Storage.modifyFish - fail: resp is not ok, resp.code=\(resp.code)")
                 return false
             }
             fishCache.removeValue(forKey: identity)
@@ -177,7 +177,7 @@ struct Storage {
         switch result {
         case .success(let resp):
             if !resp.isOk() {
-                Log.error("Storage.removeFish - fail: resp is not ok, resp.status=\(resp.status)")
+                Log.error("Storage.removeFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
             for identity in identitys {
                 fishCache.removeValue(forKey: identity)
@@ -196,7 +196,7 @@ struct Storage {
         switch result {
         case .success(let resp):
             if !resp.isOk() {
-                Log.error("Storage.markFish - fail: resp is not ok, resp.status=\(resp.status)")
+                Log.error("Storage.markFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
             for identity in identitys {
                 fishCache.removeValue(forKey: identity)
@@ -215,7 +215,7 @@ struct Storage {
         switch result {
         case .success(let resp):
             if !resp.isOk() {
-                Log.error("Storage.unMarkFish - fail: resp is not ok, resp.status=\(resp.status)")
+                Log.error("Storage.unMarkFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
             for identity in identitys {
                 fishCache.removeValue(forKey: identity)
@@ -234,7 +234,7 @@ struct Storage {
         switch result {
         case .success(let resp):
             if !resp.isOk() {
-                Log.error("Storage.lockFish - fail: resp is not ok, resp.status=\(resp.status)")
+                Log.error("Storage.lockFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
             for identity in identitys {
                 fishCache.removeValue(forKey: identity)
@@ -253,7 +253,7 @@ struct Storage {
         switch result {
         case .success(let resp):
             if !resp.isOk() {
-                Log.error("Storage.unLockFish - fail: resp is not ok, resp.status=\(resp.status)")
+                Log.error("Storage.unLockFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
             for identity in identitys {
                 fishCache.removeValue(forKey: identity)
@@ -272,7 +272,7 @@ struct Storage {
         switch result {
         case .success(let resp):
             if !resp.isOk() {
-                Log.error("Storage.pinFish - fail: resp is not ok, resp.status=\(resp.status)")
+                Log.error("Storage.pinFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
             for identity in identitys {
                 fishCache.removeValue(forKey: identity)
@@ -291,10 +291,10 @@ struct Storage {
         switch result {
         case .success(let resp):
             if !resp.isOk() {
-                Log.error("Storage.countFish - fail: resp is not ok, resp.status=\(resp.status)")
+                Log.error("Storage.countFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
             guard let data = resp.data else {
-                Log.error("Storage.countFish - fail: resp.data=nil, resp.status=\(resp.status)")
+                Log.error("Storage.countFish - fail: resp.data=nil, resp.code=\(resp.code)")
                 return nil
             }
             return data
@@ -314,10 +314,10 @@ struct Storage {
             switch result {
             case .success(let resp):
                 if !resp.isOk() {
-                    Log.error("Storage.searchRecipe - fail: resp is not ok, resp.status=\(resp.status), urlPrefix=\(urlPrefix)")
+                    Log.error("Storage.searchRecipe - fail: resp is not ok, resp.code=\(resp.code), urlPrefix=\(urlPrefix)")
                 }
                 guard let data = resp.data else {
-                    Log.error("Storage.searchRecipe - fail: resp.data=nil, resp.status=\(resp.status), urlPrefix=\(urlPrefix)")
+                    Log.error("Storage.searchRecipe - fail: resp.data=nil, resp.code=\(resp.code), urlPrefix=\(urlPrefix)")
                     continue
                 }
                 for recipeResp in data {
@@ -333,6 +333,31 @@ struct Storage {
             }
         }
         return ret
+    }
+    
+    static func executeRecipe(
+        bundleId: String, command: String, arguments: [String]
+    ) async -> String? {
+        guard let server = Config.recipeServiceConfigs.values.first else {
+            Log.error("Storage.executeRecipe - fail: no recipe server, bundleId=\(bundleId), command=\(command)")
+            return nil
+        }
+        let urlPrefix = "http://\(server.host):\(server.port)"
+        let result = await RecipeService.executeRecipe(bundleId: bundleId, command: command, arguments: arguments)
+        switch result {
+        case .success(let resp):
+            if !resp.isOk() {
+                Log.error("Storage.executeRecipe - fail: resp is not ok, resp.code=\(resp.code), urlPrefix=\(urlPrefix), bundleId=\(bundleId), command=\(command)")
+            }
+            guard let data = resp.data else {
+                Log.error("Storage.executeRecipe - fail: resp.data=nil, resp.code=\(resp.code), urlPrefix=\(urlPrefix), bundleId=\(bundleId), command=\(command)")
+                return nil
+            }
+            return data
+        case .failure(let err):
+            Log.error("Storage.executeRecipe - fail: request recipe server failed, urlPrefix=\(urlPrefix), err=\(err), bundleId=\(bundleId), command=\(command)")
+            return nil
+        }
     }
   
 }

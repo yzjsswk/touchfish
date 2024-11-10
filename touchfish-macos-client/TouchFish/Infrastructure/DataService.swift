@@ -3,11 +3,12 @@ import Alamofire
 
 struct DataServiceResponse<T: Codable>: Codable {
     
-    let status: String
+    let code: String
+    let msg: String
     let data: T?
     
     func isOk() -> Bool {
-        return self.status == "Ok"
+        return self.code == "OK"
     }
     
 }

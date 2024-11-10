@@ -4,11 +4,12 @@ import SwiftUI
 
 struct RecipeServiceResponse<T: Codable>: Codable {
     
-    let status: String
+    let code: String
+    let msg: String
     let data: T?
     
     func isOk() -> Bool {
-        return self.status == "Ok"
+        return self.code == "OK"
     }
     
 }
@@ -88,6 +89,20 @@ struct RecipeService {
     static func listRecipe() async -> Result<RecipeServiceResponse<[RecipeResp]>, AFError> {
         let url = RecipeService.urlPrefix + "/recipe/list"
         return await AF.request(url).serializingDecodable(RecipeServiceResponse.self).result
+    }
+    
+    static func executeRecipe(
+        bundleId: String, command: String, arguments: [String]
+    ) async -> Result<RecipeServiceResponse<String>, AFError> {
+        let url = RecipeService.urlPrefix + "/recipe/execute"
+        let para: [String:Any?] = [
+            "bundle_id": bundleId,
+            "command": command,
+            "args": arguments,
+        ]
+        return await AF.request(
+            url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
+        ).serializingDecodable(RecipeServiceResponse.self).result
     }
             
 }

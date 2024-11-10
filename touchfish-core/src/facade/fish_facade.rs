@@ -1,6 +1,6 @@
 use yfunc_rust::{Page, YBytes, YRes};
 
-use crate::{Fish, FishService, FishStorage, FishType, Statistics};
+use crate::{FishService, Fish, FishStorage, FishType, Statistics};
 
 pub struct FishFacade<S> where S: FishStorage {
     fish_service: FishService<S>,

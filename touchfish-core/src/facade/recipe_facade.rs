@@ -14,7 +14,11 @@ impl RecipeFacade {
     }
 
     pub fn get_recipe_list(&self) -> YRes<Vec<Recipe>> {
-        Ok(self.recipe_service.list())
+        self.recipe_service.list()
+    }
+
+    pub fn execute(&self, bundle_id: &str, command: &str, args: &Vec<String>) -> YRes<String> {
+        self.recipe_service.execute(bundle_id, command, args)
     }
 
 }

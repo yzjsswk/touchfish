@@ -13,7 +13,7 @@
 //                    let result = await DataService.clearFish(secondDelta: Config.autoRemoveFishPastHours*3600)
 //                    switch result {
 //                    case .success(let resp):
-//                        switch resp.status {
+//                        switch resp.code {
 //                        case .success:
 //                            if let clearedIdentitys = resp.data?.clearedIdentitys {
 //                                Log.info("auto remove fish - remove \(clearedIdentitys.count) fish, identitys=\(clearedIdentitys)")
@@ -22,7 +22,7 @@
 //                                }
 //                                Cache.refresh()
 //                            } else {
-//                                Log.warning("auto remove fish - cleared fish identitys may lose: resp.status=success but resp.data=nil")
+//                                Log.warning("auto remove fish - cleared fish identitys may lose: resp.code=success but resp.data=nil")
 //                            }
 //                        case .skip:
 //                            Log.warning("auto remove fish - skip: resp.status=skip, resp.msg=\(resp.msg)")

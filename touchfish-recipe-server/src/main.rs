@@ -1,8 +1,8 @@
-use actix_web::{get, middleware::Logger, post, web::{Json, Path}, App, HttpServer, Responder};
+use actix_web::{get, middleware::Logger, post, web::Json, App, HttpServer, Responder};
 use once_cell::sync::Lazy;
+use req::ExecuteRecipeReq;
 use resp::ToResp;
 use touchfish_core::RecipeFacade;
-use yfunc_rust::prelude::*;
 
 mod req;
 mod resp;
@@ -19,6 +19,13 @@ async fn list_recipe() -> impl Responder {
     FACADE.get_recipe_list().to_resp()
 }
 
+#[post("/recipe/execute")]
+async fn execute_recipe(req: Json<ExecuteRecipeReq>) -> impl Responder {
+    FACADE.execute(
+        &req.bundle_id, &req.command, &req.args,
+    ).to_resp()
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
@@ -31,6 +38,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(Logger::default())
             .service(list_recipe)
+            .service(execute_recipe)
     })
     .bind(("0.0.0.0", port))?
     .run()

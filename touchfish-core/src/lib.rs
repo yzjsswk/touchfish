@@ -6,7 +6,9 @@ mod domain;
 mod infra;
 mod service;
 
+use service::{FishService, RecipeService};
+
 pub use facade::{FishFacade, RecipeFacade};
-pub use domain::*;
 pub use infra::FishStorage;
-pub use service::{FishService, RecipeService};
+pub use domain::*;
+

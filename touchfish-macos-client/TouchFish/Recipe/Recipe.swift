@@ -124,6 +124,10 @@ struct RecipeAction: Codable {
                 AppleScriptRunner.openWebUrl(with: "Google Chrome", url: arg)
             }
         case .Shell:
+            guard let bundleId = RecipeManager.activeRecipe?.bundleId else {
+                Log.warning("run recipe action: skip shell action: bundleId=nil")
+                return
+            }
             var cmd: String? = nil
             var argments: [String] = []
             for (index, argument) in arguments.enumerated() {
@@ -134,13 +138,15 @@ struct RecipeAction: Codable {
                 }
             }
             guard let cmd = cmd else {
-                Log.warning("run recipe action: skip shell action: cmd=nil, recipe=\(RecipeManager.activeRecipe?.bundleId ?? "nil")")
+                Log.warning("run recipe action: skip shell action: cmd=nil, bundleId=\(bundleId)")
                 return
             }
-            DispatchQueue.global(qos: .userInteractive).async {
+            let arguments = argments
+            Task {
                 let startTime = Date()
         //        let executeResultText = Functions.runCommand(cmd: script.executor, args: argments)
-                let executeResultText = AppleScriptRunner.doShellScript(cmd: cmd, args: argments)
+//                let executeResultText = AppleScriptRunner.doShellScript(cmd: cmd, args: argments)
+                let executeResultText = await Storage.executeRecipe(bundleId: bundleId, command: cmd, arguments: arguments)
                 let endTime = Date()
                 let timeCost = Int(endTime.timeIntervalSince(startTime)*1000)
                 if RecipeManager.activeRecipe?.type == .View {
@@ -151,8 +157,9 @@ struct RecipeAction: Codable {
                         view = UserDefinedRecipeView(type: .empty)
                     }
                     view.timeCost = timeCost
+                    let v = view
                     DispatchQueue.main.async {
-                        NotificationCenter.default.post(name: .UserDefinedRecipeViewChanged, object: nil, userInfo: ["view":view])
+                        NotificationCenter.default.post(name: .UserDefinedRecipeViewChanged, object: nil, userInfo: ["view":v])
                     }
                 }
                 if let executeResultData = executeResultText?.data(using: .utf8) {
@@ -163,7 +170,7 @@ struct RecipeAction: Codable {
                         // do nothing
                     }
                 }
-                Log.debug("execute shell command: \(cmd) \(argments), timeCost=\(timeCost)")
+                Log.debug("execute shell command: \(cmd) \(arguments), timeCost=\(timeCost)")
             }
         }
     }
