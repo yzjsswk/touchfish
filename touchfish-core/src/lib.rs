@@ -11,4 +11,3 @@ use service::{FishService, RecipeService};
 pub use facade::{FishFacade, RecipeFacade};
 pub use infra::FishStorage;
 pub use domain::*;
-

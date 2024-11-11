@@ -3,10 +3,10 @@ import CryptoKit
 
 struct AppleScriptRunner {
     
-    static func openTerminal() {
+    static func showApplication(app: String) {
         AppleScriptRunner.runAppleScriptAsyc(appleScript:
             """
-              tell application "Terminal"
+              tell application "\(app)"
                   activate
               end tell
             """

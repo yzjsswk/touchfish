@@ -48,7 +48,6 @@ struct RecipeResp: Codable {
     
     func toRecipe() -> Recipe? {
         return Recipe(
-            location: nil,
             bundleId: self.bundleId,
             author: self.author,
             version: self.version,

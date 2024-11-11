@@ -62,6 +62,7 @@ pub enum RecipeActionType {
     Hide,
     Copy,
     Open,
+    Show,
     Shell,
 }
 
@@ -77,6 +78,5 @@ pub enum RecipeActionArgType {
     Plain,
     Para,
     CommandBarText,
-    File,
     Context,
 }

@@ -2,7 +2,6 @@ import SwiftUI
 
 struct Recipe {
     
-    var location: URL?
     var bundleId: String
     var author: String
     var version: Int
@@ -51,6 +50,7 @@ struct RecipeAction: Codable {
         case Hide
         case Copy
         case Open
+        case Show
         case Shell
     }
     
@@ -67,7 +67,6 @@ struct RecipeAction: Codable {
             case Plain
             case Para
             case CommandBarText
-            case File
             case Context
         }
         
@@ -82,11 +81,6 @@ struct RecipeAction: Codable {
                 return ""
             case .CommandBarText:
                 return CommandManager.commandText
-            case .File:
-                if let value = value, let location = RecipeManager.activeRecipe?.location {
-                    return location.appendingPathComponent(value).path
-                }
-                return ""
             case .Context:
                 if let value = value {
                     if value == "host" {
@@ -122,6 +116,10 @@ struct RecipeAction: Codable {
             if let arg = arguments.first?.getValue(), arg.count > 0 {
                 // todo: browser config
                 AppleScriptRunner.openWebUrl(with: "Google Chrome", url: arg)
+            }
+        case .Show:
+            if let arg = arguments.first?.getValue(), arg.count > 0 {
+                AppleScriptRunner.showApplication(app: arg)
             }
         case .Shell:
             guard let bundleId = RecipeManager.activeRecipe?.bundleId else {

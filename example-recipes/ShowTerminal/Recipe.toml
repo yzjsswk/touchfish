@@ -7,15 +7,11 @@ icon = "system:apple.terminal.fill"
 command = ">"
 
 [[actions]]
-action_type = "Shell"
+action_type = "Show"
 
     [[actions.arguments]]
     arg_type = "Plain"
-    value = "osascript"
-
-    [[actions.arguments]]
-    arg_type = "Plain"
-    value = "show_terminal.scpt"
+    value = "Terminal"
 
 [[actions]]
 action_type = "Back"
