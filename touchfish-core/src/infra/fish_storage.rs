@@ -1,10 +1,10 @@
-use yfunc_rust::{Page, YBytes, YRes};
+use yfunc_rust::{Page, YBytes, prelude::*};
 
 use crate::{DataInfo, Fish, FishType, Statistics};
 
 pub trait FishStorage {
 
-    // insert new fish record
+    // insert new fish
     fn add_fish(
         &self, identity: String, count: i32, fish_type: FishType, fish_data: YBytes, data_info: DataInfo,
         desc: String, tags: Vec<String>, is_marked: bool, is_locked: bool, extra_info: String,
@@ -66,7 +66,7 @@ pub trait FishStorage {
         is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
     ) -> YRes<Vec<String>>;
 
-    // select some fish statistics
+    // select some statistics of fish 
     fn count_fish(&self) -> YRes<Statistics>;
 
 }

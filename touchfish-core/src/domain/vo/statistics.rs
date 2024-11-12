@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use yfunc_rust::prelude::*;
 
-use super::FishType;
+use crate::FishType;
 
 #[yfunc]
 #[derive(Serialize, Deserialize, Debug)]

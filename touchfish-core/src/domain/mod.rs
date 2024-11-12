@@ -1,7 +1,7 @@
-mod fish;
-mod recipe;
-mod statistics;
+mod entity;
+mod aggr;
+mod vo;
 
-pub use fish::*;
-pub use recipe::*;
-pub use statistics::*;
+pub use entity::*;
+pub use aggr::*;
+pub use vo::*;
