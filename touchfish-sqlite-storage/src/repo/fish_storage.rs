@@ -275,7 +275,7 @@ impl FishStorage for SqliteStorage {
         let count__active = self.fish__count(& mut conn, &selecter).trace(
             ctx!("count fish -> count active fish: self.fish__count failed")
         )? as i32;
-        let count__expired = self.expired_fish__count(& mut conn, &selecter).trace(
+        let count__expired = self.fish_expired__count(& mut conn, &selecter).trace(
             ctx!("count fish -> count expired fish: self.expired_fish__count failed")
         )? as i32;
         let count__by_type = self.fish__count_by_type(&mut conn).trace(
