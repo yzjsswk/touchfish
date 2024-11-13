@@ -48,7 +48,7 @@ impl TryFrom<FishModel> for Fish {
             ctx!("try from FishModel to Fish -> parse update_time: YTime::from_str failed", model.update_time, model.id)
         )?;
         Ok(Fish {
-            id: model.id, identity: model.identity, count: model.count, fish_type, fish_data, data_info,
+            id: model.id as i64, identity: model.identity, count: model.count, fish_type, fish_data, data_info,
             desc: model.desc, tags, is_marked: model.is_marked,
             is_locked: model.is_locked, extra_info: model.extra_info, create_time, update_time,
         })

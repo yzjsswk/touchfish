@@ -1,9 +1,9 @@
-use yfunc_rust::{YTime, YUid};
+use yfunc_rust::YTime;
 
-use crate::{Message, Topic, TopicExtraInfo, TopicMessage, TopicType};
+use crate::{Message, MessageExtraInfo, MessageLevel, Topic, TopicExtraInfo, TopicType};
 
 pub struct TopicWithMessage {
-    pub topic_uid: YUid,
+    pub topic_id: i64,
     pub topic_type: TopicType,
     pub subject: String,
     pub title: String,
@@ -17,12 +17,12 @@ impl TopicWithMessage {
 
     pub fn new(topic: Topic, messages: Vec<Message>) -> TopicWithMessage {
         let messages = messages.into_iter().fold(Vec::new(), |mut acc, it| {
-            if it.topic_uid != topic.uid {
+            if it.topic_id != topic.id {
                 return acc;
             }
             acc.push(
                 TopicMessage {
-                    uid: it.uid,
+                    id: it.id,
                     level: it.level,
                     source: it.source,
                     title: it.title,
@@ -36,7 +36,7 @@ impl TopicWithMessage {
             acc
         });
         TopicWithMessage {
-            topic_uid: topic.uid,
+            topic_id: topic.id,
             topic_type: topic.topic_type,
             subject: topic.subject,
             title: topic.title,
@@ -47,4 +47,16 @@ impl TopicWithMessage {
         }
     }
 
+}
+
+pub struct TopicMessage {
+    pub id: i64,
+    pub level: MessageLevel,
+    pub source: String,
+    pub title: String,
+    pub body: String,
+    pub has_read: bool,
+    pub extra_info: MessageExtraInfo,
+    pub create_time: YTime,
+    pub update_time: YTime,
 }
