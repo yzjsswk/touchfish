@@ -8,7 +8,7 @@ use crate::FishPreview;
 #[yfunc]
 #[derive(Serialize, Debug)]
 pub struct Fish {
-    pub id: i64,
+    pub id: String,
     pub identity: String,
     pub count: i32,
     pub fish_type: FishType,
