@@ -4,6 +4,8 @@
 mod model;
 mod storage;
 
+pub use storage::MongoStorage;
+
 #[cfg(test)]
 mod tests {
 
@@ -17,7 +19,7 @@ mod tests {
         let db = MongoStorage::new("mongodb://mongodb:mongodb@localhost:27017").await?;
         let data = "hello world!".as_bytes().to_vec();
         let uid = db.add_fish(
-            "this is a md5", 1, touchfish_core::FishType::Text, YBytes::new(data), 
+            "asdsads", 1, touchfish_core::FishType::Text, YBytes::new(data), 
             &DataInfo {
                 byte_count: Some(10),
                 char_count: Some(1),
@@ -25,7 +27,7 @@ mod tests {
                 row_count: Some(1),
                 width: None,
                 height: None,
-            }, "test", &vec!["test", "xxx"], false, true, "asd",
+            }, "test", &vec![], true, false, "axxsd",
         ).await?;
         dbg!(uid);
         Ok(())
@@ -65,6 +67,14 @@ mod tests {
         let db = MongoStorage::new("mongodb://mongodb:mongodb@localhost:27017").await?;
         let uids = db.detect_fish_by_conditions(Some("lo"), None, None, None, None, Some(&vec!["aaa"]), None, None, None).await?;
         dbg!(uids);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn count_fish_works() -> YRes<()> {
+        let db = MongoStorage::new("mongodb://mongodb:mongodb@localhost:27017").await?;
+        let stats = db.count_fish().await?;
+        dbg!(stats);
         Ok(())
     }
 

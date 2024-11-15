@@ -31,7 +31,10 @@ impl<S> FishService<S> where S: FishStorage {
                 }
             }
             if let Some(tags) = tags {
-                let mut input_tags = tags.unique();
+                let mut input_tags: Vec<String> = tags.unique().into_iter()
+                    .map(|tag| tag.trim().to_string())
+                    .filter(|tag| tag.len() > 0)
+                    .collect();
                 let mut existed_fish_tags = existed_fish.tags;
                 input_tags.sort();
                 existed_fish_tags.sort();
@@ -62,7 +65,10 @@ impl<S> FishService<S> where S: FishStorage {
         let desc = desc.unwrap_or("");
         let extra_info = extra_info.unwrap_or("");
         let tags = match tags {
-            Some(tags) => tags.unique(),
+            Some(tags) => tags.unique().into_iter()
+                .map(|tag| tag.trim())
+                .filter(|tag| tag.len() > 0)
+                .collect(),
             None => vec![],
         };
         let is_marked = is_marked.unwrap_or(false);
