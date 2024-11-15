@@ -1,14 +1,14 @@
 use crate::{RecipeService, Recipe};
 use yfunc_rust::prelude::*;
 
-pub struct RecipeFacade {
+pub struct RecipeApi {
     recipe_service: RecipeService,
 }
 
-impl RecipeFacade {
+impl RecipeApi {
 
-    pub fn new(folder_path: &str) -> RecipeFacade {
-        RecipeFacade {  
+    pub fn new(folder_path: &str) -> RecipeApi {
+        RecipeApi {  
             recipe_service: RecipeService::new(folder_path),
         }
     }

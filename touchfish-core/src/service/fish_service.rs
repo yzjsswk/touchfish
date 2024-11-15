@@ -3,8 +3,6 @@ use yfunc_rust::{prelude::*, Page, Unique, YBytes};
 
 use crate::{DataInfo, Fish, FishStorage, FishType, Statistics};
 
-const FISH_DATA_LEN_LIMIT: usize = 10485760;
-
 pub struct FishService<S> where S: FishStorage {
     storage: S,
 }
@@ -15,27 +13,29 @@ impl<S> FishService<S> where S: FishStorage {
         FishService { storage }
     }
 
-    pub fn add_fish(
-        &self, fish_type: FishType, fish_data: YBytes, desc: Option<String>, tags: Option<Vec<String>>,
-        is_marked: Option<bool>, is_locked: Option<bool>, extra_info: Option<String>,
-    ) -> YRes<Fish> {
-        if fish_data.length() > FISH_DATA_LEN_LIMIT {
-            return Err(err!("DATA_TOO_LONG": "data length is {}, which exceeds the limit of {}", fish_data.length(), FISH_DATA_LEN_LIMIT))
-        }
+    pub async fn add_fish(
+        &self, fish_type: FishType, fish_data: &YBytes, desc: Option<&str>, tags: Option<&Vec<&str>>,
+        is_marked: Option<bool>, is_locked: Option<bool>, extra_info: Option<&str>,
+    ) -> YRes<String> {
         let identity = fish_data.md5();
-        if let Some(existed_fish) = self.storage.pick_fish(&identity)? {
+        let existed_fish = self.storage.pick_fish_by_identity(&identity).await.trace(
+            ctx!("add fish -> check data exists: self.storage.pick_fish_by_identity failed", identity)
+        )?;
+        if let Some(existed_fish) = existed_fish {
             if fish_type != existed_fish.fish_type {
                 return Err(err!("DATA_EXIST": "data already exists and the type of fish is inconsistent"))
             }
-            if let Some(desc) = &desc {
+            if let Some(desc) = desc {
                 if *desc != existed_fish.desc {
                     return Err(err!("DATA_EXIST": "data already exists and the description of fish is inconsistent"))
                 }
             }
-            if let Some(tags) = &tags {
-                let mut tags = tags.unique();
-                tags.sort();
-                if tags != existed_fish.tags {
+            if let Some(tags) = tags {
+                let mut input_tags = tags.unique();
+                let mut existed_fish_tags = existed_fish.tags;
+                input_tags.sort();
+                existed_fish_tags.sort();
+                if input_tags != existed_fish_tags {
                     return Err(err!("DATA_EXIST": "data already exists and the tags of fish is inconsistent"))
                 }
             }
@@ -49,27 +49,20 @@ impl<S> FishService<S> where S: FishStorage {
                     return Err(err!("DATA_EXIST": "data already exists and the lock status of fish is inconsistent"))
                 }
             }
-            if let Some(extra_info) = &extra_info {
+            if let Some(extra_info) = extra_info {
                 if *extra_info != existed_fish.extra_info {
                     return Err(err!("DATA_EXIST": "data already exists and the extra info of fish is inconsistent"))
                 }
             }
-            self.storage.increase_count(vec![&identity])?;
-            let new_fish = self.storage.pick_fish(&identity)?.ok_or(
-                err!("the fish that just existed is gone, there may be concurrent operations").trace(
-                    ctx!("add fish -> same data exists and fish is consistent -> increase fish count -> query the fish again to return: fish not found", identity)
-                )
+            self.storage.increase_count(&vec![&existed_fish.uid]).await.trace(
+                ctx!("add fish -> data exists and the fish is consistent -> increase fish.count: self.storage.increase_count failed", existed_fish.uid, identity)
             )?;
-            return Ok(new_fish)
+            return Ok(existed_fish.uid)
         }
-        let desc = desc.unwrap_or("".to_string());
-        let extra_info = extra_info.unwrap_or("".to_string());
+        let desc = desc.unwrap_or("");
+        let extra_info = extra_info.unwrap_or("");
         let tags = match tags {
-            Some(x) => {
-                let mut t = x.unique();
-                t.sort();
-                t
-            },
+            Some(tags) => tags.unique(),
             None => vec![],
         };
         let is_marked = is_marked.unwrap_or(false);
@@ -78,6 +71,10 @@ impl<S> FishService<S> where S: FishStorage {
         data_info.byte_count = Some(fish_data.length());
         match fish_type {
             FishType::Text => {
+                let data_length_limit = 1048576;
+                if fish_data.length() > data_length_limit {
+                    return Err(err!("DATA_TOO_LONG": "data length is {}, which exceeds the limit of text fish: {}", fish_data.length(), data_length_limit))
+                }
                 let s = fish_data.to_str().upgrade(
                     err!("DATA_INVALID": "fish type is text, but fish data can not parse to text")
                 ).trace(
@@ -88,6 +85,10 @@ impl<S> FishService<S> where S: FishStorage {
                 data_info.row_count = Some(s.split('\n').collect::<Vec<_>>().len());
             },
             FishType::Image => {
+                let data_length_limit = 1048576 * 16;
+                if fish_data.length() > data_length_limit {
+                    return Err(err!("DATA_TOO_LONG": "data length is {}, which exceeds the limit of image fish: {}", fish_data.length(), data_length_limit))
+                }
                 let m = image::load_from_memory(&fish_data.clone().into_vec()).map_err(|e|
                     err!("DATA_INVALID": "fish type is image, but fish data can not parse to image").trace(
                         ctx!("add fish -> type=image -> parse fish data to image: image::load_from_memory failed", e)
@@ -100,177 +101,215 @@ impl<S> FishService<S> where S: FishStorage {
             _ => {},
         };
         self.storage.add_fish(
-            identity, 1, fish_type, fish_data, data_info, desc, tags, is_marked, is_locked, extra_info,
+            &identity, 1, fish_type, fish_data, &data_info, desc, &tags, is_marked, is_locked, extra_info,
+        ).await.trace(
+            ctx!("add fish: self.storage.add_fish failed", fish_type, identity)
         )
     }
 
-    pub fn expire_fish(&self, identitys: Vec<&str>, skip_if_not_exists: bool, skip_if_locked: bool) -> YRes<()> {
-        let mut expire_identitys: Vec<&str> = Vec::new();
-        for identity in identitys {
-            let fish = self.storage.pick_fish(identity)?;
+    pub async fn expire_fish(&self, uids: &Vec<&str>, skip_if_not_exists: bool, skip_if_locked: bool) -> YRes<()> {
+        let mut expire_uids: Vec<&str> = Vec::new();
+        for uid in uids {
+            let fish = self.storage.pick_fish(uid).await.trace(
+                ctx!("expire fish -> check fish if exists & if locked -> get fish by uid: self.storage.pick_fish failed", uid)
+            )?;
             match fish {
                 None => {
                     if !skip_if_not_exists {
-                        return Err(err!("FISH_NOT_EXIST": "fish {} not exist", identity))
+                        return Err(err!("FISH_NOT_EXIST": "fish {} not exist", uid))
                     }
                 },
                 Some(x) => {
                     if !skip_if_locked && x.is_locked {
-                        return Err(err!("FISH_IS_LOCKED": "fish {} is locked", identity))
+                        return Err(err!("FISH_IS_LOCKED": "fish {} is locked", uid))
                     }
-                    expire_identitys.push(identity);
+                    expire_uids.push(uid);
                 }
             }
         }
-        self.storage.expire_fish(expire_identitys)
+        self.storage.expire_fish(&expire_uids).await.trace(
+            ctx!("expire fish: self.storage.expire_fish failed", expire_uids)
+        )
     }
 
-    pub fn modify_fish(
-        &self, identity: &str, desc: Option<String>, tags: Option<Vec<String>>, extra_info: Option<String>,
+    pub async fn modify_fish(
+        &self, uid: &str, desc: Option<&str>, tags: Option<&Vec<&str>>, extra_info: Option<&str>,
     ) -> YRes<()>  {
-        let fish = self.storage.pick_fish(identity)?;
+        let fish = self.storage.pick_fish(uid).await.trace(
+            ctx!("modify fish -> check fish if exists & if locked -> get fish by uid: self.storage.pick_fish failed", uid)
+        )?;
         match fish {
             None => {
-                return Err(err!("FISH_NOT_EXIST": "fish {} not exist", identity))
+                return Err(err!("FISH_NOT_EXIST": "fish {} not exist", uid))
             },
             Some(x) => {
                 if x.is_locked {
-                    return Err(err!("FISH_IS_LOCKED": "fish {} is locked", identity))
+                    return Err(err!("FISH_IS_LOCKED": "fish {} is locked", uid))
                 } else {
-                    self.storage.modify_fish(identity, desc, tags, extra_info)
+                    self.storage.modify_fish(uid, desc, tags, extra_info).await.trace(
+                        ctx!("modify fish: self.storage.modify_fish failed", uid)
+                    )
                 }
             }
         }
     }
 
-    pub fn mark_fish(&self, identitys: Vec<&str>, skip_if_not_exists: bool, skip_if_locked: bool) -> YRes<()> {
-        let mut mark_identitys: Vec<&str> = Vec::new();
-        for identity in identitys {
-            let fish = self.storage.pick_fish(identity)?;
+    pub async fn mark_fish(&self, uids: &Vec<&str>, skip_if_not_exists: bool, skip_if_locked: bool) -> YRes<()> {
+        let mut mark_uids: Vec<&str> = Vec::new();
+        for uid in uids {
+            let fish = self.storage.pick_fish(uid).await.trace(
+                ctx!("mark fish -> check fish if exists & if locked -> get fish by uid: self.storage.pick_fish failed", uid)
+            )?;
             match fish {
                 None => {
                     if !skip_if_not_exists {
-                        return Err(err!("FISH_NOT_EXIST": "fish {} not exist", identity))
+                        return Err(err!("FISH_NOT_EXIST": "fish {} not exist", uid))
                     }
                 },
                 Some(x) => {
                     if !skip_if_locked && x.is_locked {
-                        return Err(err!("FISH_IS_LOCKED": "fish {} is locked", identity))
+                        return Err(err!("FISH_IS_LOCKED": "fish {} is locked", uid))
                     }
-                    mark_identitys.push(identity);
+                    mark_uids.push(uid);
                 }
             }
         }
-        self.storage.mark_fish(mark_identitys)
+        self.storage.mark_fish(&mark_uids).await.trace(
+            ctx!("mark fish: self.storage.mark_fish failed", mark_uids)
+        )
     }
 
-    pub fn unmark_fish(&self, identitys: Vec<&str>, skip_if_not_exists: bool, skip_if_locked: bool) -> YRes<()> {
-        let mut unmark_identitys: Vec<&str> = Vec::new();
-        for identity in identitys {
-            let fish = self.storage.pick_fish(identity)?;
+    pub async fn unmark_fish(&self, uids: &Vec<&str>, skip_if_not_exists: bool, skip_if_locked: bool) -> YRes<()> {
+        let mut unmark_uids: Vec<&str> = Vec::new();
+        for uid in uids {
+            let fish = self.storage.pick_fish(uid).await.trace(
+                ctx!("unmark fish -> check fish if exists & if locked -> get fish by uid: self.storage.pick_fish failed", uid)
+            )?;
             match fish {
                 None => {
                     if !skip_if_not_exists {
-                        return Err(err!("FISH_NOT_EXIST": "fish {} not exist", identity))
+                        return Err(err!("FISH_NOT_EXIST": "fish {} not exist", uid))
                     }
                 },
                 Some(x) => {
                     if !skip_if_locked && x.is_locked {
-                        return Err(err!("FISH_IS_LOCKED": "fish {} is locked", identity))
+                        return Err(err!("FISH_IS_LOCKED": "fish {} is locked", uid))
                     }
-                    unmark_identitys.push(identity);
+                    unmark_uids.push(uid);
                 }
             }
         }
-        self.storage.unmark_fish(unmark_identitys)
+        self.storage.unmark_fish(&unmark_uids).await.trace(
+            ctx!("unmark fish: self.storage.unmark_fish failed", unmark_uids)
+        )
     }
 
-    pub fn lock_fish(&self, identitys: Vec<&str>, skip_if_not_exists: bool) -> YRes<()> {
-        let mut lock_identitys: Vec<&str> = Vec::new();
-        for identity in identitys {
-            let fish = self.storage.pick_fish(identity)?;
+    pub async fn lock_fish(&self, uids: &Vec<&str>, skip_if_not_exists: bool) -> YRes<()> {
+        let mut lock_uids: Vec<&str> = Vec::new();
+        for uid in uids {
+            let fish = self.storage.pick_fish(uid).await.trace(
+                ctx!("lock fish -> check fish if exists & if locked -> get fish by uid: self.storage.pick_fish failed", uid)
+            )?;
             match fish {
                 None => {
                     if !skip_if_not_exists {
-                        return Err(err!("FISH_NOT_EXIST": "fish {} not exist", identity))
+                        return Err(err!("FISH_NOT_EXIST": "fish {} not exist", uid))
                     }
                 },
                 Some(_) => {
-                    lock_identitys.push(identity);
+                    lock_uids.push(uid);
                 }
             }
         }
-        self.storage.lock_fish(lock_identitys)
+        self.storage.lock_fish(&lock_uids).await.trace(
+            ctx!("lock fish: self.storage.lock_fish failed", lock_uids)
+        )
     }
 
-    pub fn unlock_fish(&self, identitys: Vec<&str>, skip_if_not_exists: bool) -> YRes<()> {
-        let mut unlock_identitys: Vec<&str> = Vec::new();
-        for identity in identitys {
-            let fish = self.storage.pick_fish(identity)?;
+    pub async fn unlock_fish(&self, uids: &Vec<&str>, skip_if_not_exists: bool) -> YRes<()> {
+        let mut unlock_uids: Vec<&str> = Vec::new();
+        for uid in uids {
+            let fish = self.storage.pick_fish(uid).await.trace(
+                ctx!("unlock fish -> check fish if exists & if locked -> get fish by uid: self.storage.pick_fish failed", uid)
+            )?;
             match fish {
                 None => {
                     if !skip_if_not_exists {
-                        return Err(err!("FISH_NOT_EXIST": "fish {} not exist", identity))
+                        return Err(err!("FISH_NOT_EXIST": "fish {} not exist", uid))
                     }
                 },
                 Some(_) => {
-                    unlock_identitys.push(identity);
+                    unlock_uids.push(uid);
                 }
             }
         }
-        self.storage.unlock_fish(unlock_identitys)
+        self.storage.unlock_fish(&unlock_uids).await.trace(
+            ctx!("unlock fish: self.storage.unlock_fish failed", unlock_uids)
+        )
     }
 
-    pub fn pin_fish(&self, identitys: Vec<&str>, skip_if_not_exists: bool, skip_if_locked: bool) -> YRes<()> {
-        let mut pin_identitys: Vec<&str> = Vec::new();
-        for identity in identitys {
-            let fish = self.storage.pick_fish(identity)?;
+    pub async fn pin_fish(&self, uids: &Vec<&str>, skip_if_not_exists: bool, skip_if_locked: bool) -> YRes<()> {
+        let mut pin_uids: Vec<&str> = Vec::new();
+        for uid in uids {
+            let fish = self.storage.pick_fish(uid).await.trace(
+                ctx!("pin fish -> check fish if exists & if locked -> get fish by uid: self.storage.pick_fish failed", uid)
+            )?;
             match fish {
                 None => {
                     if !skip_if_not_exists {
-                        return Err(err!("FISH_NOT_EXIST": "fish {} not exist", identity))
+                        return Err(err!("FISH_NOT_EXIST": "fish {} not exist", uid))
                     }
                 },
                 Some(x) => {
                     if !skip_if_locked && x.is_locked {
-                        return Err(err!("FISH_IS_LOCKED": "fish {} is locked", identity))
+                        return Err(err!("FISH_IS_LOCKED": "fish {} is locked", uid))
                     }
-                    pin_identitys.push(identity);
+                    pin_uids.push(uid);
                 }
             }
         }
-        self.storage.pin_fish(pin_identitys)
+        self.storage.pin_fish(&pin_uids).await.trace(
+            ctx!("pin fish: self.storage.pin_fish failed", pin_uids)
+        )
     }
 
-    pub fn pick_fish(&self, identity: &str) -> YRes<Option<Fish>> {
-        self.storage.pick_fish(identity)
+    pub async fn pick_fish(&self, uid: &str) -> YRes<Option<Fish>> {
+        self.storage.pick_fish(uid).await.trace(
+            ctx!("pick fish: self.storage.pick_fish failed")
+        )
     }
 
-    pub fn search_fish(
-        &self, fuzzy: Option<String>, identitys: Option<Vec<String>>, 
-        fish_types: Option<Vec<FishType>>, desc: Option<String>,
-        tags: Option<Vec<String>>, is_marked: Option<bool>, is_locked: Option<bool>, 
+    pub async fn search_fish(
+        &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, 
+        fish_types: Option<&Vec<FishType>>, desc: Option<&str>,
+        tags: Option<&Vec<&str>>, is_marked: Option<bool>, is_locked: Option<bool>, 
         passed_hours: Option<i32>, page_num: Option<i32>, page_size: Option<i32>, 
     ) -> YRes<Page<Fish>> {
         self.storage.page_fish(
             fuzzy, identitys, None, fish_types, desc, tags, is_marked, is_locked, passed_hours,
             page_num.unwrap_or(1), page_size.unwrap_or(10),
+        ).await.trace(
+            ctx!("search fish: self.storage.page_fish failed")
         )
     }
 
-    pub fn detect_fish(
-        &self, fuzzy: Option<String>, identitys: Option<Vec<String>>, 
-        fish_types: Option<Vec<FishType>>, desc: Option<String>,
-        tags: Option<Vec<String>>, is_marked: Option<bool>, is_locked: Option<bool>,
+    pub async fn detect_fish(
+        &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, 
+        fish_types: Option<&Vec<FishType>>, desc: Option<&str>,
+        tags: Option<&Vec<&str>>, is_marked: Option<bool>, is_locked: Option<bool>,
         passed_hours: Option<i32>, 
     ) -> YRes<Vec<String>> {
         self.storage.detect_fish(
             fuzzy, identitys, None, fish_types, desc, tags, is_marked, is_locked, passed_hours,
+        ).await.trace(
+            ctx!("detect fish: self.storage.detect_fish failed")
         )
     }
 
-    pub fn count_fish(&self) -> YRes<Statistics> {
-        self.storage.count_fish()
+    pub async fn count_fish(&self) -> YRes<Statistics> {
+        self.storage.count_fish().await.trace(
+            ctx!("count fish: self.storage.count_fish failed")
+        )
     }
 
 }

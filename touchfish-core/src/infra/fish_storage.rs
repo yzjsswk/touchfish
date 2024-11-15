@@ -4,69 +4,46 @@ use crate::{DataInfo, Fish, FishType, Statistics};
 
 pub trait FishStorage {
 
-    // insert new fish
-    fn add_fish(
-        &self, identity: String, count: i32, fish_type: FishType, fish_data: YBytes, data_info: DataInfo,
-        desc: String, tags: Vec<String>, is_marked: bool, is_locked: bool, extra_info: String,
-    ) -> YRes<Fish>;
+    async fn add_fish(
+        &self, identity: &str, count: i32, fish_type: FishType, fish_data: &YBytes, data_info: &DataInfo,
+        desc: &str, tags: &Vec<&str>, is_marked: bool, is_locked: bool, extra_info: &str,
+    ) -> YRes<String>;
 
-    // delete fish and copy to fish_expired
-    // skip if identity not exists
-    fn expire_fish(&self, identitys: Vec<&str>) -> YRes<()>;
+    async fn expire_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    // modify fish record by identity
-    // skip if identity not exists
-    fn modify_fish(
-        &self, identity: &str, desc: Option<String>, tags: Option<Vec<String>>, extra_info: Option<String>,
+    async fn modify_fish(
+        &self, uid: &str, desc: Option<&str>, tags: Option<&Vec<&str>>, extra_info: Option<&str>,
     ) -> YRes<()>;
 
-    // set is_marked = true
-    // skip if identity not exists
-    fn mark_fish(&self, identitys: Vec<&str>) -> YRes<()>;
+    async fn mark_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    // set is_marked = false
-    // skip if identity not exists
-    fn unmark_fish(&self, identitys: Vec<&str>) -> YRes<()>;
+    async fn unmark_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    // set is_locked = true
-    // skip if identity not exists
-    fn lock_fish(&self, identitys: Vec<&str>) -> YRes<()>;
+    async fn lock_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    // set is_locked = false
-    // skip if identity not exists
-    fn unlock_fish(&self, identitys: Vec<&str>) -> YRes<()>;
+    async fn unlock_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    // set update_time to now
-    // skip if identity not exists
-    fn pin_fish(&self, identitys: Vec<&str>) -> YRes<()>;
+    async fn pin_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    // set count = count + 1
-    // skip if identity not exists
-    fn increase_count(&self, identity: Vec<&str>) -> YRes<()>;
+    async fn increase_count(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    // set count = count - 1
-    // skip if identity not exists
-    fn decrease_count(&self, identity: Vec<&str>) -> YRes<()>;
+    async fn pick_fish(&self, uid: &str) -> YRes<Option<Fish>>;
 
-    // select fish by identity
-    fn pick_fish(&self, identity: &str) -> YRes<Option<Fish>>;
+    async fn pick_fish_by_identity(&self, identity: &str) -> YRes<Option<Fish>>;
 
-    // select fish by condition with page
-    fn page_fish(
-        &self, fuzzy: Option<String>, identitys: Option<Vec<String>>, count: Option<i32>,
-        fish_types: Option<Vec<FishType>>, desc: Option<String>, tags: Option<Vec<String>>, 
+    async fn page_fish(
+        &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, count: Option<i32>,
+        fish_types: Option<&Vec<FishType>>, desc: Option<&str>, tags: Option<&Vec<&str>>, 
         is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
         page_num: i32, page_size: i32,
     ) -> YRes<Page<Fish>>;
 
-    // select all fish.identity by condition
-    fn detect_fish(
-        &self, fuzzy: Option<String>, identitys: Option<Vec<String>>, count: Option<i32>,
-        fish_types: Option<Vec<FishType>>, desc: Option<String>, tags: Option<Vec<String>>, 
+    async fn detect_fish(
+        &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, count: Option<i32>,
+        fish_types: Option<&Vec<FishType>>, desc: Option<&str>, tags: Option<&Vec<&str>>, 
         is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
     ) -> YRes<Vec<String>>;
 
-    // select some statistics of fish 
-    fn count_fish(&self) -> YRes<Statistics>;
+    async fn count_fish(&self) -> YRes<Statistics>;
 
 }

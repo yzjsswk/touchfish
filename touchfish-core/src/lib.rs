@@ -8,6 +8,6 @@ mod service;
 
 use service::{FishService, RecipeService};
 
-pub use facade::{FishFacade, RecipeFacade};
+pub use facade::{FishApi, RecipeApi};
 pub use infra::{FishStorage, TopicStorage};
 pub use domain::*;

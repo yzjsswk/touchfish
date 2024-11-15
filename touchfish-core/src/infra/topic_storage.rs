@@ -1,40 +1,27 @@
-use crate::{Message, MessageExtraInfo, MessageLevel, Topic, TopicExtraInfo, TopicType};
+use crate::{MessageExtraInfo, MessageLevel, Topic, TopicExtraInfo, TopicType};
 use yfunc_rust::prelude::*;
 
 pub trait TopicStorage {
 
-    // insert new topic
-    fn add_topic(
-        &self, topic_type: TopicType, subject: String, title: String, extra_info: TopicExtraInfo,
-    ) -> YRes<Topic>;
+    async fn add_topic(
+        &self, topic_type: TopicType, subject: &str, title: &str, extra_info: &TopicExtraInfo,
+    ) -> YRes<String>;
 
-    // insert new message
-    fn add_message(
-        &self, topic_id: i64, level: MessageLevel, source: String,
-        title: String, body: String, has_read: bool, extra_info: MessageExtraInfo,
-    ) -> YRes<Message>;
+    async fn remove_topic(&self, uid: &str) -> YRes<()>;
 
-    // remove topic by id and messages by topic_id
-    fn remove_topic(&self, id: i64) -> YRes<()>;
+    async fn append_message(
+        &self, uid: &str, level: MessageLevel, source: &str,
+        title: &str, body: &str, has_read: bool, extra_info: &MessageExtraInfo,
+    ) -> YRes<()>;
 
-    // set extra_info of topic by id
-    fn set_topic_info(&self, id: i64, extra_info: TopicExtraInfo) -> YRes<()>;
+    async fn set_topic_info(&self, uid: &str, extra_info: &TopicExtraInfo) -> YRes<()>;
 
-    // set extra_info of message by id
-    fn set_message_info(&self, id: i64, extra_info: MessageExtraInfo) -> YRes<()>;
+    async fn set_message_info(&self, uid: &str, extra_info: &MessageExtraInfo) -> YRes<()>;
 
-    // select topic by subject
-    fn pick_topic(&self, subject: &str) -> YRes<Option<Topic>>;
+    async fn pick_topic(&self, subject: &str) -> YRes<Option<Topic>>;
 
-    // select topic by condition
-    fn list_topic(
-        &self, ids: Option<Vec<i64>>, topic_types: Option<Vec<TopicType>>, subject: Option<String>, title: Option<String>,
+    async fn list_topic(
+        &self, uids: Option<&Vec<&str>>, topic_types: Option<&Vec<TopicType>>, subject: Option<&str>, title: Option<&str>,
     ) -> YRes<Vec<Topic>>;
-
-    // select message by condition
-    fn list_message(
-        &self, ids: Option<Vec<i64>>, topic_ids: Option<Vec<i64>>, level: Option<Vec<MessageLevel>>,
-        source: Option<Vec<String>>, title: Option<String>, has_read: Option<bool>,
-    ) -> YRes<Vec<Message>>;
 
 }
