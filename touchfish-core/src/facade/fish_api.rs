@@ -15,7 +15,7 @@ impl<S> FishApi<S> where S: FishStorage {
     }
 
     pub async fn add_fish(
-        &self, fish_type: FishType, fish_data: &YBytes, desc: Option<&str>,
+        &self, fish_type: FishType, fish_data: YBytes, desc: Option<&str>,
         tags: Option<&Vec<&str>>, is_marked: Option<bool>, is_locked: Option<bool>, extra_info: Option<&str>,
     ) -> YRes<String> {
         self.fish_service.add_fish(fish_type, fish_data, desc, tags, is_marked, is_locked, extra_info).await.trace(
@@ -77,7 +77,7 @@ impl<S> FishApi<S> where S: FishStorage {
         &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, 
         fish_types: Option<&Vec<FishType>>, desc: Option<&str>,
         tags: Option<&Vec<&str>>, is_marked: Option<bool>, is_locked: Option<bool>, 
-        passed_hours: Option<i32>, page_num: Option<i32>, page_size: Option<i32>, 
+        passed_hours: Option<i32>, page_num: Option<u64>, page_size: Option<u64>, 
     ) -> YRes<Page<Fish>> {
         self.fish_service.search_fish(
             fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked, passed_hours, page_num, page_size,

@@ -16,11 +16,9 @@ pub trait TopicStorage {
 
     async fn set_topic_info(&self, uid: &str, extra_info: &TopicExtraInfo) -> YRes<()>;
 
-    async fn set_message_info(&self, uid: &str, extra_info: &MessageExtraInfo) -> YRes<()>;
+    async fn pick_topic_by_subject(&self, subject: &str) -> YRes<Option<Topic>>;
 
-    async fn pick_topic(&self, subject: &str) -> YRes<Option<Topic>>;
-
-    async fn list_topic(
+    async fn list_topic_by_conditions(
         &self, uids: Option<&Vec<&str>>, topic_types: Option<&Vec<TopicType>>, subject: Option<&str>, title: Option<&str>,
     ) -> YRes<Vec<Topic>>;
 

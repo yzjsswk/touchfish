@@ -14,7 +14,7 @@ impl<S> FishService<S> where S: FishStorage {
     }
 
     pub async fn add_fish(
-        &self, fish_type: FishType, fish_data: &YBytes, desc: Option<&str>, tags: Option<&Vec<&str>>,
+        &self, fish_type: FishType, fish_data: YBytes, desc: Option<&str>, tags: Option<&Vec<&str>>,
         is_marked: Option<bool>, is_locked: Option<bool>, extra_info: Option<&str>,
     ) -> YRes<String> {
         let identity = fish_data.md5();
@@ -283,9 +283,9 @@ impl<S> FishService<S> where S: FishStorage {
         &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, 
         fish_types: Option<&Vec<FishType>>, desc: Option<&str>,
         tags: Option<&Vec<&str>>, is_marked: Option<bool>, is_locked: Option<bool>, 
-        passed_hours: Option<i32>, page_num: Option<i32>, page_size: Option<i32>, 
+        passed_hours: Option<i32>, page_num: Option<u64>, page_size: Option<u64>, 
     ) -> YRes<Page<Fish>> {
-        self.storage.page_fish(
+        self.storage.page_fish_by_conditions(
             fuzzy, identitys, None, fish_types, desc, tags, is_marked, is_locked, passed_hours,
             page_num.unwrap_or(1), page_size.unwrap_or(10),
         ).await.trace(
@@ -299,7 +299,7 @@ impl<S> FishService<S> where S: FishStorage {
         tags: Option<&Vec<&str>>, is_marked: Option<bool>, is_locked: Option<bool>,
         passed_hours: Option<i32>, 
     ) -> YRes<Vec<String>> {
-        self.storage.detect_fish(
+        self.storage.detect_fish_by_conditions(
             fuzzy, identitys, None, fish_types, desc, tags, is_marked, is_locked, passed_hours,
         ).await.trace(
             ctx!("detect fish: self.storage.detect_fish failed")

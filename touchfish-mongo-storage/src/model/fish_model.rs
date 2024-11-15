@@ -1,4 +1,4 @@
-use mongodb::bson::{oid::ObjectId, spec::BinarySubtype, Binary};
+use mongodb::bson::{oid::ObjectId, spec::BinarySubtype, Binary, DateTime};
 use serde::{Deserialize, Serialize};
 use touchfish_core::{FishType, DataInfo, Fish};
 use yfunc_rust::{prelude::*, YBytes, YTime};
@@ -6,7 +6,7 @@ use yfunc_rust::{prelude::*, YBytes, YTime};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct FishModel {
     #[serde(rename = "_id")]
-    pub id: ObjectId,
+    pub uid: ObjectId,
     pub identity: String,
     pub count: i32,
     pub fish_type: FishType,
@@ -18,16 +18,16 @@ pub struct FishModel {
     pub is_marked: bool,
     pub is_locked: bool,
     pub extra_info: String,
-    pub create_time: String,
-    pub update_time: String,
-    pub expire_time: Option<String>,
+    pub create_time: DateTime,
+    pub update_time: DateTime,
+    pub expire_time: Option<DateTime>,
 }
 
 impl FishModel {
 
     pub fn new(
-        identity: String, count: i32, fish_type: FishType, fish_data: YBytes, data_info: DataInfo,
-        desc: String, tags: Vec<String>, is_marked: bool, is_locked: bool, extra_info: String,
+        identity: &str, count: i32, fish_type: FishType, fish_data: YBytes, data_info: &DataInfo,
+        desc: &str, tags: &Vec<&str>, is_marked: bool, is_locked: bool, extra_info: &str,
     ) -> YRes<FishModel> {
         let fish_data_for_search = if fish_type == FishType::Text {
             Some(fish_data.to_str().map_err(|e| {
@@ -42,11 +42,13 @@ impl FishModel {
             subtype: BinarySubtype::Generic,
             bytes: fish_data.into_vec()
         };
-        let create_time = YTime::now().to_str();
-        let update_time = YTime::now().to_str();
+        let tags = tags.iter().map(|tag| tag.to_string()).collect();
+        let create_time = DateTime::now();
+        let update_time = DateTime::now();
         Ok(FishModel {
-            id: ObjectId::new(), identity, count, fish_type, fish_data, fish_data_for_search,
-            data_info, desc, tags, is_marked, is_locked, extra_info,
+            uid: ObjectId::new(), identity: identity.to_string(), count, 
+            fish_type, fish_data, fish_data_for_search, data_info: data_info.clone(),
+            desc: desc.to_string(), tags, is_marked, is_locked, extra_info: extra_info.to_string(),
             create_time, update_time, expire_time: None,
         })
     }
@@ -59,14 +61,22 @@ impl TryFrom<FishModel> for Fish {
 
     fn try_from(model: FishModel) -> YRes<Self> {
         let fish_data = YBytes::new(model.fish_data.bytes);
-        let create_time = YTime::from_str(&model.create_time).trace(
-            ctx!("try from FishModel to Fish -> parse create_time: YTime::from_str failed", model.create_time, model.id)
+        let create_time = YTime::from_str(&model.create_time.try_to_rfc3339_string().map_err(|e| {
+            err!("build Fish from FishModel failed").trace(
+                ctx!("parse FishModel to Fish -> parse create_time: model.create_time.try_to_rfc3339_string() failed", model.create_time, model.uid, e)
+            )
+        })?).trace(
+            ctx!("parse FishModel to Fish -> parse create_time: YTime::from_str failed", model.create_time, model.uid)
         )?;
-        let update_time = YTime::from_str(&model.update_time).trace(
-            ctx!("try from FishModel to Fish -> parse update_time: YTime::from_str failed", model.update_time, model.id)
+        let update_time = YTime::from_str(&model.update_time.try_to_rfc3339_string().map_err(|e| {
+            err!("build Fish from FishModel failed").trace(
+                ctx!("parse FishModel to Fish -> parse update_time: model.update_time.try_to_rfc3339_string() failed", model.update_time, model.uid, e)
+            )
+        })?).trace(
+            ctx!("parse FishModel to Fish -> parse update_time: YTime::from_str failed", model.update_time, model.uid)
         )?;
         Ok(Fish {
-            id: model.id.to_hex(), identity: model.identity, count: model.count, fish_type: model.fish_type, fish_data,
+            uid: model.uid.to_hex(), identity: model.identity, count: model.count, fish_type: model.fish_type, fish_data,
             data_info: model.data_info, desc: model.desc, tags: model.tags, is_marked: model.is_marked,
             is_locked: model.is_locked, extra_info: model.extra_info, create_time, update_time,
         })

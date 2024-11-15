@@ -5,7 +5,7 @@ use crate::{DataInfo, Fish, FishType, Statistics};
 pub trait FishStorage {
 
     async fn add_fish(
-        &self, identity: &str, count: i32, fish_type: FishType, fish_data: &YBytes, data_info: &DataInfo,
+        &self, identity: &str, count: i32, fish_type: FishType, fish_data: YBytes, data_info: &DataInfo,
         desc: &str, tags: &Vec<&str>, is_marked: bool, is_locked: bool, extra_info: &str,
     ) -> YRes<String>;
 
@@ -31,14 +31,14 @@ pub trait FishStorage {
 
     async fn pick_fish_by_identity(&self, identity: &str) -> YRes<Option<Fish>>;
 
-    async fn page_fish(
+    async fn page_fish_by_conditions(
         &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, count: Option<i32>,
         fish_types: Option<&Vec<FishType>>, desc: Option<&str>, tags: Option<&Vec<&str>>, 
         is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
-        page_num: i32, page_size: i32,
+        page_num: u64, page_size: u64,
     ) -> YRes<Page<Fish>>;
 
-    async fn detect_fish(
+    async fn detect_fish_by_conditions(
         &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, count: Option<i32>,
         fish_types: Option<&Vec<FishType>>, desc: Option<&str>, tags: Option<&Vec<&str>>, 
         is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
