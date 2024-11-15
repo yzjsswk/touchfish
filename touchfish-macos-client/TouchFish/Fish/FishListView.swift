@@ -16,7 +16,7 @@ struct FishListView: View {
     var body: some View {
         VStack {
             ScrollView(showsIndicators: false) {
-                VStack {
+                LazyVStack {
                     ForEach(Array(fishList.enumerated()), id: \.1.identity) { (idx, fish) in
                         FishListItemView(
                             fish: $fishList[idx],
