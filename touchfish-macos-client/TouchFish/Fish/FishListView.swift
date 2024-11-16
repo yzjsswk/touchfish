@@ -3,13 +3,13 @@ import SwiftUI
 struct FishListView: View {
     
     @Binding var fishList: [Fish]
-    @Binding var selectedFishIdentity: String?
-    @State var hoveringFishIdentity: String?
+    @Binding var selectedFishUid: String?
+    @State var hoveringFishUid: String?
     @State var lastHoverTs: TimeInterval = Date().timeIntervalSince1970
     
     @Binding var isEditing: Bool
     @Binding var isMultSelecting: Bool
-    @Binding var multSelectedFishIdentitys: Set<String>
+    @Binding var multSelectedFishUids: Set<String>
     
     @Binding var fishItemPosOffset: CGFloat
     
@@ -17,29 +17,29 @@ struct FishListView: View {
         VStack {
             ScrollView(showsIndicators: false) {
                 LazyVStack {
-                    ForEach(Array(fishList.enumerated()), id: \.1.identity) { (idx, fish) in
+                    ForEach(Array(fishList.enumerated()), id: \.1.uid) { (idx, fish) in
                         FishListItemView(
                             fish: $fishList[idx],
-                            selectedFishIdentity: $selectedFishIdentity,
-                            hoveringFishIdentity: $hoveringFishIdentity,
+                            selectedFishUid: $selectedFishUid,
+                            hoveringFishUid: $hoveringFishUid,
                             isEditing: $isEditing,
                             isMultSelecting: $isMultSelecting,
-                            multSelectedFishIdentitys: $multSelectedFishIdentitys
+                            multSelectedFishUids: $multSelectedFishUids
                         )
                         .offset(y: idx <= 16 ? (fishItemPosOffset*50*CGFloat(idx+1)) : 0)
                         .opacity(fishItemPosOffset == 0 ? 1 : 0)
                         .onHover { isHovered in
                             if isHovered {
-                                selectedFishIdentity = fish.identity
-                                if hoveringFishIdentity != fish.identity {
-                                    hoveringFishIdentity = nil
+                                selectedFishUid = fish.uid
+                                if hoveringFishUid != fish.uid {
+                                    hoveringFishUid = nil
                                 }
                                 lastHoverTs = Date().timeIntervalSince1970
                                 let hoverTs = lastHoverTs
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                                     if isHovered && lastHoverTs == hoverTs {
                                         withAnimation(.spring(duration: 0.4)) {
-                                            hoveringFishIdentity = fish.identity
+                                            hoveringFishUid = fish.uid
                                         }
                                     }
                                 }

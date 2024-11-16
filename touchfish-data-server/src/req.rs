@@ -4,22 +4,22 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchFishReq {
     pub fuzzy: Option<String>,
-    pub identity: Option<Vec<String>>, 
-    pub fish_type: Option<Vec<FishType>>,
+    pub identitys: Option<Vec<String>>, 
+    pub fish_types: Option<Vec<FishType>>,
     pub desc: Option<String>,
     pub tags: Option<Vec<String>>,
     pub is_marked: Option<bool>,
     pub is_locked: Option<bool>,
     pub passed_hours: Option<i32>,
-    pub page_num: Option<i32>,
-    pub page_size: Option<i32>,
+    pub page_num: Option<u64>,
+    pub page_size: Option<u64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DelectFishReq {
     pub fuzzy: Option<String>,
-    pub identity: Option<Vec<String>>, 
-    pub fish_type: Option<Vec<FishType>>,
+    pub identitys: Option<Vec<String>>, 
+    pub fish_types: Option<Vec<FishType>>,
     pub desc: Option<String>,
     pub tags: Option<Vec<String>>,
     pub is_marked: Option<bool>,
@@ -40,7 +40,7 @@ pub struct AddFishReq {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ModifyFishReq {
-    pub identity: String,
+    pub uid: String,
     pub desc: Option<String>,
     pub tags: Option<Vec<String>>,
     pub extra_info: Option<String>,
@@ -48,40 +48,40 @@ pub struct ModifyFishReq {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ExpireFishReq {
-    pub identitys: Vec<String>,
+    pub uids: Vec<String>,
     pub skip_if_not_exists: bool,
     pub skip_if_locked: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MarkFishReq {
-    pub identitys: Vec<String>,
+    pub uids: Vec<String>,
     pub skip_if_not_exists: bool,
     pub skip_if_locked: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UnmarkFishReq {
-    pub identitys: Vec<String>,
+    pub uids: Vec<String>,
     pub skip_if_not_exists: bool,
     pub skip_if_locked: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LockFishReq {
-    pub identitys: Vec<String>,
+    pub uids: Vec<String>,
     pub skip_if_not_exists: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UnlockFishReq {
-    pub identitys: Vec<String>,
+    pub uids: Vec<String>,
     pub skip_if_not_exists: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PinFishReq {
-    pub identitys: Vec<String>,
+    pub uids: Vec<String>,
     pub skip_if_not_exists: bool,
     pub skip_if_locked: bool,
 }

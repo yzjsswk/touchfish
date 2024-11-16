@@ -5,10 +5,10 @@ struct FishRepositoryView: View {
     @State var fishs: [String:Fish] = [:]
     @State var fishList: [Fish] = []
     
-    @State var selectedFishIdentity: String?
+    @State var selectedFishUid: String?
     @State var isEditing: Bool = false
     @State var isMultSelecting: Bool = false
-    @State var multSelectedFishIdentitys: Set<String> = []
+    @State var multSelectedFishUids: Set<String> = []
     
     @State var fishItemPosOffset: CGFloat = -1
     
@@ -22,8 +22,8 @@ struct FishRepositoryView: View {
     @State var sortField: String = ""
     
     var isAllMultSelected: Bool {
-        for identity in fishs.keys {
-            if !multSelectedFishIdentitys.contains(identity) {
+        for uid in fishs.keys {
+            if !multSelectedFishUids.contains(uid) {
                 return false
             }
         }
@@ -31,8 +31,8 @@ struct FishRepositoryView: View {
     }
     
     var isAllMultSelectedLocked: Bool {
-        for identity in multSelectedFishIdentitys {
-            if let fish = fishs[identity], fish.isLocked == false {
+        for uid in multSelectedFishUids {
+            if let fish = fishs[uid], fish.isLocked == false {
                 return false
             }
         }
@@ -40,8 +40,8 @@ struct FishRepositoryView: View {
     }
     
     var isAllMultSelectedMarked: Bool {
-        for identity in multSelectedFishIdentitys {
-            if let fish = fishs[identity], fish.isMarked == false {
+        for uid in multSelectedFishUids {
+            if let fish = fishs[uid], fish.isMarked == false {
                 return false
             }
         }
@@ -50,10 +50,10 @@ struct FishRepositoryView: View {
     
     var body: some View {
         HStack {
-            if isEditing, let identity = selectedFishIdentity, let editingFish = fishs[identity] {
+            if isEditing, let uid = selectedFishUid, let editingFish = fishs[uid] {
                 FishEditView(
                     isEditing: $isEditing,
-                    identity: editingFish.identity,
+                    uid: editingFish.uid,
                     description: editingFish.description,
                     tags: Dictionary(uniqueKeysWithValues: editingFish.tags.map { ($0, true) })
                 )
@@ -72,7 +72,7 @@ struct FishRepositoryView: View {
                                             .scaledToFit()
                                             .foregroundStyle("27295F".color)
                                             .onTapGesture {
-                                                multSelectedFishIdentitys.removeAll()
+                                                multSelectedFishUids.removeAll()
                                             }
                                     }
                                     .frame(width: 25, height: 20)
@@ -83,8 +83,8 @@ struct FishRepositoryView: View {
                                             .scaledToFit()
                                             .foregroundStyle("27295F".color)
                                             .onTapGesture {
-                                                for identity in fishs.keys {
-                                                    multSelectedFishIdentitys.insert(identity)
+                                                for uid in fishs.keys {
+                                                    multSelectedFishUids.insert(uid)
                                                 }
                                             }
                                     }
@@ -96,36 +96,36 @@ struct FishRepositoryView: View {
                                     MultUnLockButtonView()
                                         .onTapGesture {
                                             Task {
-                                                await Storage.unLockFish(Array(multSelectedFishIdentitys))
+                                                await Storage.unLockFish(Array(multSelectedFishUids))
                                             }
                                         }
                                 } else {
                                     MultLockButtonView()
                                         .onTapGesture {
                                             Task {
-                                                await Storage.lockFish(Array(multSelectedFishIdentitys))
+                                                await Storage.lockFish(Array(multSelectedFishUids))
                                             }
                                         }
                                     if isAllMultSelectedMarked {
                                         MultUnMarkButtonView()
                                             .onTapGesture {
                                                 Task {
-                                                    await Storage.unMarkFish(Array(multSelectedFishIdentitys))
+                                                    await Storage.unMarkFish(Array(multSelectedFishUids))
                                                 }
                                             }
                                     } else {
                                         MultMarkButtonView()
                                             .onTapGesture {
                                                 Task {
-                                                    await Storage.markFish(Array(multSelectedFishIdentitys))
+                                                    await Storage.markFish(Array(multSelectedFishUids))
                                                 }
                                             }
                                     }
                                     MultDeleteButtonView()
                                         .onTapGesture {
                                             Task {
-                                                await Storage.removeFish(Array(multSelectedFishIdentitys))
-                                                multSelectedFishIdentitys.removeAll()
+                                                await Storage.removeFish(Array(multSelectedFishUids))
+                                                multSelectedFishUids.removeAll()
                                             }
                                         }
                                 }
@@ -137,19 +137,19 @@ struct FishRepositoryView: View {
                     }
                     FishListView(
                         fishList: $fishList,
-                        selectedFishIdentity: $selectedFishIdentity,
+                        selectedFishUid: $selectedFishUid,
                         isEditing: $isEditing,
                         isMultSelecting: $isMultSelecting,
-                        multSelectedFishIdentitys: $multSelectedFishIdentitys,
+                        multSelectedFishUids: $multSelectedFishUids,
                         fishItemPosOffset: $fishItemPosOffset
                     )
                     .frame(width: (Constant.mainWidth - 30)/2)
                 }
                 FishDetailView(
                     fishs: $fishs,
-                    selectedFishIdentity: $selectedFishIdentity,
+                    selectedFishUid: $selectedFishUid,
                     isMultSelecting: $isMultSelecting,
-                    multSelectedFishIdentitys: $multSelectedFishIdentitys
+                    multSelectedFishUids: $multSelectedFishUids
                 )
                 .frame(width: (Constant.mainWidth - 30)/2)
             }
@@ -173,17 +173,17 @@ struct FishRepositoryView: View {
             if let fish = notification.userInfo?["fish"] as? [String:Fish] {
                 let fishList = fish.values.sorted(by: {
                     if sortField.lowercased() == "create" {
-                        return $0.createTime == $1.createTime ? $0.identity > $1.identity : $0.createTime > $1.createTime
+                        return $0.createTime == $1.createTime ? $0.uid > $1.uid : $0.createTime > $1.createTime
                     }
                     if sortField.lowercased() == "type" {
-                        return $0.fishType == $1.fishType ? $0.identity > $1.identity : $0.fishType.rawValue > $1.fishType.rawValue
+                        return $0.fishType == $1.fishType ? $0.uid > $1.uid : $0.fishType.rawValue > $1.fishType.rawValue
                     }
                     if sortField.lowercased() == "size" {
                         let size0 = $0.dataInfo.byteCount ?? -1
                         let size1 = $1.dataInfo.byteCount ?? -1
-                        return size0 == $1.dataInfo.byteCount ? $0.identity > $1.identity : size0 > size1
+                        return size0 == $1.dataInfo.byteCount ? $0.uid > $1.uid : size0 > size1
                     }
-                    return $0.updateTime == $1.updateTime ? $0.identity > $1.identity : $0.updateTime > $1.updateTime
+                    return $0.updateTime == $1.updateTime ? $0.uid > $1.uid : $0.updateTime > $1.updateTime
                 })
                 if self.fishs.isEmpty || fish.isEmpty {
                     self.fishs = fish

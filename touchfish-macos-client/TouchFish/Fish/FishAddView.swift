@@ -90,7 +90,7 @@ struct FishAddView: View {
                         toAddFiles[url] = addInfo
                         Task {
                             let identity = Functions.getMD5(of: data)
-                            if let fish = await Storage.pickFish(identity: identity) {
+                            if let _ = await Storage.pickFishByIdentity(identity: identity) {
                                 toAddFiles[url] = addInfo.withExists()
                             }
                         }

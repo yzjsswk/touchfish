@@ -3,30 +3,30 @@ import SwiftUI
 struct FishListItemView: View {
     
     @Binding var fish: Fish
-    @Binding var selectedFishIdentity: String?
-    @Binding var hoveringFishIdentity: String?
+    @Binding var selectedFishUid: String?
+    @Binding var hoveringFishUid: String?
     
     @Binding var isEditing: Bool
     @Binding var isMultSelecting: Bool
-    @Binding var multSelectedFishIdentitys: Set<String>
+    @Binding var multSelectedFishUids: Set<String>
     
     @State var showCopyed: Bool = false
     
     @Namespace private var animationNamespace
     
     var isSelected: Bool {
-        selectedFishIdentity == fish.identity
+        selectedFishUid == fish.uid
     }
     
     var isHovering: Bool {
-        !isMultSelecting && hoveringFishIdentity == fish.identity
+        !isMultSelecting && hoveringFishUid == fish.uid
     }
     
     var body: some View {
         HStack() {
             HStack {
                 if isMultSelecting {
-                    if multSelectedFishIdentitys.contains(fish.identity) {
+                    if multSelectedFishUids.contains(fish.uid) {
                         Image(systemName: "checkmark.square")
                         .resizable()
                         .scaledToFit()
@@ -82,14 +82,14 @@ struct FishListItemView: View {
                             .matchedGeometryEffect(id: "unlock_button", in: animationNamespace)
                             .onTapGesture {
                                 Task {
-                                    await Storage.unLockFish([fish.identity])
+                                    await Storage.unLockFish([fish.uid])
                                 }
                             }
                         } else {
                             LockButtonView()
                             .onTapGesture {
                                 Task {
-                                    await Storage.lockFish([fish.identity])
+                                    await Storage.lockFish([fish.uid])
                                 }
                             }
                             EditButtonView()
@@ -100,21 +100,21 @@ struct FishListItemView: View {
                                 UnMarkButtonView()
                                 .onTapGesture {
                                     Task {
-                                        await Storage.unMarkFish([fish.identity])
+                                        await Storage.unMarkFish([fish.uid])
                                     }
                                 }
                             } else {
                                 MarkButtonView()
                                 .onTapGesture {
                                     Task {
-                                        await Storage.markFish([fish.identity])
+                                        await Storage.markFish([fish.uid])
                                     }
                                 }
                             }
                             DeleteButtonView()
                             .onTapGesture {
                                 Task {
-                                    await Storage.removeFish([fish.identity])
+                                    await Storage.removeFish([fish.uid])
                                 }
                             }
                         }
@@ -139,10 +139,10 @@ struct FishListItemView: View {
         }
         .onTapGesture {
             if isMultSelecting {
-                if multSelectedFishIdentitys.contains(fish.identity) {
-                    multSelectedFishIdentitys.remove(fish.identity)
+                if multSelectedFishUids.contains(fish.uid) {
+                    multSelectedFishUids.remove(fish.uid)
                 } else {
-                    multSelectedFishIdentitys.insert(fish.identity)
+                    multSelectedFishUids.insert(fish.uid)
                 }
             } else {
                 fish.copyToClipboard()
@@ -165,7 +165,7 @@ struct FishListItemView: View {
             withAnimation {
                 isMultSelecting = true
             }
-            multSelectedFishIdentitys.insert(fish.identity)
+            multSelectedFishUids.insert(fish.uid)
         }
     }
 }

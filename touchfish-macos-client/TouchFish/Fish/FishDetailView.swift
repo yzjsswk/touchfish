@@ -3,13 +3,13 @@ import SwiftUI
 struct FishDetailView: View {
     
     @Binding var fishs: [String:Fish]
-    @Binding var selectedFishIdentity: String?
+    @Binding var selectedFishUid: String?
     @Binding var isMultSelecting: Bool
-    @Binding var multSelectedFishIdentitys: Set<String>
+    @Binding var multSelectedFishUids: Set<String>
     
     var selectedFish: Fish? {
-        if let identity = selectedFishIdentity {
-            return fishs[identity]
+        if let uid = selectedFishUid {
+            return fishs[uid]
         }
         return nil
     }
@@ -70,7 +70,7 @@ struct FishDetailView: View {
             withAnimation {
                 isMultSelecting = false
             }
-            multSelectedFishIdentitys.removeAll()
+            multSelectedFishUids.removeAll()
         }
     }
     

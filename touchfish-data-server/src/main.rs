@@ -1,62 +1,64 @@
-use actix_web::{get, middleware::Logger, post, web::{Json, Path}, App, HttpServer, Responder};
-use once_cell::sync::Lazy;
+use actix_web::{get, middleware::Logger, post, web::{Data, Json, Path}, App, HttpServer, Responder};
 use req::{AddFishReq, DelectFishReq, ExpireFishReq, LockFishReq, MarkFishReq, ModifyFishReq, PinFishReq, SearchFishReq, UnlockFishReq, UnmarkFishReq};
 use resp::ToResp;
-use touchfish_core::FishFacade;
-use touchfish_sqlite_storage::SqliteStorage;
+use touchfish_core::FishApi;
+use touchfish_mongo_storage::MongoStorage;
 use yfunc_rust::{prelude::*, YBytes};
 
 mod req;
 mod resp;
 
-static FACADE: Lazy<FishFacade<SqliteStorage>> = Lazy::new(|| {
-    let db_url = std::env::var("TFDS_DB_URL")
-        .expect("database url is required");
-    let do_init = match std::env::var("TFDS_INIT") {
-        Ok(x) => x.parse().expect(&format!("parse env var TFDS_INIT failed, TFDS_INIT={x}")),
-        Err(_) => false,   
-    };
-    let storage: SqliteStorage = SqliteStorage::connect(&db_url, do_init)
-        .expect("connect to data base failed");
-    let facade = FishFacade::new(storage)
-        .expect("init fish facade failed");
-    facade
-});
-
 #[post("/fish/search")]
-async fn search_fish(req: Json<SearchFishReq>) -> impl Responder {
-    FACADE.search_fish(
-        req.fuzzy.clone(), req.identity.clone(), req.fish_type.clone(), req.desc.clone(),
-        req.tags.clone(), req.is_marked, req.is_locked, req.passed_hours, req.page_num, req.page_size,
-    ).to_resp()
+async fn search_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<SearchFishReq>) -> impl Responder {
+    let fuzzy = req.fuzzy.as_ref().map(|x| x.as_str());
+    let identitys = req.identitys.as_ref().map(|x| x.into_iter().map(|y| y.as_str()).collect::<Vec<&str>>());
+    let desc = req.desc.as_ref().map(|x| x.as_str());
+    let tags = req.tags.as_ref().map(|x| x.into_iter().map(|y| y.as_str()).collect::<Vec<&str>>());
+    fish_api.search_fish(
+        fuzzy, identitys.as_ref(), req.fish_types.as_ref(), desc,
+        tags.as_ref(), req.is_marked, req.is_locked, req.passed_hours,
+        req.page_num, req.page_size,
+    ).await.to_resp()
 }
 
 #[post("/fish/delect")]
-async fn delect_fish(req: Json<DelectFishReq>) -> impl Responder {
-    FACADE.detect_fish(
-        req.fuzzy.clone(), req.identity.clone(), req.fish_type.clone(), req.desc.clone(),
-        req.tags.clone(), req.is_marked, req.is_locked, req.passed_hours,
-    ).to_resp()
+async fn delect_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<DelectFishReq>) -> impl Responder {
+    let fuzzy = req.fuzzy.as_ref().map(|x| x.as_str());
+    let identitys = req.identitys.as_ref().map(|x| x.into_iter().map(|y| y.as_str()).collect::<Vec<&str>>());
+    let desc = req.desc.as_ref().map(|x| x.as_str());
+    let tags = req.tags.as_ref().map(|x| x.into_iter().map(|y| y.as_str()).collect::<Vec<&str>>());
+    fish_api.detect_fish(
+        fuzzy, identitys.as_ref(), req.fish_types.as_ref(), desc,
+        tags.as_ref(), req.is_marked, req.is_locked, req.passed_hours,
+    ).await.to_resp()
 }
 
-#[get("/fish/pick/{identity}")]
-async fn pick_fish(identity: Path<String>) -> impl Responder {
-    FACADE.pick_fish(&identity).to_resp()
+#[get("/fish/pick/{uid}")]
+async fn pick_fish(fish_api: Data<FishApi<MongoStorage>>, uid: Path<String>) -> impl Responder {
+    fish_api.pick_fish(&uid).await.to_resp()
+}
+
+#[get("/fish/pick_by_identity/{identity}")]
+async fn pick_fish_by_identity(fish_api: Data<FishApi<MongoStorage>>, identity: Path<String>) -> impl Responder {
+    fish_api.pick_fish_by_identity(&identity).await.to_resp()
 }
 
 #[get("/fish/count")]
-async fn count_fish() -> impl Responder {
-    FACADE.count_fish().to_resp()
+async fn count_fish(fish_api: Data<FishApi<MongoStorage>>,) -> impl Responder {
+    fish_api.count_fish().await.to_resp()
 }
 
 #[post("/fish/add")]
-async fn add_fish(req: Json<AddFishReq>) -> impl Responder {
+async fn add_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<AddFishReq>) -> impl Responder {
     let res = YBytes::from_base64(&req.fish_data);
     if let Ok(fish_data) = res {
-        return FACADE.add_fish(
-            req.fish_type, fish_data, req.desc.clone(), req.tags.clone(),
-            req.is_marked, req.is_locked, req.extra_info.clone(),
-        ).to_resp()
+        let desc = req.desc.as_ref().map(|x| x.as_str());
+        let tags = req.tags.as_ref().map(|x| x.into_iter().map(|y| y.as_str()).collect::<Vec<&str>>());
+        let extra_info = req.extra_info.as_ref().map(|x| x.as_str());
+        return fish_api.add_fish(
+            req.fish_type, fish_data, desc, tags.as_ref(),
+            req.is_marked, req.is_locked, extra_info,
+        ).await.to_resp()
     }
     return res.upgrade(
         err!("DATA_INVALID": "decode fish data failed, fish data should be a base64 encoded text")
@@ -66,52 +68,47 @@ async fn add_fish(req: Json<AddFishReq>) -> impl Responder {
 }
 
 #[post("/fish/modify")]
-async fn modify_fish(req: Json<ModifyFishReq>) -> impl Responder {
-    FACADE.modify_fish(
-        &req.identity, req.desc.clone(), req.tags.clone(), req.extra_info.clone(),
-    ).to_resp()
+async fn modify_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<ModifyFishReq>) -> impl Responder {
+    let desc = req.desc.as_ref().map(|x| x.as_str());
+    let tags = req.tags.as_ref().map(|x| x.into_iter().map(|y| y.as_str()).collect::<Vec<&str>>());
+    let extra_info = req.extra_info.as_ref().map(|x| x.as_str());
+    fish_api.modify_fish(&req.uid, desc, tags.as_ref(), extra_info).await.to_resp()
 }
 
 #[post("/fish/expire")]
-async fn expire_fish(req: Json<ExpireFishReq>) -> impl Responder {
-    FACADE.expire_fish(
-        req.identitys.iter().map(|x| x.as_str()).collect(), req.skip_if_not_exists, req.skip_if_locked,
-    ).to_resp()
+async fn expire_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<ExpireFishReq>) -> impl Responder {
+    let uids: Vec<&str> = req.uids.iter().map(|uid| uid.as_str()).collect();
+    fish_api.expire_fish(&uids, req.skip_if_not_exists, req.skip_if_locked).await.to_resp()
 }
 
 #[post("/fish/mark")]
-async fn mark_fish(req: Json<MarkFishReq>) -> impl Responder {
-    FACADE.mark_fish(
-        req.identitys.iter().map(|x| x.as_str()).collect(), req.skip_if_not_exists, req.skip_if_locked,
-    ).to_resp()
+async fn mark_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<MarkFishReq>) -> impl Responder {
+    let uids: Vec<&str> = req.uids.iter().map(|uid| uid.as_str()).collect();
+    fish_api.mark_fish(&uids, req.skip_if_not_exists, req.skip_if_locked).await.to_resp()
 }
 
 #[post("/fish/unmark")]
-async fn unmark_fish(req: Json<UnmarkFishReq>) -> impl Responder {
-    FACADE.unmark_fish(
-        req.identitys.iter().map(|x| x.as_str()).collect(), req.skip_if_not_exists, req.skip_if_locked,
-    ).to_resp()
+async fn unmark_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<UnmarkFishReq>) -> impl Responder {
+    let uids: Vec<&str> = req.uids.iter().map(|uid| uid.as_str()).collect();
+    fish_api.unmark_fish(&uids, req.skip_if_not_exists, req.skip_if_locked).await.to_resp()
 }
 
 #[post("/fish/lock")]
-async fn lock_fish(req: Json<LockFishReq>) -> impl Responder {
-    FACADE.lock_fish(
-        req.identitys.iter().map(|x| x.as_str()).collect(), req.skip_if_not_exists,
-    ).to_resp()
+async fn lock_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<LockFishReq>) -> impl Responder {
+    let uids: Vec<&str> = req.uids.iter().map(|uid| uid.as_str()).collect();
+    fish_api.lock_fish(&uids, req.skip_if_not_exists).await.to_resp()
 }
 
 #[post("/fish/unlock")]
-async fn unlock_fish(req: Json<UnlockFishReq>) -> impl Responder {
-    FACADE.unlock_fish(
-        req.identitys.iter().map(|x| x.as_str()).collect(), req.skip_if_not_exists,
-    ).to_resp()
+async fn unlock_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<UnlockFishReq>) -> impl Responder {
+    let uids: Vec<&str> = req.uids.iter().map(|uid| uid.as_str()).collect();
+    fish_api.unlock_fish(&uids, req.skip_if_not_exists).await.to_resp()
 }
 
 #[post("/fish/pin")]
-async fn pin_fish(req: Json<PinFishReq>) -> impl Responder {
-    FACADE.pin_fish(
-        req.identitys.iter().map(|x| x.as_str()).collect(), req.skip_if_not_exists, req.skip_if_locked,
-    ).to_resp()
+async fn pin_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<PinFishReq>) -> impl Responder {
+    let uids: Vec<&str> = req.uids.iter().map(|uid| uid.as_str()).collect();
+    fish_api.pin_fish(&uids, req.skip_if_not_exists, req.skip_if_locked).await.to_resp()
 }
 
 #[actix_web::main]
@@ -121,13 +118,18 @@ async fn main() -> std::io::Result<()> {
         Ok(v) => v.parse().expect(&format!("env var TFDS_PORT parse failed, TFDS_PORT={}", v)),
         Err(_) => 56173,
     };
-    let _ = &*FACADE;
-    HttpServer::new(|| {
+    let db_uri = std::env::var("TFDS_DB_URI").expect("environment variable TFDS_DB_URI is required");
+    let storage = MongoStorage::new(&db_uri).await.expect("connect to database failed");
+    let fish_api = FishApi::new(storage).expect("init fish api failed");
+    let app_data = Data::new(fish_api);
+    HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
+            .app_data(app_data.clone())
             .service(search_fish)
             .service(delect_fish)
             .service(pick_fish)
+            .service(pick_fish_by_identity)
             .service(count_fish)
             .service(add_fish)
             .service(modify_fish)

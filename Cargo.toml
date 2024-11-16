@@ -1,10 +1,8 @@
 [workspace]
-members = [ 
-    # "touchfish-cli",
+members = [
     "touchfish-core", 
     "touchfish-mongo-storage", 
-    # "touchfish-sqlite-storage",
-    # "touchfish-data-server", 
+    "touchfish-data-server",
     # "touchfish-recipe-server",
 ]
 

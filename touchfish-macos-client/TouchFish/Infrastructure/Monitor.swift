@@ -114,7 +114,7 @@ struct MonitorManager {
                             let ex = extraInfo
                             let identity = Functions.getMD5(of: clipboardData.1)
                             Task {
-                                if let fish = await Storage.pickFish(identity: identity) {
+                                if let fish = await Storage.pickFishByIdentity(identity: identity) {
                                     let newFish = await Storage.addFish(
                                         fish.fishType, fish.fishData, description: fish.description, tags: fish.tags,
                                         isMarked: fish.isMarked, isLocked: fish.isLocked, extraInfo: fish.extraInfo

@@ -16,16 +16,10 @@ struct Storage {
     ) async -> [String:Fish] {
         var ret: [String:Fish] = [:]
         let result = await DataService.delectFish(
-            fuzzy: fuzzy,
-            identitys: identitys,
-            fishTypes: fishTypes,
-            description: description,
-            tags: tags,
-            isMarked: isMarked,
-            isLocked: isLocked,
-            passedHours: passedHours
+            fuzzy: fuzzy, identitys: identitys, fishTypes: fishTypes, description: description, tags: tags,
+            isMarked: isMarked, isLocked: isLocked, passedHours: passedHours
         )
-        var identitys: [String] = []
+        var uids: [String] = []
         switch result {
         case .success(let resp):
             if !resp.isOk() {
@@ -36,47 +30,70 @@ struct Storage {
                 Log.error("Storage.searchFish - fail: delectFish.resp.data=nil, resp.code=\(resp.code)")
                 return ret
             }
-            identitys = data
+            uids = data
         case .failure(let err):
             Log.error("Storage.searchFish - fail: delectFish request failed, err=\(err)")
             Functions.sendDataServiceErrorMessage()
         }
-        for identity in identitys {
-            if let fish = fishCache[identity] {
-                ret[fish.identity] = fish
+        for uid in uids {
+            if let fish = fishCache[uid] {
+                ret[fish.uid] = fish
                 continue
             }
-            let result = await DataService.pickFish(identity: identity)
+            let result = await DataService.pickFish(uid: uid)
             switch result {
             case .success(let resp):
                 if !resp.isOk() {
-                    Log.warning("Storage.searchFish - ignore one fish: pickFish.resp.code is not ok, resp.code=\(resp.code), fish.identity=\(identity)")
+                    Log.warning("Storage.searchFish - ignore one fish: pickFish.resp.code is not ok, resp.code=\(resp.code), fish.uid=\(uid)")
                     continue
                 }
                 guard let data = resp.data else {
-                    Log.warning("Storage.searchFish - ignore one fish: pickFish.resp.data=nil, resp.code=\(resp.code), fish.identity=\(identity)")
-                    
+                    Log.warning("Storage.searchFish - ignore one fish: pickFish.resp.data=nil, resp.code=\(resp.code), fish.uid=\(uid)")
                     continue
                 }
                 guard let fish = data.toFish() else {
-                    Log.warning("Storage.searchFish - ignore one fish: parse fishResp to Fish failed, fish.identity=\(identity)")
+                    Log.warning("Storage.searchFish - ignore one fish: parse fishResp to Fish failed, fish.uid=\(uid)")
                     continue
                 }
-                ret[fish.identity] = fish
-                fishCache[fish.identity] = fish
+                ret[fish.uid] = fish
+                fishCache[fish.uid] = fish
             case .failure(let err):
-                Log.warning("Storage.searchFish - ignore one fish: pickFish request failed, err=\(err), fish.identity=\(identity)")
+                Log.warning("Storage.searchFish - ignore one fish: pickFish request failed, err=\(err), fish.uid=\(uid)")
                 Functions.sendDataServiceErrorMessage()
             }
         }
         return ret
     }
     
-    static func pickFish(identity: String) async -> Fish? {
-        if let fish = fishCache[identity] {
+    static func pickFish(uid: String) async -> Fish? {
+        if let fish = fishCache[uid] {
             return fish
         }
-        let result = await DataService.pickFish(identity: identity)
+        let result = await DataService.pickFish(uid: uid)
+        switch result {
+        case .success(let resp):
+            if !resp.isOk() {
+                Log.error("Storage.pickFish - failed: pickFish.resp.code is not ok, resp.code=\(resp.code), fish.uid=\(uid)")
+                return nil
+            }
+            guard let data = resp.data else {
+                return nil
+            }
+            guard let fish = data.toFish() else {
+                Log.error("Storage.pickFish - failed: parse fishResp to Fish failed, fish.uid=\(uid)")
+                return nil
+            }
+            fishCache[fish.uid] = fish
+            return fish
+        case .failure(let err):
+            Log.error("Storage.pickFish - failed: pickFish request failed, err=\(err), fish.uid=\(uid)")
+            Functions.sendDataServiceErrorMessage()
+            return nil
+        }
+    }
+    
+    static func pickFishByIdentity(identity: String) async -> Fish? {
+        let result = await DataService.pickFishByIdentity(identity: identity)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
@@ -90,7 +107,7 @@ struct Storage {
                 Log.error("Storage.pickFish - failed: parse fishResp to Fish failed, fish.identity=\(identity)")
                 return nil
             }
-            fishCache[fish.identity] = fish
+            fishCache[fish.uid] = fish
             return fish
         case .failure(let err):
             Log.error("Storage.pickFish - failed: pickFish request failed, err=\(err), fish.identity=\(identity)")
@@ -107,7 +124,7 @@ struct Storage {
         isMarked: Bool? = nil,
         isLocked: Bool? = nil,
         extraInfo: Fish.ExtraInfo? = nil
-    ) async -> Fish? {
+    ) async -> String? {
         let extraInfo = extraInfo ?? Fish.ExtraInfo()
         guard let extraInfo = extraInfo.to_json_string() else {
             Log.error("Storage.addFish - failed: parse extraInfo to string failed, extraInfo=\(extraInfo)")
@@ -123,19 +140,15 @@ struct Storage {
                 Log.error("Storage.addFish - fail: resp is not ok, resp.code=\(resp.code)")
                 return nil
             }
-            guard let data = resp.data else {
+            guard let uid = resp.data else {
                 Log.error("Storage.addFish - fail: resp.data=nil, resp.code=\(resp.code)")
                 return nil
             }
-            guard let fish = data.toFish() else {
-                Log.error("Storage.addFish - return nil: parse fishResp to Fish failed, resp.code=\(resp.code)")
-                return nil
-            }
-            fishCache[fish.identity] = fish
+            fishCache.removeValue(forKey: uid)
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
-            return fish
+            return uid
         case .failure(let err):
             Log.error("Storage.addFish - fail: request data service fail, err=\(err)")
             Functions.sendDataServiceErrorMessage()
@@ -144,15 +157,18 @@ struct Storage {
     }
     
     static func modifyFish(
-        _ identity: String, description: String? = nil, tags: [String]? = nil, extraInfo: Fish.ExtraInfo? = nil
+        _ uid: String, description: String? = nil, tags: [String]? = nil, extraInfo: Fish.ExtraInfo? = nil
     ) async -> Bool {
-        let extraInfo = extraInfo ?? Fish.ExtraInfo()
-        guard let extraInfo = extraInfo.to_json_string() else {
-            Log.error("Storage.modifyFish - failed: parse extraInfo to string failed, extraInfo=\(extraInfo)")
-            return false
+        var extraInfoStr: String? = nil
+        if let extraInfo = extraInfo {
+            guard let extraInfo = extraInfo.to_json_string() else {
+                Log.error("Storage.modifyFish - failed: parse extraInfo to string failed, extraInfo=\(extraInfo)")
+                return false
+            }
+            extraInfoStr = extraInfo
         }
         let result = await DataService.modifyFish(
-            identity: identity, description: description, tags: tags, extraInfo: extraInfo
+            uid: uid, description: description, tags: tags, extraInfo: extraInfoStr
         )
         switch result {
         case .success(let resp):
@@ -160,7 +176,7 @@ struct Storage {
                 Log.error("Storage.modifyFish - fail: resp is not ok, resp.code=\(resp.code)")
                 return false
             }
-            fishCache.removeValue(forKey: identity)
+            fishCache.removeValue(forKey: uid)
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -172,15 +188,15 @@ struct Storage {
         }
     }
     
-    static func removeFish(_ identitys: [String]) async {
-        let result = await DataService.expireFish(identitys: identitys)
+    static func removeFish(_ uids: [String]) async {
+        let result = await DataService.expireFish(uids: uids)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.removeFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            for identity in identitys {
-                fishCache.removeValue(forKey: identity)
+            for uid in uids {
+                fishCache.removeValue(forKey: uid)
             }
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
@@ -191,15 +207,15 @@ struct Storage {
         }
     }
     
-    static func markFish(_ identitys: [String]) async {
-        let result = await DataService.markFish(identitys: identitys)
+    static func markFish(_ uids: [String]) async {
+        let result = await DataService.markFish(uids: uids)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.markFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            for identity in identitys {
-                fishCache.removeValue(forKey: identity)
+            for uid in uids {
+                fishCache.removeValue(forKey: uid)
             }
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
@@ -210,15 +226,15 @@ struct Storage {
         }
     }
     
-    static func unMarkFish(_ identitys: [String]) async {
-        let result = await DataService.unMarkFish(identitys: identitys)
+    static func unMarkFish(_ uids: [String]) async {
+        let result = await DataService.unMarkFish(uids: uids)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.unMarkFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            for identity in identitys {
-                fishCache.removeValue(forKey: identity)
+            for uid in uids {
+                fishCache.removeValue(forKey: uid)
             }
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
@@ -229,15 +245,15 @@ struct Storage {
         }
     }
     
-    static func lockFish(_ identitys: [String]) async {
-        let result = await DataService.lockFish(identitys: identitys)
+    static func lockFish(_ uids: [String]) async {
+        let result = await DataService.lockFish(uids: uids)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.lockFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            for identity in identitys {
-                fishCache.removeValue(forKey: identity)
+            for uid in uids {
+                fishCache.removeValue(forKey: uid)
             }
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
@@ -248,15 +264,15 @@ struct Storage {
         }
     }
     
-    static func unLockFish(_ identitys: [String]) async {
-        let result = await DataService.unLockFish(identitys: identitys)
+    static func unLockFish(_ uids: [String]) async {
+        let result = await DataService.unLockFish(uids: uids)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.unLockFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            for identity in identitys {
-                fishCache.removeValue(forKey: identity)
+            for uid in uids {
+                fishCache.removeValue(forKey: uid)
             }
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
@@ -267,15 +283,15 @@ struct Storage {
         }
     }
     
-    static func pinFish(_ identitys: [String]) async {
-        let result = await DataService.pinFish(identitys: identitys)
+    static func pinFish(_ uids: [String]) async {
+        let result = await DataService.pinFish(uids: uids)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.pinFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            for identity in identitys {
-                fishCache.removeValue(forKey: identity)
+            for uid in uids {
+                fishCache.removeValue(forKey: uid)
             }
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)

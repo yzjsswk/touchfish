@@ -56,6 +56,7 @@ class Fish {
         
     }
 
+    let uid: String
     let identity: String
     let count: Int
     let fishType: FishType
@@ -72,7 +73,12 @@ class Fish {
     let textData: String?
     let imageData: NSImage?
     
-    init(identity: String, count: Int, fishType: FishType, fishData: Data, dataInfo: DataInfo, description: String, tags: [String], isMarked: Bool, isLocked: Bool, extraInfo: ExtraInfo, createTime: String, updateTime: String) {
+    init(
+        uid: String, identity: String, count: Int, fishType: FishType, fishData: Data,
+        dataInfo: DataInfo, description: String, tags: [String], isMarked: Bool, isLocked: Bool,
+        extraInfo: ExtraInfo, createTime: String, updateTime: String
+    ) {
+        self.uid = uid
         self.identity = identity
         self.count = count
         self.fishType = fishType
@@ -102,7 +108,7 @@ class Fish {
     
     func withMark(isMarked: Bool) -> Fish {
         Fish(
-            identity: self.identity, count: self.count, fishType: self.fishType, fishData: self.fishData, dataInfo: self.dataInfo,
+            uid: self.uid, identity: self.identity, count: self.count, fishType: self.fishType, fishData: self.fishData, dataInfo: self.dataInfo,
             description: self.description, tags: self.tags, isMarked: isMarked, isLocked: self.isLocked, extraInfo: self.extraInfo,
             createTime: self.createTime, updateTime: self.updateTime
         )
@@ -110,14 +116,14 @@ class Fish {
     
     func withLock(isLocked: Bool) -> Fish {
         Fish(
-            identity: self.identity, count: self.count, fishType: self.fishType, fishData: self.fishData, dataInfo: self.dataInfo,
+            uid: self.uid, identity: self.identity, count: self.count, fishType: self.fishType, fishData: self.fishData, dataInfo: self.dataInfo,
             description: self.description, tags: self.tags, isMarked: self.isMarked, isLocked: isLocked, extraInfo: self.extraInfo,
             createTime: self.createTime, updateTime: self.updateTime
         )
     }
     
     var defaultLinePreview: String {
-        return "\(self.fishType.rawValue):\(self.identity)"
+        return "\(self.fishType.rawValue):\(self.uid)"
     }
     
     var linePreview: String {

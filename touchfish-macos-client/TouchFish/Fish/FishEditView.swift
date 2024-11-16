@@ -4,7 +4,7 @@ struct FishEditView: View {
     
     @Binding var isEditing: Bool
     
-    var identity: String
+    var uid: String
     
     @State var description: String
     @State var tags: [String:Bool]
@@ -16,7 +16,7 @@ struct FishEditView: View {
         VStack {
             HStack {
                 Spacer()
-                Text("Editing of \(identity)")
+                Text("Editing of \(uid)")
                     .font(.caption)
                     .foregroundColor(.gray)
                 Spacer()
@@ -76,7 +76,7 @@ struct FishEditView: View {
                 .frame(width: 80, height: 40)
                 .onTapGesture {
                     Task {
-                        let ok = await Storage.modifyFish(identity, description: description, tags: tags.filter({ $0.value }).map({$0.key}))
+                        let ok = await Storage.modifyFish(uid, description: description, tags: tags.filter({ $0.value }).map({$0.key}))
                         if ok {
                             isEditing = false
                             NotificationCenter.default.post(name: .CommandBarShouldFocus, object: nil, userInfo: nil)

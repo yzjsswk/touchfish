@@ -5,10 +5,9 @@ edition = "2021"
 
 [dependencies]
 touchfish-core = { path = "../touchfish-core" }
-touchfish-sqlite-storage = { path = "../touchfish-sqlite-storage" }
+touchfish-mongo-storage = { path = "../touchfish-mongo-storage" }
 yfunc-rust = "0.1"
 actix-web = "4"
-once_cell = "1.20"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_with = "3.9.0"

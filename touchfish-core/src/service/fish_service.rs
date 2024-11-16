@@ -285,6 +285,12 @@ impl<S> FishService<S> where S: FishStorage {
         )
     }
 
+    pub async fn pick_fish_by_identity(&self, identity: &str) -> YRes<Option<Fish>> {
+        self.storage.pick_fish_by_identity(identity).await.trace(
+            ctx!("pick fish: self.storage.pick_fish_by_identity failed")
+        )
+    }
+
     pub async fn search_fish(
         &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, 
         fish_types: Option<&Vec<FishType>>, desc: Option<&str>,

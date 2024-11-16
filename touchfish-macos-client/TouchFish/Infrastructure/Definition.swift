@@ -275,9 +275,9 @@ extension String {
             return Image(systemName: systemIconName)
         }
         if self.hasPrefix("fish:") {
-            let identity = String(self.dropFirst(5))
+            let uid = String(self.dropFirst(5))
             Task {
-                guard let imageData = await Storage.pickFish(identity: identity)?.imageData else {
+                guard let imageData = await Storage.pickFish(uid: uid)?.imageData else {
                     return Image?(nil)
                 }
                 return Image(nsImage: imageData)
