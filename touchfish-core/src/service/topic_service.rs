@@ -41,6 +41,23 @@ impl<S> TopicService<S> where S: TopicStorage {
         )
     }
 
+    pub async fn read_message(&self, topic_uid: &str, message_uid: &str) -> YRes<()> {
+        let Some(topic) = self.storage.pick_topic(&topic_uid).await.trace(
+            ctx!("read message -> search topic by uid: self.storage.pick_topic failed", topic_uid, message_uid)
+        )? else {
+            return Err(err!("TOPIC_NOT_EXIST: topic {} not exists", topic_uid))
+        };
+        for message in topic.messages {
+            if message.uid == message_uid {
+                self.storage.read_message(topic_uid, message_uid).await.trace(
+                    ctx!("read message: self.storage.read_message failed", topic_uid, message_uid)
+                )?;
+                return Ok(())
+            }
+        }
+        return Err(err!("MESSAGE_NOT_EXIST: message {} not exists", message_uid))
+    }
+
     pub async fn remove_topic(&self, subject: &str) -> YRes<()> {
         let Some(topic) = self.storage.pick_topic_by_subject(subject).await.trace(
             ctx!("remove topic -> check topic if exists: self.storage.pick_topic_by_subject failed", subject)

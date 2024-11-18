@@ -68,6 +68,29 @@ impl TopicStorage for MongoStorage {
         Ok(())
     }
 
+    async fn read_message(&self, topic_uid: &str, message_uid: &str) -> YRes<()> {
+        let topic_uid = ObjectId::parse_str(topic_uid).map_err(|e| {
+            err!("read message failed").trace(ctx!("read message -> parse topic uid to ObjectId: ObjectId::parse_str failed", topic_uid, message_uid, e))
+        })?;
+        let message_uid = ObjectId::parse_str(message_uid).map_err(|e| {
+            err!("read message failed").trace(ctx!("read message -> parse message uid to ObjectId: ObjectId::parse_str failed", topic_uid, message_uid, e))
+        })?;
+        let filter = doc! {
+            "_id": topic_uid,
+            "messages._id": message_uid,
+        };
+        let updater = doc! {
+            "$set": {
+                "messages.$.has_read": true,
+                "update_time": DateTime::now(),
+            }
+        };
+        let _ = self.collection__topic().update_one(filter, updater).await.map_err(|e| {
+            err!("read message failed").trace(ctx!("read meesage: self.collection__topic().update_one failed", topic_uid, message_uid, e))
+        })?;
+        Ok(())
+    }
+
     async fn set_topic_info(&self, uid: &str, extra_info: &TopicExtraInfo) -> YRes<()> {
         let uid = ObjectId::parse_str(uid).map_err(|e| {
             err!("set topic info failed").trace(ctx!("set topic info -> parse uid to ObjectId: ObjectId::parse_str failed", uid, e))

@@ -16,6 +16,8 @@ pub trait TopicStorage {
         title: &str, body: &str, has_read: bool, extra_info: &MessageExtraInfo,
     ) -> impl Future<Output = YRes<()>> + Send;
 
+    fn read_message(&self, topic_uid: &str, message_uid: &str) -> impl Future<Output = YRes<()>> + Send;
+
     fn set_topic_info(&self, uid: &str, extra_info: &TopicExtraInfo) -> impl Future<Output = YRes<()>> + Send;
 
     fn pick_topic(&self, uid: &str) -> impl Future<Output = YRes<Option<Topic>>> + Send;

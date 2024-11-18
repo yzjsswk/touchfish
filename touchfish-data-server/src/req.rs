@@ -1,4 +1,4 @@
-use touchfish_core::FishType;
+use touchfish_core::{FishType, MessageExtraInfo, MessageLevel, TopicExtraInfo, TopicType};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -84,4 +84,29 @@ pub struct PinFishReq {
     pub uids: Vec<String>,
     pub skip_if_not_exists: bool,
     pub skip_if_locked: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CreateTopicReq {
+    pub topic_type: TopicType,
+    pub subject: String,
+    pub title: String,
+    pub extra_info: TopicExtraInfo,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SendMessageReq {
+    pub topic_subject: String,
+    pub level: MessageLevel,
+    pub source: String,
+    pub title: String,
+    pub body: String,
+    pub has_read: bool,
+    pub extra_info: MessageExtraInfo,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ReadMessageReq {
+    pub topic_uid: String,
+    pub message_uid: String,
 }

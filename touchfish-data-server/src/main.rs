@@ -1,7 +1,7 @@
 use actix_web::{get, middleware::Logger, post, web::{Data, Json, Path}, App, HttpServer, Responder};
-use req::{AddFishReq, DelectFishReq, ExpireFishReq, LockFishReq, MarkFishReq, ModifyFishReq, PinFishReq, SearchFishReq, UnlockFishReq, UnmarkFishReq};
+use req::{AddFishReq, CreateTopicReq, DelectFishReq, ExpireFishReq, LockFishReq, MarkFishReq, ModifyFishReq, PinFishReq, ReadMessageReq, SearchFishReq, SendMessageReq, UnlockFishReq, UnmarkFishReq};
 use resp::ToResp;
-use touchfish_core::FishApi;
+use touchfish_core::{FishApi, TopicApi};
 use touchfish_mongo_storage::MongoStorage;
 use yfunc_rust::{prelude::*, YBytes};
 
@@ -111,21 +111,48 @@ async fn pin_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<PinFishReq>) 
     fish_api.pin_fish(&uids, req.skip_if_not_exists, req.skip_if_locked).await.to_resp()
 }
 
+#[post("/topic/create")]
+async fn create_topic(topic_api: Data<TopicApi<MongoStorage>>, req: Json<CreateTopicReq>) -> impl Responder {
+    topic_api.create_topic(req.topic_type, &req.subject, &req.title, &req.extra_info).await.to_resp()
+}
+
+#[post("/topic/list")]
+async fn list_topic(topic_api: Data<TopicApi<MongoStorage>>) -> impl Responder {
+    topic_api.list_topic().await.to_resp()
+}
+
+#[post("/message/send")]
+async fn send_message(topic_api: Data<TopicApi<MongoStorage>>, req: Json<SendMessageReq>) -> impl Responder {
+    topic_api.append_message(
+        &req.topic_subject, req.level, &req.source, &req.title, &req.body, req.has_read, &req.extra_info,
+    ).await.to_resp()
+}
+
+#[post("/message/read")]
+async fn read_message(topic_api: Data<TopicApi<MongoStorage>>, req: Json<ReadMessageReq>) -> impl Responder {
+    topic_api.read_message(&req.topic_uid, &req.message_uid).await.to_resp()
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
     let port = match std::env::var("TFDS_PORT") {
-        Ok(v) => v.parse().expect(&format!("env var TFDS_PORT parse failed, TFDS_PORT={}", v)),
+        Ok(v) => v.parse().expect(&format!("environment variable TFDS_PORT={} parse failed", v)),
         Err(_) => 56173,
     };
     let db_uri = std::env::var("TFDS_DB_URI").expect("environment variable TFDS_DB_URI is required");
     let storage = MongoStorage::new(&db_uri).await.expect("connect to database failed");
-    let fish_api = FishApi::new(storage).expect("init fish api failed");
-    let app_data = Data::new(fish_api);
+    let fish_api = Data::new(
+        FishApi::new(storage.clone()).expect("init fish api failed")
+    );
+    let topic_api = Data::new(
+        TopicApi::new(storage).expect("init topic api failed")
+    );
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
-            .app_data(app_data.clone())
+            .app_data(fish_api.clone())
+            .app_data(topic_api.clone())
             .service(search_fish)
             .service(delect_fish)
             .service(pick_fish)
@@ -139,6 +166,10 @@ async fn main() -> std::io::Result<()> {
             .service(lock_fish)
             .service(unlock_fish)
             .service(pin_fish)
+            .service(create_topic)
+            .service(list_topic)
+            .service(send_message)
+            .service(read_message)
     })
     .bind(("0.0.0.0", port))?
     .run()

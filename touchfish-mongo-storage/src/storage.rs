@@ -6,6 +6,7 @@ use crate::model::{FishModel, TopicModel};
 mod fish_storage;
 mod topic_storage;
 
+#[derive(Clone)]
 pub struct MongoStorage {
     client: Client
 }

@@ -30,6 +30,12 @@ impl<S> TopicApi<S> where S: TopicStorage {
         )
     }
 
+    pub async fn read_message(&self, topic_uid: &str, message_uid: &str) -> YRes<()> {
+        self.topic_service.read_message(topic_uid, message_uid).await.trace(
+            ctx!("read message: self.topic_service.read_message failed")
+        )
+    }
+
     pub async fn remove_topic(&self, subject: &str) -> YRes<()> {
         self.topic_service.remove_topic(subject).await.trace(
             ctx!("remove topic: self.topic_service.remove_topic failed")
