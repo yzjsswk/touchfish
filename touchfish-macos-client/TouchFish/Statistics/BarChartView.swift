@@ -35,7 +35,7 @@ struct BarChartView: View {
             slices.append(curSlices)
             var curHeights: [CGFloat] = []
             var curMaxHeights: [CGFloat] = []
-            let maxValue: Int = curSlices.reduce(0) { max($0, $1.value) }
+            let maxValue: Int = max(curSlices.reduce(0) { max($0, $1.value) }, 1)
             for slice in curSlices {
                 curHeights.append(0)
                 curMaxHeights.append(Double(slice.value * maxHeight / maxValue))

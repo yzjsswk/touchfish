@@ -30,10 +30,10 @@ struct SearchFishResp: Codable {
     
     func getFish() -> [Fish]? {
         return self.data.compactMap { fishResp in
-            if let fish = fishResp.toFish() {
+            if let fish = fishResp.toEntity() {
                 return fish
             }
-            Log.warning("SearchFishResp.getFish - ignore a fish: fishResp.toFish return nil, fishResp.identity = \(fishResp.identity)")
+            Log.warning("SearchFishResp.getFish - ignore a fish: fishResp.toEntity return nil, fishResp.uid = \(fishResp.uid)")
             return nil
         }
     }
@@ -88,17 +88,17 @@ struct FishResp: Codable {
         case updateTime = "update_time"
     }
     
-    func toFish() -> Fish? {
+    func toEntity() -> Fish? {
         guard let fishType = Fish.FishType(rawValue: self.fishType) else {
-            Log.warning("FishResp.toFish - return nil: no such fishType, fishResp.fishType=\(self.fishType), fishResp.identity=\(self.identity)")
+            Log.warning("FishResp.toEntity - return nil: no such fishType, fishResp.fishType=\(self.fishType), fishResp.uid=\(self.uid)")
             return nil
         }
         guard let fishData = Data(base64Encoded: self.fishData) else {
-            Log.warning("FishResp.toFish - return nil: decode fish data failed, fishResp.identity=\(self.identity)")
+            Log.warning("FishResp.toEntity - return nil: decode fish data failed, fishResp.uid=\(self.uid)")
             return nil
         }
         guard let extraInfo = Fish.ExtraInfo.from_json_string(json_str: extraInfo) else {
-            Log.warning("FishResp.toFish - return nil: parse extra info failed, fishResp.extraInfo=\(self.extraInfo), fishResp.identity=\(self.identity)")
+            Log.warning("FishResp.toEntity - return nil: parse extra info failed, fishResp.extraInfo=\(self.extraInfo), fishResp.uid=\(self.uid)")
             return nil
         }
         let createTime = Functions.convertIsoDateToE8(self.createTime) ?? self.createTime
@@ -137,6 +137,105 @@ struct CountFishResp: Codable {
         case dayCount = "count__by_day"
     }
     
+}
+
+struct TopicResp: Codable {
+    
+    struct ExtraInfo: Codable {
+        
+        func toEntity() -> Topic.ExtraInfo {
+            return Topic.ExtraInfo()
+        }
+        
+    }
+    
+    let uid: String
+    let topicType: String
+    let subject: String
+    let title: String
+    let messages: [MessageResp]
+    let extraInfo: TopicResp.ExtraInfo
+    let createTime: String
+    let updateTime: String
+    
+    enum CodingKeys: String, CodingKey {
+        case uid = "uid"
+        case topicType = "topic_type"
+        case subject = "subject"
+        case title = "title"
+        case messages = "messages"
+        case extraInfo = "extra_info"
+        case createTime = "create_time"
+        case updateTime = "update_time"
+    }
+    
+    func toEntity() -> Topic? {
+        guard let topicType = Topic.TopicType(rawValue: self.topicType) else {
+            Log.warning("TopicResp.toEntity - return nil: no such topicType, topicResp.topicType=\(self.topicType), topicResp.uid=\(self.uid)")
+            return nil
+        }
+        let messages = self.messages.compactMap { messageResp in
+            if let message = messageResp.toEntity() {
+                return message
+            }
+            Log.warning("TopicResp.toEntity - ignore a message: messageResp.toEntity return nil, messageResp.uid = \(messageResp.uid)")
+            return nil
+        }
+        let createTime = Functions.convertIsoDateToE8(self.createTime) ?? self.createTime
+        let updateTime = Functions.convertIsoDateToE8(self.updateTime) ?? self.updateTime
+        return Topic(
+            uid: self.uid, topicType: topicType, subject: self.subject, title: self.title,
+            messages: messages, extraInfo: self.extraInfo.toEntity(), createTime: createTime, updateTime: updateTime
+        )
+    }
+    
+}
+
+struct MessageResp: Codable {
+    
+    struct ExtraInfo: Codable {
+        
+        func toEntity() -> Message.ExtraInfo {
+            return Message.ExtraInfo()
+        }
+        
+    }
+    
+    let uid: String
+    let level: String
+    let source: String
+    let title: String
+    let body: String
+    let hasRead: Bool
+    let extraInfo: MessageResp.ExtraInfo
+    let createTime: String
+    let updateTime: String
+    
+    enum CodingKeys: String, CodingKey {
+        case uid = "uid"
+        case level = "level"
+        case source = "source"
+        case title = "title"
+        case body = "body"
+        case hasRead = "has_read"
+        case extraInfo = "extra_info"
+        case createTime = "create_time"
+        case updateTime = "update_time"
+    }
+    
+    func toEntity() -> Message? {
+        guard let level = Message.Level(rawValue: self.level) else {
+            Log.warning("MessageResp.toEntity - return nil: no such level, messageResp.level=\(self.level), messageResp.uid=\(self.uid)")
+            return nil
+        }
+        let createTime = Functions.convertIsoDateToE8(self.createTime) ?? self.createTime
+        let updateTime = Functions.convertIsoDateToE8(self.updateTime) ?? self.updateTime
+        return Message(
+            uid: self.uid, level: level, source: self.level, title: self.title,
+            body: self.body, hasRead: self.hasRead, extraInfo: self.extraInfo.toEntity(),
+            createTime: createTime, updateTime: updateTime
+        )
+    }
 }
 
 struct DataService {
@@ -349,6 +448,56 @@ struct DataService {
     static func countFish() async -> Result<DataServiceResponse<CountFishResp>, AFError> {
         let url = DataService.urlPrefix + "/fish/count"
         return await AF.request(url).serializingDecodable(DataServiceResponse.self).result
+    }
+    
+    static func createTopic(
+        topicType: Topic.TopicType, subject: String, title: String, extraInfo: Topic.ExtraInfo
+    ) async -> Result<DataServiceResponse<String>, AFError> {
+        let url = DataService.urlPrefix + "/topic/create"
+        let para: [String:Any?] = [
+            "topic_type": topicType.rawValue,
+            "subjcet": subject,
+            "title": title,
+            "extra_info": extraInfo,
+        ]
+        return await AF.request(
+            url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
+        ).serializingDecodable(DataServiceResponse.self).result
+    }
+    
+    static func listTopic() async -> Result<DataServiceResponse<[TopicResp]>, AFError> {
+        let url = DataService.urlPrefix + "/topic/list"
+        return await AF.request(url).serializingDecodable(DataServiceResponse.self).result
+    }
+    
+    static func sendMessage(
+        topicSubject: String, level: Message.Level, source: String,
+        title: String, body: String, hasRead: Bool, extraInfo: Message.ExtraInfo
+    ) async -> Result<DataServiceResponse<String>, AFError> {
+        let url = DataService.urlPrefix + "/message/send"
+        let para: [String:Any?] = [
+            "topic_subject": topicSubject,
+            "level": level.rawValue,
+            "source": source,
+            "title": title,
+            "body": body,
+            "has_read": hasRead,
+            "extra_info": extraInfo,
+        ]
+        return await AF.request(
+            url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
+        ).serializingDecodable(DataServiceResponse.self).result
+    }
+    
+    static func readMessage(topicUid: String, messageUid: String) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
+        let url = DataService.urlPrefix + "/message/read"
+        let para: [String:Any?] = [
+            "topic_uid": topicUid,
+            "message_uid": messageUid,
+        ]
+        return await AF.request(
+            url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
+        ).serializingDecodable(DataServiceResponse.self).result
     }
     
 }

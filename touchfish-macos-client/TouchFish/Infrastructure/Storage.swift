@@ -51,7 +51,7 @@ struct Storage {
                     Log.warning("Storage.searchFish - ignore one fish: pickFish.resp.data=nil, resp.code=\(resp.code), fish.uid=\(uid)")
                     continue
                 }
-                guard let fish = data.toFish() else {
+                guard let fish = data.toEntity() else {
                     Log.warning("Storage.searchFish - ignore one fish: parse fishResp to Fish failed, fish.uid=\(uid)")
                     continue
                 }
@@ -79,7 +79,7 @@ struct Storage {
             guard let data = resp.data else {
                 return nil
             }
-            guard let fish = data.toFish() else {
+            guard let fish = data.toEntity() else {
                 Log.error("Storage.pickFish - failed: parse fishResp to Fish failed, fish.uid=\(uid)")
                 return nil
             }
@@ -103,7 +103,7 @@ struct Storage {
             guard let data = resp.data else {
                 return nil
             }
-            guard let fish = data.toFish() else {
+            guard let fish = data.toEntity() else {
                 Log.error("Storage.pickFish - failed: parse fishResp to Fish failed, fish.identity=\(identity)")
                 return nil
             }
@@ -318,6 +318,93 @@ struct Storage {
             Log.error("Storage.countFish - fail: request data service fail, err=\(err)")
             Functions.sendDataServiceErrorMessage()
             return nil
+        }
+    }
+    
+    static func createTopic(
+        topicType: Topic.TopicType, subject: String, title: String, extraInfo: Topic.ExtraInfo
+    ) async -> String? {
+        let result = await DataService.createTopic(
+            topicType: topicType, subject: subject, title: title, extraInfo: extraInfo
+        )
+        switch result {
+        case .success(let resp):
+            if !resp.isOk() {
+                Log.error("Storage.createTopic - fail: resp is not ok, resp.code=\(resp.code)")
+            }
+            guard let data = resp.data else {
+                Log.error("Storage.createTopic - fail: resp.data=nil, resp.code=\(resp.code)")
+                return nil
+            }
+            return data
+        case .failure(let err):
+            Log.error("Storage.createTopic - fail: request data service fail, err=\(err)")
+            Functions.sendDataServiceErrorMessage()
+            return nil
+        }
+    }
+    
+    static func listTopic() async -> [Topic] {
+        let result = await DataService.listTopic()
+        switch result {
+        case .success(let resp):
+            if !resp.isOk() {
+                Log.error("Storage.listTopic - fail: resp is not ok, resp.code=\(resp.code)")
+            }
+            guard let data = resp.data else {
+                Log.error("Storage.listTopic - fail: resp.data=nil, resp.code=\(resp.code)")
+                return []
+            }
+            let topics = data.compactMap { topicResp in
+                if let topic = topicResp.toEntity() {
+                    return topic
+                }
+                Log.warning("Storage.listTopic - ignore a topic: topicResp.toEntity return nil, topicResp.uid = \(topicResp.uid)")
+                return nil
+            }
+            return topics
+        case .failure(let err):
+            Log.error("Storage.listTopic - fail: request data service fail, err=\(err)")
+            Functions.sendDataServiceErrorMessage()
+            return []
+        }
+    }
+    
+    static func sendMessage(
+        topicSubject: String, level: Message.Level, source: String, title: String, body: String, extraInfo: Message.ExtraInfo
+    ) async -> String? {
+        let result = await DataService.sendMessage(
+            topicSubject: topicSubject, level: level, source: source, title: title, body: body, hasRead: false, extraInfo: extraInfo
+        )
+        switch result {
+        case .success(let resp):
+            if !resp.isOk() {
+                Log.error("Storage.sendMessage - fail: resp is not ok, resp.code=\(resp.code)")
+            }
+            guard let data = resp.data else {
+                Log.error("Storage.sendMessage - fail: resp.data=nil, resp.code=\(resp.code)")
+                return nil
+            }
+            return data
+        case .failure(let err):
+            Log.error("Storage.sendMessage - fail: request data service fail, err=\(err)")
+            Functions.sendDataServiceErrorMessage()
+            return nil
+        }
+    }
+    
+    static func readMessage(topicUid: String, messageUid: String) async -> Bool {
+        let result = await DataService.readMessage(topicUid: topicUid, messageUid: messageUid)
+        switch result {
+        case .success(let resp):
+            if !resp.isOk() {
+                Log.error("Storage.readMessage - fail: resp is not ok, resp.code=\(resp.code)")
+            }
+            return true
+        case .failure(let err):
+            Log.error("Storage.readMessage - fail: request data service fail, err=\(err)")
+            Functions.sendDataServiceErrorMessage()
+            return false
         }
     }
     

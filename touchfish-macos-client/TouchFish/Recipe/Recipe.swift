@@ -375,7 +375,7 @@ struct RecipeManager {
                 Recipe.Parameter(name: "sort")
             ],
             color: Constant.internalRecipeItemColor,
-            order: -600
+            order: -200
         ),
         Recipe(
             bundleId: "com.touchfish.AddFish",
@@ -386,7 +386,7 @@ struct RecipeManager {
             icon: Image(systemName: "plus.square"),
             command: "add",
             color: Constant.internalRecipeItemColor,
-            order: -500
+            order: -100
         ),
         Recipe(
             bundleId: "com.touchfish.Setting",
@@ -411,7 +411,7 @@ struct RecipeManager {
                 Recipe.Parameter(name: "level")
             ],
             color: Constant.internalRecipeItemColor,
-            order: -300
+            order: -500
         ),
         Recipe(
             bundleId: "com.touchfish.Statistics",
@@ -422,7 +422,7 @@ struct RecipeManager {
             icon: Image(systemName: "chart.line.uptrend.xyaxis.circle.fill"),
             command: "stats",
             color: Constant.internalRecipeItemColor,
-            order: -200
+            order: -300
         ),
         Recipe(
             bundleId: "com.touchfish.RecipeStore",
@@ -433,7 +433,7 @@ struct RecipeManager {
             icon: Image(systemName: "books.vertical"),
             command: "store",
             color: Constant.internalRecipeItemColor,
-            order: -100
+            order: -600
         ),
     ]
     

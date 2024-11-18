@@ -116,7 +116,7 @@ async fn create_topic(topic_api: Data<TopicApi<MongoStorage>>, req: Json<CreateT
     topic_api.create_topic(req.topic_type, &req.subject, &req.title, &req.extra_info).await.to_resp()
 }
 
-#[post("/topic/list")]
+#[get("/topic/list")]
 async fn list_topic(topic_api: Data<TopicApi<MongoStorage>>) -> impl Responder {
     topic_api.list_topic().await.to_resp()
 }

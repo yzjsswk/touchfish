@@ -11,6 +11,7 @@
 		995E082C2C18345C00659F85 /* DataServiceSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995E082B2C18345C00659F85 /* DataServiceSettingView.swift */; };
 		996FEE492BC3E2E50047EB82 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996FEE482BC3E2E50047EB82 /* DataService.swift */; };
 		996FEE562BC917AE0047EB82 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 996FEE552BC917AE0047EB82 /* Alamofire */; };
+		997FAFD72CEB695D0023A6BC /* Topic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997FAFD62CEB69530023A6BC /* Topic.swift */; };
 		998020442CDA378D004DC045 /* RecipeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998020432CDA378D004DC045 /* RecipeService.swift */; };
 		9991B00C2C0C88B000EFE02C /* FishAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9991B00B2C0C88B000EFE02C /* FishAddView.swift */; };
 		99AC05A92BB2BCD90046E8C5 /* TouchFishApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05A82BB2BCD90046E8C5 /* TouchFishApp.swift */; };
@@ -61,6 +62,7 @@
 		995E08292C17242C00659F85 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		995E082B2C18345C00659F85 /* DataServiceSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataServiceSettingView.swift; sourceTree = "<group>"; };
 		996FEE482BC3E2E50047EB82 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
+		997FAFD62CEB69530023A6BC /* Topic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Topic.swift; sourceTree = "<group>"; };
 		998020432CDA378D004DC045 /* RecipeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeService.swift; sourceTree = "<group>"; };
 		9991B00B2C0C88B000EFE02C /* FishAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FishAddView.swift; sourceTree = "<group>"; };
 		99AC05A52BB2BCD90046E8C5 /* TouchFish.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TouchFish.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -155,6 +157,14 @@
 			path = Statistics;
 			sourceTree = "<group>";
 		};
+		997FAFD42CEB69130023A6BC /* Topic */ = {
+			isa = PBXGroup;
+			children = (
+				997FAFD62CEB69530023A6BC /* Topic.swift */,
+			);
+			path = Topic;
+			sourceTree = "<group>";
+		};
 		99AC059C2BB2BCD90046E8C5 = {
 			isa = PBXGroup;
 			children = (
@@ -179,6 +189,7 @@
 				99AC05D12BB2BD720046E8C5 /* Infrastructure */,
 				99AC05C12BB2BD720046E8C5 /* Fish */,
 				99AC05DC2BB2BD720046E8C5 /* Recipe */,
+				997FAFD42CEB69130023A6BC /* Topic */,
 				99AC05D72BB2BD720046E8C5 /* CommandBar */,
 				996FEE572BF2E80B0047EB82 /* Setting */,
 				99C614FF2C4558E300A99567 /* MessageCenter */,
@@ -357,6 +368,7 @@
 				99AC06002BB2BD720046E8C5 /* RecipeView.swift in Sources */,
 				99AC05E52BB2BD720046E8C5 /* FishEditView.swift in Sources */,
 				99EF7A282BF3C0EC00675CC2 /* StatsView.swift in Sources */,
+				997FAFD72CEB695D0023A6BC /* Topic.swift in Sources */,
 				99AC05F92BB2BD720046E8C5 /* CommandField.swift in Sources */,
 				99C614FE2C45094400A99567 /* Task.swift in Sources */,
 				99AC06052BB2BE440046E8C5 /* AppDelegate.swift in Sources */,
