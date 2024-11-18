@@ -22,7 +22,7 @@ pub enum TopicType {
 }
 
 #[yfunc]
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TopicExtraInfo {
 
 }
@@ -42,13 +42,13 @@ pub struct Message {
 }
 
 #[yfunc]
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum MessageLevel {
     Info, Warning, Error,
 }
 
 #[yfunc]
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MessageExtraInfo {
 
 }

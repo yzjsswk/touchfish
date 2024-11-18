@@ -1,5 +1,5 @@
 use mongodb::bson::{oid::ObjectId, spec::BinarySubtype, Binary, DateTime};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use touchfish_core::{FishType, DataInfo, Fish};
 use yfunc_rust::{prelude::*, YBytes, YTime};
 
@@ -43,13 +43,11 @@ impl FishModel {
             bytes: fish_data.into_vec()
         };
         let tags = tags.iter().map(|tag| tag.to_string()).collect();
-        let create_time = DateTime::now();
-        let update_time = DateTime::now();
         Ok(FishModel {
             uid: ObjectId::new(), identity: identity.to_string(), count, 
             fish_type, fish_data, fish_data_for_search, data_info: data_info.clone(),
             desc: desc.to_string(), tags, is_marked, is_locked, extra_info: extra_info.to_string(),
-            create_time, update_time, expire_time: None,
+            create_time: DateTime::now(), update_time: DateTime::now(), expire_time: None,
         })
     }
 

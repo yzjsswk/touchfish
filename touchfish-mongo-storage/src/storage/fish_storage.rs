@@ -16,7 +16,7 @@ impl FishStorage for MongoStorage {
     ) -> YRes<String> {
         let model = FishModel::new(
             identity, count, fish_type, fish_data, data_info, desc, tags, is_marked, is_locked, extra_info,
-        )?;
+        ).trace(ctx!("add fish -> build fish model: FishModel::new failed"))?;
         let result = self.collection__fish().insert_one(model).await.map_err(|e| {
             err!("add fish failed").trace(ctx!("add fish: self.collection__fish().insert_one() failed", e))
         })?;
@@ -235,7 +235,7 @@ impl FishStorage for MongoStorage {
         Ok(fish)
     }
 
-    async fn pick_fish_by_identity(&self, identity: &str) -> YRes<Option<touchfish_core::Fish>> {
+    async fn pick_fish_by_identity(&self, identity: &str) -> YRes<Option<Fish>> {
         let filter = doc! {
             "identity": identity,
             "expire_time": Bson::Null,
@@ -295,7 +295,7 @@ impl FishStorage for MongoStorage {
         let fish_list = if total_count <= 0 {
             Vec::new()
         } else {
-            let sort = doc! { "_id": 1 };
+            let sort = doc! { "update_time": -1 , "_id": -1 };
             let mut cursor = self.collection__fish()
                 .find(filter).sort(sort).skip(page_size*page_num).limit(page_size as i64).await.map_err(|e| {
                 err!("page fish failed").trace(ctx!("page fish: self.collection__fish().find failed", e))
@@ -359,8 +359,9 @@ impl FishStorage for MongoStorage {
             let bound_time = DateTime::from_millis(bound_time_ts);
             filter.insert("update_time", doc! { "$lt": bound_time });
         }
+        let sort = doc! { "update_time": -1 , "_id": -1 };
         let projection = doc! { "_id": 1 };
-        let mut cursor = self.collection__fish().find(filter).projection(projection).await.map_err(|e| {
+        let mut cursor = self.collection__fish().find(filter).sort(sort).projection(projection).await.map_err(|e| {
             err!("delect fish failed").trace(ctx!("delect fish: self.collection__fish().find failed", e))
         })?.with_type::<UidModel>();
         let mut uids: Vec<String> = Vec::new();
