@@ -8,13 +8,14 @@ struct Topic {
         case Error
     }
     
-    struct ExtraInfo {
+    struct ExtraInfo: Codable {
         
     }
     
     let uid: String
     let topicType: TopicType
     let subject: String
+    let source: String
     let title: String
     let messages: [Message]
     let extraInfo: ExtraInfo
@@ -30,15 +31,12 @@ struct Message {
         case Error
     }
     
-    struct ExtraInfo {
-        
-
+    struct ExtraInfo: Codable {
         
     }
     
     let uid: String
     let level: Level
-    let source: String
     let title: String
     let body: String
     let hasRead: Bool

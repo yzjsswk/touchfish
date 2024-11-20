@@ -152,6 +152,7 @@ struct TopicResp: Codable {
     let uid: String
     let topicType: String
     let subject: String
+    let source: String
     let title: String
     let messages: [MessageResp]
     let extraInfo: TopicResp.ExtraInfo
@@ -162,6 +163,7 @@ struct TopicResp: Codable {
         case uid = "uid"
         case topicType = "topic_type"
         case subject = "subject"
+        case source = "source"
         case title = "title"
         case messages = "messages"
         case extraInfo = "extra_info"
@@ -184,7 +186,7 @@ struct TopicResp: Codable {
         let createTime = Functions.convertIsoDateToE8(self.createTime) ?? self.createTime
         let updateTime = Functions.convertIsoDateToE8(self.updateTime) ?? self.updateTime
         return Topic(
-            uid: self.uid, topicType: topicType, subject: self.subject, title: self.title,
+            uid: self.uid, topicType: topicType, subject: self.subject, source: self.source, title: self.title,
             messages: messages, extraInfo: self.extraInfo.toEntity(), createTime: createTime, updateTime: updateTime
         )
     }
@@ -203,7 +205,6 @@ struct MessageResp: Codable {
     
     let uid: String
     let level: String
-    let source: String
     let title: String
     let body: String
     let hasRead: Bool
@@ -214,7 +215,6 @@ struct MessageResp: Codable {
     enum CodingKeys: String, CodingKey {
         case uid = "uid"
         case level = "level"
-        case source = "source"
         case title = "title"
         case body = "body"
         case hasRead = "has_read"
@@ -231,8 +231,8 @@ struct MessageResp: Codable {
         let createTime = Functions.convertIsoDateToE8(self.createTime) ?? self.createTime
         let updateTime = Functions.convertIsoDateToE8(self.updateTime) ?? self.updateTime
         return Message(
-            uid: self.uid, level: level, source: self.level, title: self.title,
-            body: self.body, hasRead: self.hasRead, extraInfo: self.extraInfo.toEntity(),
+            uid: self.uid, level: level, title: self.title, body: self.body,
+            hasRead: self.hasRead, extraInfo: self.extraInfo.toEntity(),
             createTime: createTime, updateTime: updateTime
         )
     }
@@ -451,18 +451,24 @@ struct DataService {
     }
     
     static func createTopic(
-        topicType: Topic.TopicType, subject: String, title: String, extraInfo: Topic.ExtraInfo
+        topicType: Topic.TopicType, subject: String, source: String, title: String, extraInfo: Topic.ExtraInfo
     ) async -> Result<DataServiceResponse<String>, AFError> {
         let url = DataService.urlPrefix + "/topic/create"
         let para: [String:Any?] = [
             "topic_type": topicType.rawValue,
-            "subjcet": subject,
+            "subject": subject,
+            "source": source,
             "title": title,
-            "extra_info": extraInfo,
+            "extra_info": [:],
         ]
         return await AF.request(
             url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
         ).serializingDecodable(DataServiceResponse.self).result
+    }
+    
+    static func removeTopic(subject: String) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
+        let url = DataService.urlPrefix + "/topic/remove/\(subject)"
+        return await AF.request(url, method: .post).serializingDecodable(DataServiceResponse.self).result
     }
     
     static func listTopic() async -> Result<DataServiceResponse<[TopicResp]>, AFError> {
@@ -471,18 +477,16 @@ struct DataService {
     }
     
     static func sendMessage(
-        topicSubject: String, level: Message.Level, source: String,
-        title: String, body: String, hasRead: Bool, extraInfo: Message.ExtraInfo
-    ) async -> Result<DataServiceResponse<String>, AFError> {
+        topicSubject: String, level: Message.Level, title: String, body: String, hasRead: Bool, extraInfo: Message.ExtraInfo
+    ) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
         let url = DataService.urlPrefix + "/message/send"
         let para: [String:Any?] = [
             "topic_subject": topicSubject,
             "level": level.rawValue,
-            "source": source,
             "title": title,
             "body": body,
             "has_read": hasRead,
-            "extra_info": extraInfo,
+            "extra_info": [:],
         ]
         return await AF.request(
             url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default

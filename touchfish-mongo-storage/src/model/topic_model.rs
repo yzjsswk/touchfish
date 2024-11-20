@@ -11,6 +11,7 @@ pub struct TopicModel {
     pub uid: ObjectId,
     pub topic_type: TopicType,
     pub subject: String,
+    pub source: String,
     pub title: String,
     pub messages: Vec<MessageModel>,
     pub extra_info: TopicExtraInfo,
@@ -21,9 +22,9 @@ pub struct TopicModel {
 
 impl TopicModel {
 
-    pub fn new(topic_type: TopicType, subject: &str, title: &str, extra_info: &TopicExtraInfo) -> TopicModel {
+    pub fn new(topic_type: TopicType, subject: &str, source: &str, title: &str, extra_info: &TopicExtraInfo) -> TopicModel {
         TopicModel {
-            uid: ObjectId::new(), topic_type, subject: subject.to_string(),
+            uid: ObjectId::new(), topic_type, subject: subject.to_string(), source: source.to_string(),
             title: title.to_string(), messages: Vec::new(), extra_info: extra_info.clone(),
             create_time: DateTime::now(), update_time: DateTime::now(), expire_time: None,
         }
@@ -59,7 +60,7 @@ impl TryFrom<TopicModel> for Topic {
             ctx!("parse TopicModel to Topic -> parse update_time: YTime::from_str failed", model.update_time, model.uid)
         )?;
         Ok(Topic {
-            uid: model.uid.to_hex(), topic_type: model.topic_type, subject: model.subject,
+            uid: model.uid.to_hex(), topic_type: model.topic_type, subject: model.subject, source: model.source,
             title: model.title, messages, extra_info: model.extra_info, create_time, update_time,
         })
     }

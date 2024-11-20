@@ -322,10 +322,10 @@ struct Storage {
     }
     
     static func createTopic(
-        topicType: Topic.TopicType, subject: String, title: String, extraInfo: Topic.ExtraInfo
+        topicType: Topic.TopicType, subject: String, source: String, title: String, extraInfo: Topic.ExtraInfo? = nil
     ) async -> String? {
         let result = await DataService.createTopic(
-            topicType: topicType, subject: subject, title: title, extraInfo: extraInfo
+            topicType: topicType, subject: subject, source: source, title: title, extraInfo: extraInfo ?? Topic.ExtraInfo()
         )
         switch result {
         case .success(let resp):
@@ -341,6 +341,19 @@ struct Storage {
             Log.error("Storage.createTopic - fail: request data service fail, err=\(err)")
             Functions.sendDataServiceErrorMessage()
             return nil
+        }
+    }
+    
+    static func removeTopic(subject: String) async {
+        let result = await DataService.removeTopic(subject: subject)
+        switch result {
+        case .success(let resp):
+            if !resp.isOk() {
+                Log.error("Storage.removeTopic - fail: resp is not ok, resp.code=\(resp.code)")
+            }
+        case .failure(let err):
+            Log.error("Storage.removeTopic - fail: request data service fail, err=\(err)")
+            Functions.sendDataServiceErrorMessage()
         }
     }
     
@@ -371,25 +384,21 @@ struct Storage {
     }
     
     static func sendMessage(
-        topicSubject: String, level: Message.Level, source: String, title: String, body: String, extraInfo: Message.ExtraInfo
-    ) async -> String? {
+        topicSubject: String, level: Message.Level, title: String,
+        body: String, extraInfo: Message.ExtraInfo? = nil
+    ) async {
         let result = await DataService.sendMessage(
-            topicSubject: topicSubject, level: level, source: source, title: title, body: body, hasRead: false, extraInfo: extraInfo
+            topicSubject: topicSubject, level: level, title: title,
+            body: body, hasRead: false, extraInfo: extraInfo ?? Message.ExtraInfo()
         )
         switch result {
         case .success(let resp):
             if !resp.isOk() {
                 Log.error("Storage.sendMessage - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            guard let data = resp.data else {
-                Log.error("Storage.sendMessage - fail: resp.data=nil, resp.code=\(resp.code)")
-                return nil
-            }
-            return data
         case .failure(let err):
             Log.error("Storage.sendMessage - fail: request data service fail, err=\(err)")
             Functions.sendDataServiceErrorMessage()
-            return nil
         }
     }
     

@@ -90,6 +90,7 @@ pub struct PinFishReq {
 pub struct CreateTopicReq {
     pub topic_type: TopicType,
     pub subject: String,
+    pub source: String,
     pub title: String,
     pub extra_info: TopicExtraInfo,
 }
@@ -98,7 +99,6 @@ pub struct CreateTopicReq {
 pub struct SendMessageReq {
     pub topic_subject: String,
     pub level: MessageLevel,
-    pub source: String,
     pub title: String,
     pub body: String,
     pub has_read: bool,

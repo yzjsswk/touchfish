@@ -8,6 +8,7 @@ pub struct Topic {
     pub uid: String,
     pub topic_type: TopicType,
     pub subject: String,
+    pub source: String,
     pub title: String,
     pub messages: Vec<Message>,
     pub extra_info: TopicExtraInfo,
@@ -32,7 +33,6 @@ pub struct TopicExtraInfo {
 pub struct Message {
     pub uid: String,
     pub level: MessageLevel,
-    pub source: String,
     pub title: String,
     pub body: String,
     pub has_read: bool,

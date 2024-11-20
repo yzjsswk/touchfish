@@ -113,7 +113,12 @@ async fn pin_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<PinFishReq>) 
 
 #[post("/topic/create")]
 async fn create_topic(topic_api: Data<TopicApi<MongoStorage>>, req: Json<CreateTopicReq>) -> impl Responder {
-    topic_api.create_topic(req.topic_type, &req.subject, &req.title, &req.extra_info).await.to_resp()
+    topic_api.create_topic(req.topic_type, &req.subject, &req.source, &req.title, &req.extra_info).await.to_resp()
+}
+
+#[post("/topic/remove/{subject}")]
+async fn remove_topic(topic_api: Data<TopicApi<MongoStorage>>, subject: Path<String>) -> impl Responder {
+    topic_api.remove_topic(&subject).await.to_resp()
 }
 
 #[get("/topic/list")]
@@ -124,7 +129,7 @@ async fn list_topic(topic_api: Data<TopicApi<MongoStorage>>) -> impl Responder {
 #[post("/message/send")]
 async fn send_message(topic_api: Data<TopicApi<MongoStorage>>, req: Json<SendMessageReq>) -> impl Responder {
     topic_api.append_message(
-        &req.topic_subject, req.level, &req.source, &req.title, &req.body, req.has_read, &req.extra_info,
+        &req.topic_subject, req.level, &req.title, &req.body, req.has_read, &req.extra_info,
     ).await.to_resp()
 }
 
@@ -167,6 +172,7 @@ async fn main() -> std::io::Result<()> {
             .service(unlock_fish)
             .service(pin_fish)
             .service(create_topic)
+            .service(remove_topic)
             .service(list_topic)
             .service(send_message)
             .service(read_message)

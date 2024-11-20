@@ -14,18 +14,18 @@ impl<S> TopicApi<S> where S: TopicStorage {
     }
 
     pub async fn create_topic(
-        &self, topic_type: TopicType, subject: &str, title: &str, extra_info: &TopicExtraInfo
+        &self, topic_type: TopicType, subject: &str, source: &str, title: &str, extra_info: &TopicExtraInfo
     ) -> YRes<String> {
-        self.topic_service.create_topic(topic_type, subject, title, extra_info).await.trace(
+        self.topic_service.create_topic(topic_type, subject, source, title, extra_info).await.trace(
             ctx!("create topic: self.topic_service.create_topic failed")
         )
     }
 
     pub async fn append_message(
-        &self, topic_subject: &str, level: MessageLevel, source: &str,
-        title: &str, body: &str, has_read: bool, extra_info: &MessageExtraInfo,
+        &self, topic_subject: &str, level: MessageLevel, title: &str, body: &str,
+        has_read: bool, extra_info: &MessageExtraInfo,
     ) -> YRes<()> {
-        self.topic_service.append_message(topic_subject, level, source, title, body, has_read, extra_info).await.trace(
+        self.topic_service.append_message(topic_subject, level, title, body, has_read, extra_info).await.trace(
             ctx!("append message: self.topic_service.append_message failed")
         )
     }

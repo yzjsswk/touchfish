@@ -13,29 +13,28 @@ impl<S> TopicService<S> where S: TopicStorage {
     }
 
     pub async fn create_topic(
-        &self, topic_type: TopicType, subject: &str, title: &str, extra_info: &TopicExtraInfo,
+        &self, topic_type: TopicType, subject: &str, source: &str, title: &str, extra_info: &TopicExtraInfo,
     ) -> YRes<String> {
         if self.storage.pick_topic_by_subject(subject).await.trace(
             ctx!("create topic -> check subject if exists: self.storage.pick_topic failed", subject)
         )?.is_some() {
-            return Err(err!("TOPIC_EXIST: topic {} exists", subject))
+            return Err(err!("TOPIC_EXIST": "topic {} exists", subject))
         };
-        self.storage.add_topic(topic_type, subject, title, extra_info).await.trace(
+        self.storage.add_topic(topic_type, subject, source, title, extra_info).await.trace(
             ctx!("create topic: self.storage.add_topic failed")
         )
     }
 
     pub async fn append_message(
-        &self, topic_subject: &str, level: MessageLevel, source: &str,
-        title: &str, body: &str, has_read: bool, extra_info: &MessageExtraInfo,
+        &self, topic_subject: &str, level: MessageLevel, title: &str, body: &str, has_read: bool, extra_info: &MessageExtraInfo,
     ) -> YRes<()> {
         let Some(topic) = self.storage.pick_topic_by_subject(&topic_subject).await.trace(
             ctx!("append message -> search topic by subject: self.storage.pick_topic_by_subject failed", topic_subject)
         )? else {
-            return Err(err!("TOPIC_NOT_EXIST: topic {} not exists", topic_subject))
+            return Err(err!("TOPIC_NOT_EXIST": "topic {} not exists", topic_subject))
         };
         self.storage.append_message(
-            &topic.uid, level, source, title, body, has_read, extra_info,
+            &topic.uid, level, title, body, has_read, extra_info,
         ).await.trace(
             ctx!("append message: self.storage.add_message failed", topic_subject)
         )
@@ -45,7 +44,7 @@ impl<S> TopicService<S> where S: TopicStorage {
         let Some(topic) = self.storage.pick_topic(&topic_uid).await.trace(
             ctx!("read message -> search topic by uid: self.storage.pick_topic failed", topic_uid, message_uid)
         )? else {
-            return Err(err!("TOPIC_NOT_EXIST: topic {} not exists", topic_uid))
+            return Err(err!("TOPIC_NOT_EXIST": "topic {} not exists", topic_uid))
         };
         for message in topic.messages {
             if message.uid == message_uid {
@@ -55,14 +54,14 @@ impl<S> TopicService<S> where S: TopicStorage {
                 return Ok(())
             }
         }
-        return Err(err!("MESSAGE_NOT_EXIST: message {} not exists", message_uid))
+        return Err(err!("MESSAGE_NOT_EXIST": "message {} not exists", message_uid))
     }
 
     pub async fn remove_topic(&self, subject: &str) -> YRes<()> {
         let Some(topic) = self.storage.pick_topic_by_subject(subject).await.trace(
             ctx!("remove topic -> check topic if exists: self.storage.pick_topic_by_subject failed", subject)
         )? else {
-            return Err(err!("TOPIC_NOT_EXIST: topic {} not exists", subject))
+            return Err(err!("TOPIC_NOT_EXIST": "topic {} not exists", subject))
         };
         self.storage.remove_topic(&topic.uid).await.trace(
             ctx!("remove topic: self.storage.remove_topic failed", subject)

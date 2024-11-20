@@ -8,7 +8,6 @@ pub struct MessageModel {
     #[serde(rename = "_id")]
     pub uid: ObjectId,
     pub level: MessageLevel,
-    pub source: String,
     pub title: String,
     pub body: String,
     pub has_read: bool,
@@ -20,10 +19,10 @@ pub struct MessageModel {
 impl MessageModel {
 
     pub fn new(
-        level: MessageLevel, source: &str, title: &str, body: &str, has_read: bool, extra_info: &MessageExtraInfo,
+        level: MessageLevel, title: &str, body: &str, has_read: bool, extra_info: &MessageExtraInfo,
     ) -> MessageModel {
         MessageModel { 
-            uid: ObjectId::new(), level, source: source.to_string(), title: title.to_string(), body: body.to_string(),
+            uid: ObjectId::new(), level, title: title.to_string(), body: body.to_string(),
             has_read, extra_info: extra_info.clone(), create_time: DateTime::now(), update_time: DateTime::now(),
         }
     }
@@ -50,9 +49,9 @@ impl TryFrom<MessageModel> for Message {
             ctx!("parse MessageModel to Message -> parse update_time: YTime::from_str failed", model.update_time, model.uid)
         )?;
         Ok(Message {
-            uid: model.uid.to_hex(), level: model.level, source: model.source,
-            title: model.title, body: model.body, has_read: model.has_read,
-            extra_info: model.extra_info, create_time, update_time,
+            uid: model.uid.to_hex(), level: model.level, title: model.title,
+            body: model.body, has_read: model.has_read, extra_info: model.extra_info,
+            create_time, update_time,
         })
     }
 

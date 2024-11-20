@@ -9,9 +9,9 @@ use super::MongoStorage;
 impl TopicStorage for MongoStorage {
 
     async fn add_topic(
-        &self, topic_type: TopicType, subject: &str, title: &str, extra_info: &TopicExtraInfo,
+        &self, topic_type: TopicType, subject: &str, source: &str, title: &str, extra_info: &TopicExtraInfo,
     ) -> YRes<String> {
-        let model = TopicModel::new(topic_type, subject, title, extra_info);
+        let model = TopicModel::new(topic_type, subject, source, title, extra_info);
         let result = self.collection__topic().insert_one(model).await.map_err(|e| {
             err!("add topic failed").trace(ctx!("add topic: self.collection__topic().insert_one() failed", e))
         })?;
@@ -42,13 +42,12 @@ impl TopicStorage for MongoStorage {
     }
 
     async fn append_message(
-        &self, uid: &str, level: MessageLevel, source: &str,
-        title: &str, body: &str, has_read: bool, extra_info: &MessageExtraInfo,
+        &self, uid: &str, level: MessageLevel, title: &str, body: &str, has_read: bool, extra_info: &MessageExtraInfo,
     ) -> YRes<()> {
         let uid = ObjectId::parse_str(uid).map_err(|e| {
             err!("append message failed").trace(ctx!("append message -> parse uid to ObjectId: ObjectId::parse_str failed", uid, e))
         })?;
-        let message = bson::to_bson(&MessageModel::new(level, source, title, body, has_read, extra_info)).map_err(|e| {
+        let message = bson::to_bson(&MessageModel::new(level, title, body, has_read, extra_info)).map_err(|e| {
             err!("append message failed").trace(ctx!("append message -> parse message to bson: bson::to_bson failed", uid, e))
         })?;
         let filter = doc! {

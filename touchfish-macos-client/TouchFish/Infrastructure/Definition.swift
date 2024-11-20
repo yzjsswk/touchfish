@@ -27,7 +27,6 @@ struct Constant {
 //        static let selectedItemBackgroundColor = Functions.makeLinearGradient(colors: ["F0F0F3"])
     static let internalRecipeItemColor = Functions.makeLinearGradient(colors: ["D8D8DB"])
     static let userDefinedRecipeDefaultIemColor = Functions.makeLinearGradient(colors: ["D8D8DB"])
-    static let errorMessageColor = Functions.makeLinearGradient(colors: ["DA5448"])
     static let unreadMessageTipColor = Functions.makeLinearGradient(colors: ["E2503F"])
     static let mainTextColor = "1D2024"
     
@@ -41,8 +40,16 @@ struct Functions {
         LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom)
     }
     
+    static func makeLinearGradient(colors: [Color], start: UnitPoint, end: UnitPoint) -> LinearGradient {
+        LinearGradient(colors: colors, startPoint: start, endPoint: end)
+    }
+    
     static func makeLinearGradient(colors: [String]) -> LinearGradient {
         LinearGradient(colors: colors.map { $0.color }, startPoint: .top, endPoint: .bottom)
+    }
+    
+    static func makeLinearGradient(colors: [String], start: UnitPoint, end: UnitPoint) -> LinearGradient {
+        LinearGradient(colors: colors.map { $0.color }, startPoint: start, endPoint: end)
     }
     
     static func getDataFromClipboard() -> (Fish.FishType, Data, Any)? {
@@ -307,6 +314,7 @@ extension Notification.Name {
     static let UserDefinedRecipeViewChanged = Notification.Name("UserDefinedRecipeViewChanged")
     static let RecipeCommited = Notification.Name("RecipeCommited")
     static let MessageCenterHasUpdated = Notification.Name("MessageCenterHasUpdated")
+    static let ShouldRefreshTopic = Notification.Name("ShouldRefreshTopic")
 }
 
 

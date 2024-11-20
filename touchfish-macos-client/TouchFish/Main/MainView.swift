@@ -15,25 +15,18 @@ struct MainView: View {
                 CommandBarView(commandText: $commandText, commandCell: $commandCell)
                 if let activeRecipeBundleId = activeRecipeBundleId {
                     switch activeRecipeBundleId {
-                    case "com.touchfish.FishRepository":
-                        FishRepositoryView()
-                    case "com.touchfish.AddFish":
-                        FishAddView()
+                    case "com.touchfish.RecipeManage":
+                        RecipeManageView()
+                    case "com.touchfish.Topics":
+                        TopicListView()
                     case "com.touchfish.Statistics":
                         StatsView()
                     case "com.touchfish.Setting":
                         SettingView()
-                    case "com.touchfish.MessageCenter":
-                        MessageCenterView()
-                    case "com.touchfish.RecipeStore":
-                        VStack {
-                            Spacer()
-                            Text("Not   Avaliable")
-                                .foregroundStyle(.gray)
-                                .font(.largeTitle)
-                                .offset(x:0, y:-60)
-                            Spacer()
-                        }
+                    case "com.touchfish.FishRepository":
+                        FishRepositoryView()
+                    case "com.touchfish.AddFish":
+                        FishAddView()
                     default:
                         RecipeView(recipeList: $recipeList, activeRecipeBundleId: activeRecipeBundleId)
                     }

@@ -12,8 +12,6 @@ struct RecipeListView: View {
                     ForEach(recipeList.filter {$0.order < 0}, id: \.bundleId) { recipe in
                         RecipeItemView(recipe: recipe)
                     }
-//                    Divider()
-//                        .padding()
                     ForEach(recipeList.filter {$0.order >= 0}, id: \.bundleId) { recipe in
                         RecipeItemView(recipe: recipe)
                     }
