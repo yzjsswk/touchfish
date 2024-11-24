@@ -160,27 +160,10 @@ struct RecipeAction: Codable {
                         NotificationCenter.default.post(name: .UserDefinedRecipeViewChanged, object: nil, userInfo: ["view":v])
                     }
                 }
-                if let executeResultData = executeResultText?.data(using: .utf8) {
-                    do {
-                        let message = try JSONDecoder().decode(RecipeSendMessageInfo.self, from: executeResultData)
-                        MessageCenter.send(level: message.level, title: message.title, content: message.content, source: message.source)
-                    } catch {
-                        // do nothing
-                    }
-                }
                 Log.debug("execute shell command: \(cmd) \(arguments), timeCost=\(timeCost)")
             }
         }
     }
-    
-}
-
-struct RecipeSendMessageInfo: Codable {
-    
-    var level: MessageCenter.Message.MessageLevel
-    var content: String
-    var title: String?
-    var source: String?
     
 }
 

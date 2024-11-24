@@ -2,6 +2,8 @@ import AppKit
 
 struct Topic {
     
+    static var unreadMsgCount = 0
+    
     enum TopicType: String {
         case Info
         case Warning

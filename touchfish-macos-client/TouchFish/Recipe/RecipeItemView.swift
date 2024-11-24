@@ -6,7 +6,7 @@ struct RecipeItemView: View {
     
     @State var isSelected: Bool = false
     
-    @State var messageCenterUnreadCount = MessageCenter.unreadCount
+    @State var unreadMessageCount = Topic.unreadMsgCount
     
     var body: some View {
         HStack(spacing: 10) {
@@ -37,13 +37,13 @@ struct RecipeItemView: View {
                 }
             }
             Spacer()
-            if recipe.bundleId == "com.touchfish.MessageCenter", messageCenterUnreadCount > 0 {
+            if recipe.bundleId == "com.touchfish.Topics", unreadMessageCount > 0 {
                 ZStack {
                     Image(systemName: "circle.fill")
                         .resizable()
                         .frame(width: 30, height: 30)
                         .foregroundStyle(Constant.unreadMessageTipColor)
-                    Text(String(messageCenterUnreadCount))
+                    Text(String(unreadMessageCount))
                         .font(.custom("Menlo", size: 12))
                         .foregroundStyle(.white)
                 }
@@ -62,8 +62,8 @@ struct RecipeItemView: View {
         .onTapGesture(count: 1) {
             RecipeManager.goToRecipe(recipeId: recipe.bundleId)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .MessageCenterHasUpdated)) { _ in
-            messageCenterUnreadCount = MessageCenter.unreadCount
+        .onAppear {
+            unreadMessageCount = Topic.unreadMsgCount
         }
     }
     

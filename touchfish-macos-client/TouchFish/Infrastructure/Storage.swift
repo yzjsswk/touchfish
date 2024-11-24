@@ -33,7 +33,6 @@ struct Storage {
             uids = data
         case .failure(let err):
             Log.error("Storage.searchFish - fail: delectFish request failed, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
         }
         for uid in uids {
             if let fish = fishCache[uid] {
@@ -59,7 +58,6 @@ struct Storage {
                 fishCache[fish.uid] = fish
             case .failure(let err):
                 Log.warning("Storage.searchFish - ignore one fish: pickFish request failed, err=\(err), fish.uid=\(uid)")
-                Functions.sendDataServiceErrorMessage()
             }
         }
         return ret
@@ -87,7 +85,6 @@ struct Storage {
             return fish
         case .failure(let err):
             Log.error("Storage.pickFish - failed: pickFish request failed, err=\(err), fish.uid=\(uid)")
-            Functions.sendDataServiceErrorMessage()
             return nil
         }
     }
@@ -111,7 +108,6 @@ struct Storage {
             return fish
         case .failure(let err):
             Log.error("Storage.pickFish - failed: pickFish request failed, err=\(err), fish.identity=\(identity)")
-            Functions.sendDataServiceErrorMessage()
             return nil
         }
     }
@@ -151,7 +147,6 @@ struct Storage {
             return uid
         case .failure(let err):
             Log.error("Storage.addFish - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
             return nil
         }
     }
@@ -183,7 +178,6 @@ struct Storage {
             return true
         case .failure(let err):
             Log.error("Storage.modifyFish - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
             return false
         }
     }
@@ -203,7 +197,6 @@ struct Storage {
             }
         case .failure(let err):
             Log.error("Storage.removeFish - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
         }
     }
     
@@ -222,7 +215,6 @@ struct Storage {
             }
         case .failure(let err):
             Log.error("Storage.markFish - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
         }
     }
     
@@ -241,7 +233,6 @@ struct Storage {
             }
         case .failure(let err):
             Log.error("Storage.unMarkFish - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
         }
     }
     
@@ -260,7 +251,6 @@ struct Storage {
             }
         case .failure(let err):
             Log.error("Storage.lockFish - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
         }
     }
     
@@ -279,7 +269,6 @@ struct Storage {
             }
         case .failure(let err):
             Log.error("Storage.unLockFish - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
         }
     }
     
@@ -298,7 +287,6 @@ struct Storage {
             }
         case .failure(let err):
             Log.error("Storage.pinFish - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
         }
     }
     
@@ -316,7 +304,6 @@ struct Storage {
             return data
         case .failure(let err):
             Log.error("Storage.countFish - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
             return nil
         }
     }
@@ -339,7 +326,6 @@ struct Storage {
             return data
         case .failure(let err):
             Log.error("Storage.createTopic - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
             return nil
         }
     }
@@ -353,7 +339,6 @@ struct Storage {
             }
         case .failure(let err):
             Log.error("Storage.removeTopic - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
         }
     }
     
@@ -378,7 +363,6 @@ struct Storage {
             return topics
         case .failure(let err):
             Log.error("Storage.listTopic - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
             return []
         }
     }
@@ -398,7 +382,6 @@ struct Storage {
             }
         case .failure(let err):
             Log.error("Storage.sendMessage - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
         }
     }
     
@@ -412,7 +395,6 @@ struct Storage {
             return true
         case .failure(let err):
             Log.error("Storage.readMessage - fail: request data service fail, err=\(err)")
-            Functions.sendDataServiceErrorMessage()
             return false
         }
     }

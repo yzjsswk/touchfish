@@ -50,7 +50,6 @@
 		99C614FA2C43C38B00A99567 /* BasicSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C614F92C43C38B00A99567 /* BasicSettingView.swift */; };
 		99C614FC2C43F56500A99567 /* FishRepositorySettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C614FB2C43F56500A99567 /* FishRepositorySettingView.swift */; };
 		99C614FE2C45094400A99567 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C614FD2C45094400A99567 /* Task.swift */; };
-		99C615032C45691900A99567 /* MessageCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C615022C45691900A99567 /* MessageCenter.swift */; };
 		99C646362CCB63E9002454C9 /* yfunc-swift in Resources */ = {isa = PBXBuildFile; fileRef = 99C646352CCB63E9002454C9 /* yfunc-swift */; };
 		99C646392CCB64CA002454C9 /* YFuncSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 99C646382CCB64CA002454C9 /* YFuncSwift */; };
 		99EDC3362CC4FE8F0023CDF0 /* PieChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99EDC3352CC4FE8F0023CDF0 /* PieChartView.swift */; };
@@ -105,7 +104,6 @@
 		99C614F92C43C38B00A99567 /* BasicSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicSettingView.swift; sourceTree = "<group>"; };
 		99C614FB2C43F56500A99567 /* FishRepositorySettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FishRepositorySettingView.swift; sourceTree = "<group>"; };
 		99C614FD2C45094400A99567 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
-		99C615022C45691900A99567 /* MessageCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCenter.swift; sourceTree = "<group>"; };
 		99C646352CCB63E9002454C9 /* yfunc-swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "yfunc-swift"; path = "../../../YFunc/yfunc-swift"; sourceTree = "<group>"; };
 		99EDC3352CC4FE8F0023CDF0 /* PieChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChartView.swift; sourceTree = "<group>"; };
 		99EDC3372CC630420023CDF0 /* BarChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarChartView.swift; sourceTree = "<group>"; };
@@ -169,7 +167,6 @@
 				997FAFD62CEB69530023A6BC /* Topic.swift */,
 				997FAFDC2CEB860F0023A6BC /* TopicListView.swift */,
 				997FAFDE2CEB86180023A6BC /* TopicListItemView.swift */,
-				99C615022C45691900A99567 /* MessageCenter.swift */,
 			);
 			path = Topic;
 			sourceTree = "<group>";
@@ -358,7 +355,6 @@
 			files = (
 				99AC05E32BB2BD720046E8C5 /* Fish.swift in Sources */,
 				997FAFDF2CEB861C0023A6BC /* TopicListItemView.swift in Sources */,
-				99C615032C45691900A99567 /* MessageCenter.swift in Sources */,
 				99AC05FF2BB2BD720046E8C5 /* RecipeListView.swift in Sources */,
 				99EDC33C2CC69FD90023CDF0 /* Metrics.swift in Sources */,
 				99AC05F52BB2BD720046E8C5 /* Log.swift in Sources */,

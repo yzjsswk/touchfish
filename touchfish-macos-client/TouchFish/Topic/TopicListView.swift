@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TopicListView: View {
     
-    @State var topics: [Topic] = []
+    @Binding var topics: [Topic]
     
     var body: some View {
 
@@ -18,15 +18,6 @@ struct TopicListView: View {
         }
         .onAppear {
             NotificationCenter.default.post(name: .ShouldRefreshTopic, object: nil)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .ShouldRefreshTopic)) { _ in
-            Task {
-                let topics = await Storage.listTopic()
-                withAnimation(.spring(duration: 0.2)) {
-                    self.topics = topics.sorted(by: { $0.createTime > $1.createTime })
-                }
-            }
-
         }
         
     }

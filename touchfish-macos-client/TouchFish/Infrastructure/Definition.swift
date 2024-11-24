@@ -198,14 +198,6 @@ struct Functions {
         alert.runModal()
     }
     
-    static func sendDataServiceErrorMessage() {
-        if let config = Config.enableDataServiceConfig {
-            MessageCenter.send(level: .error, title: "Data Service Error", content: "request the data service(host=\(config.host), port=\(config.port)) fail, please check [data service]-[connection info] in setting and ensure the data service running normally")
-        } else {
-            MessageCenter.send(level: .error, title: "Data Service Error", content: "no valid data service configuration, please check [data service]-[connection info] in setting")
-        }
-    }
-    
     static func getCurrentDateString(format: String) -> String {
         let currentDate = Date()
         let dateFormatter = DateFormatter()
@@ -313,7 +305,6 @@ extension Notification.Name {
     static let CommandBarShouldFocus = Notification.Name("CommandBarShouldFocus")
     static let UserDefinedRecipeViewChanged = Notification.Name("UserDefinedRecipeViewChanged")
     static let RecipeCommited = Notification.Name("RecipeCommited")
-    static let MessageCenterHasUpdated = Notification.Name("MessageCenterHasUpdated")
     static let ShouldRefreshTopic = Notification.Name("ShouldRefreshTopic")
 }
 

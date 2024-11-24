@@ -28,30 +28,31 @@ struct FishAddView: View {
                     ButtonView(label: "Add \(toAddFiles.count) File\(toAddFiles.count == 1 ? "":"s")")
                     .frame(width: 150, height: 40)
                     .onTapGesture {
-                        for (url, info) in toAddFiles {
-                            if let data = FileManager.default.contents(atPath: url.path) {
-                                if let type = Fish.FishType(rawValue: info.selectedType) {
-                                    Task {
-                                        let newFish = await Storage.addFish(
-                                            type,
-                                            data,
-                                            description: info.description,
+                        Task {
+                            let subject = "add_fish_\(Date().timeIntervalSince1970)"
+                            let _ = await Storage.createTopic(topicType: .Info, subject: subject, source: "com.touchfish.AddFish", title: "Add Fish From File")
+                            for (url, info) in toAddFiles {
+                                if let data = FileManager.default.contents(atPath: url.path) {
+                                    if let type = Fish.FishType(rawValue: info.selectedType) {
+                                        let uid = await Storage.addFish(
+                                            type, data, description: info.description,
                                             tags: info.tags.filter({ $0.value }).map({$0.key}),
-                                            isMarked: true,
-                                            extraInfo: Fish.ExtraInfo(sourceAppName: "TouchFish")
+                                            isMarked: true, extraInfo: Fish.ExtraInfo(sourceAppName: "TouchFish")
                                         )
-                                        if newFish == nil {
-                                            MessageCenter.send(level: .error, title: "Add Fish From File", content: "file \(url.path) add failed, check if there had been one same fish", source: "com.touchfish.AddFish")
+                                        if uid != nil {
+                                            await Storage.sendMessage(topicSubject: subject, level: .Info, title: "Add Success", body: "successfully add one fish from file \(url.path)")
+                                        } else {
+                                            await Storage.sendMessage(topicSubject: subject, level: .Error, title: "Add Failed", body: "failed to add one fish from file \(url.path), check if there had been one same fish")
                                             Log.error("click button to add fish - one fish add failed: storage.addFish returns nil, url=\(url.path)")
                                         }
+                                    } else {
+                                        await Storage.sendMessage(topicSubject: subject, level: .Error, title: "Add Failed", body: "failed to add one fish from file \(url.path): type \(info.selectedType) invalid")
+                                        Log.error("click button to add fish - skip a fish: parse type=nil, url=\(url.path), type=\(info.selectedType)")
                                     }
                                 } else {
-                                    MessageCenter.send(level: .error, title: "Add Fish From File", content: "file \(url.path) add failed, type \(info.selectedType) invalid", source: "com.touchfish.AddFish")
-                                    Log.error("click button to add fish - skip a fish: parse type=nil, url=\(url.path), type=\(info.selectedType)")
+                                    await Storage.sendMessage(topicSubject: subject, level: .Error, title: "Add Failed", body: "failed to add one fish from file \(url.path): read data from file failed")
+                                    Log.error("click button to add fish - skip a fish: got file data=nil, url=\(url.path)")
                                 }
-                            } else {
-                                MessageCenter.send(level: .error, title: "Add Fish From File", content: "file \(url.path) add failed, read file data failed", source: "com.touchfish.AddFish")
-                                Log.error("click button to add fish - skip a fish: got file data=nil, url=\(url.path)")
                             }
                         }
                         RecipeManager.goToRecipe(recipeId: nil)

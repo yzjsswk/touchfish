@@ -5,6 +5,8 @@ struct MainView: View {
     @State var recipeList: [Recipe] = []
     @State var activeRecipeBundleId: String?
     
+    @State var topics: [Topic] = []
+    
     @State var commandText = ""
     @State var commandCell: [String] = []
     
@@ -18,7 +20,7 @@ struct MainView: View {
                     case "com.touchfish.RecipeManage":
                         RecipeManageView()
                     case "com.touchfish.Topics":
-                        TopicListView()
+                        TopicListView(topics: $topics)
                     case "com.touchfish.Statistics":
                         StatsView()
                     case "com.touchfish.Setting":
@@ -44,6 +46,7 @@ struct MainView: View {
         )
         .onAppear {
             RecipeManager.refresh()
+            NotificationCenter.default.post(name: .ShouldRefreshTopic, object: nil)
             Task {
                 let fishs = await Storage.searchFish()
                 NotificationCenter.default.post(name: .FishRefreshed, object: nil, userInfo: ["fish":fishs])
@@ -64,6 +67,7 @@ struct MainView: View {
                 }
             } else {
                 RecipeManager.refresh()
+                NotificationCenter.default.post(name: .ShouldRefreshTopic, object: nil)
                 activeRecipeBundleId = nil
                 commandCell.removeAll()
             }
@@ -71,6 +75,19 @@ struct MainView: View {
         .onReceive(NotificationCenter.default.publisher(for: .CommandTextChanged)) { notification in
             if let commandText = notification.userInfo?["commandText"] as? String {
                 self.commandText = commandText
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .ShouldRefreshTopic)) { _ in
+            Task {
+                let topics = await Storage.listTopic()
+                withAnimation(.spring(duration: 0.2)) {
+                    self.topics = topics.sorted(by: { $0.createTime > $1.createTime })
+                }
+                let unreadCount = self.topics.reduce(into: 0) { acc, it in
+                    acc += it.messages.filter({ !$0.hasRead }).count
+                }
+                Topic.unreadMsgCount = unreadCount
+//                Log.debug("topic refreshed: \(unreadCount)")
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .EscapeKeyWasPressed)) { _ in
