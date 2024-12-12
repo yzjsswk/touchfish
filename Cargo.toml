@@ -3,7 +3,7 @@ members = [
     "touchfish-core", 
     "touchfish-mongo-storage", 
     "touchfish-data-server",
-    # "touchfish-recipe-server",
+    "touchfish-recipe-server",
 ]
 
 [replace]

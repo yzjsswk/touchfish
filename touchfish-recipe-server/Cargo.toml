@@ -7,7 +7,6 @@ edition = "2021"
 touchfish-core = { path = "../touchfish-core" }
 yfunc-rust = "0.1"
 actix-web = "4"
-once_cell = "1.20"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_with = "3.9.0"

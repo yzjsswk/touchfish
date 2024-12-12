@@ -1,27 +1,19 @@
-use actix_web::{get, middleware::Logger, post, web::Json, App, HttpServer, Responder};
-use once_cell::sync::Lazy;
+use actix_web::{get, middleware::Logger, post, web::{Data, Json}, App, HttpServer, Responder};
 use req::ExecuteRecipeReq;
 use resp::ToResp;
-use touchfish_core::RecipeFacade;
+use touchfish_core::RecipeApi;
 
 mod req;
 mod resp;
 
-static FACADE: Lazy<RecipeFacade> = Lazy::new(|| {
-    let folder_path = std::env::var("TFRS_RECIPE_FOLDER")
-        .expect("recipe folder path is required");
-    let facade = RecipeFacade::new(&folder_path);
-    facade
-});
-
 #[get("/recipe/list")]
-async fn list_recipe() -> impl Responder {
-    FACADE.get_recipe_list().to_resp()
+async fn list_recipe(recipe_api: Data<RecipeApi>) -> impl Responder {
+    recipe_api.get_recipe_list().to_resp()
 }
 
 #[post("/recipe/execute")]
-async fn execute_recipe(req: Json<ExecuteRecipeReq>) -> impl Responder {
-    FACADE.execute(
+async fn execute_recipe(recipe_api: Data<RecipeApi>, req: Json<ExecuteRecipeReq>) -> impl Responder {
+    recipe_api.execute(
         &req.bundle_id, &req.command, &req.args,
     ).to_resp()
 }
@@ -33,10 +25,12 @@ async fn main() -> std::io::Result<()> {
         Ok(v) => v.parse().expect(&format!("env var TFRS_PORT parse failed, TFRS_PORT={}", v)),
         Err(_) => 56189,
     };
-    let _ = &*FACADE;
-    HttpServer::new(|| {
+    let folder_path = std::env::var("TFRS_RECIPE_FOLDER").expect("recipe folder path is required");
+    let recipe_api = Data::new(RecipeApi::new(&folder_path));
+    HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
+            .app_data(recipe_api.clone())
             .service(list_recipe)
             .service(execute_recipe)
     })
