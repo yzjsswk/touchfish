@@ -27,8 +27,6 @@ struct RecipeResp: Codable {
     var parameters: [Recipe.Parameter]?
     var actions: [RecipeAction]?
     var color: String?
-    var order: Int?
-    var enabled: Bool?
     
     enum CodingKeys: String, CodingKey {
         case bundleId = "bundle_id"
@@ -42,8 +40,6 @@ struct RecipeResp: Codable {
         case parameters = "parameters"
         case actions = "actions"
         case color = "color"
-        case order = "order"
-        case enabled = "enabled"
     }
     
     func toRecipe() -> Recipe? {
@@ -59,8 +55,7 @@ struct RecipeResp: Codable {
             parameters: self.parameters ?? [],
             actions: self.actions ?? [],
             color: self.color?.linearGradient ?? Constant.userDefinedRecipeDefaultIemColor,
-            order: self.order ?? 0,
-            enabled: self.enabled ?? true
+            order: 0
         )
     }
     
@@ -68,12 +63,16 @@ struct RecipeResp: Codable {
 
 struct RecipeService {
     
-    static var urlPrefix = ""
+    let host: String
+    let port: String
     
-    static func tryConnect(host: String, port: String) async -> Int? {
-        let url = "http://\(host):\(port)"
+    var urlPrefix: String {
+        return "http://\(host):\(port)"
+    }
+    
+    func tryConnect() async -> Int? {
         let startTime = Date()
-        let res = await AF.request(url).serializingDecodable(Int.self).result
+        let res = await AF.request(urlPrefix).serializingDecodable(Int.self).result
         let endTime = Date()
         let timeCost = Int(endTime.timeIntervalSince(startTime)*1000)
         switch res {
@@ -85,15 +84,15 @@ struct RecipeService {
         }
     }
     
-    static func listRecipe() async -> Result<RecipeServiceResponse<[RecipeResp]>, AFError> {
-        let url = RecipeService.urlPrefix + "/recipe/list"
+    func listRecipe() async -> Result<RecipeServiceResponse<[RecipeResp]>, AFError> {
+        let url = urlPrefix + "/recipe/list"
         return await AF.request(url).serializingDecodable(RecipeServiceResponse.self).result
     }
     
-    static func executeRecipe(
+    func executeRecipe(
         bundleId: String, command: String, arguments: [String]
     ) async -> Result<RecipeServiceResponse<String>, AFError> {
-        let url = RecipeService.urlPrefix + "/recipe/execute"
+        let url = urlPrefix + "/recipe/execute"
         let para: [String:Any?] = [
             "bundle_id": bundleId,
             "command": command,

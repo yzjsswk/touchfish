@@ -399,57 +399,47 @@ struct Storage {
         }
     }
     
-    static func searchRecipe() async -> [Recipe] {
+    static func searchRecipe(host: String, port: String) async -> [Recipe] {
         var ret: [Recipe] = []
-        for server in Config.recipeServiceConfigs.values {
-            let urlPrefix = "http://\(server.host):\(server.port)"
-            RecipeService.urlPrefix = urlPrefix
-            let result = await RecipeService.listRecipe()
-            switch result {
-            case .success(let resp):
-                if !resp.isOk() {
-                    Log.error("Storage.searchRecipe - fail: resp is not ok, resp.code=\(resp.code), urlPrefix=\(urlPrefix)")
-                }
-                guard let data = resp.data else {
-                    Log.error("Storage.searchRecipe - fail: resp.data=nil, resp.code=\(resp.code), urlPrefix=\(urlPrefix)")
+        let result = await RecipeService(host: host, port: port).listRecipe()
+        switch result {
+        case .success(let resp):
+            if !resp.isOk() {
+                Log.error("Storage.searchRecipe - fail: resp is not ok, resp.code=\(resp.code), host=\(host), port=\(port)")
+            }
+            guard let data = resp.data else {
+                Log.error("Storage.searchRecipe - fail: resp.data=nil, resp.code=\(resp.code), host=\(host), port=\(port)")
+                return ret
+            }
+            for recipeResp in data {
+                guard let recipe = recipeResp.toRecipe() else {
+                    Log.warning("Storage.searchRecipe - skip a recipe: parse recipeResp to recipe failed, bundleId=\(recipeResp.bundleId), host=\(host), port=\(port)")
                     continue
                 }
-                for recipeResp in data {
-                    guard let recipe = recipeResp.toRecipe() else {
-                        Log.warning("Storage.searchRecipe - skip a recipe: parse recipeResp to recipe failed, bundleId=\(recipeResp.bundleId), urlPrefix=\(urlPrefix)")
-                        continue
-                    }
-                    ret.append(recipe)
-                }
-            case .failure(let err):
-                Log.error("Storage.searchRecipe - fail: request recipe server failed, urlPrefix=\(urlPrefix), err=\(err)")
-                continue
+                ret.append(recipe)
             }
+        case .failure(let err):
+            Log.error("Storage.searchRecipe - fail: request recipe server failed, host=\(host), port=\(port), err=\(err)")
         }
         return ret
     }
     
     static func executeRecipe(
-        bundleId: String, command: String, arguments: [String]
+        host: String, port: String, bundleId: String, command: String, arguments: [String]
     ) async -> String? {
-        guard let server = Config.recipeServiceConfigs.values.first else {
-            Log.error("Storage.executeRecipe - fail: no recipe server, bundleId=\(bundleId), command=\(command)")
-            return nil
-        }
-        let urlPrefix = "http://\(server.host):\(server.port)"
-        let result = await RecipeService.executeRecipe(bundleId: bundleId, command: command, arguments: arguments)
+        let result = await RecipeService(host: host, port: port).executeRecipe(bundleId: bundleId, command: command, arguments: arguments)
         switch result {
         case .success(let resp):
             if !resp.isOk() {
-                Log.error("Storage.executeRecipe - fail: resp is not ok, resp.code=\(resp.code), urlPrefix=\(urlPrefix), bundleId=\(bundleId), command=\(command)")
+                Log.error("Storage.executeRecipe - fail: resp is not ok, resp.code=\(resp.code), host=\(host), port=\(port), bundleId=\(bundleId), command=\(command)")
             }
             guard let data = resp.data else {
-                Log.error("Storage.executeRecipe - fail: resp.data=nil, resp.code=\(resp.code), urlPrefix=\(urlPrefix), bundleId=\(bundleId), command=\(command)")
+                Log.error("Storage.executeRecipe - fail: resp.data=nil, resp.code=\(resp.code), host=\(host), port=\(port), bundleId=\(bundleId), command=\(command)")
                 return nil
             }
             return data
         case .failure(let err):
-            Log.error("Storage.executeRecipe - fail: request recipe server failed, urlPrefix=\(urlPrefix), err=\(err), bundleId=\(bundleId), command=\(command)")
+            Log.error("Storage.executeRecipe - fail: request recipe server failed, host=\(host), port=\(port), err=\(err), bundleId=\(bundleId), command=\(command)")
             return nil
         }
     }

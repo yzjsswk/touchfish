@@ -6,6 +6,7 @@ class TouchFishApp {
     static let logPath = TouchFishApp.appSupportPath.appendingPathComponent("log")
     static let configPath = TouchFishApp.appSupportPath.appendingPathComponent("config")
     static let metricsPath = TouchFishApp.appSupportPath.appendingPathComponent("metrics")
+    static let recipesPath = TouchFishApp.appSupportPath.appendingPathComponent("recipes")
     
     static var statusBar: StatusBar!
     static var mainWindow: MainWindow!

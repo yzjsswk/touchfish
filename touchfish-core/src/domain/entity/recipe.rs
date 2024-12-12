@@ -18,9 +18,6 @@ pub struct Recipe {
     #[serde(default = "default_actions")]
     pub actions: Vec<RecipeAction>,
     pub color: Option<String>,
-    pub order: Option<i32>,
-    #[serde(default = "default_enabled")]
-    pub enabled: bool,
 }
 
 fn default_parameters() -> Vec<RecipePara> {
@@ -29,10 +26,6 @@ fn default_parameters() -> Vec<RecipePara> {
 
 fn default_actions() -> Vec<RecipeAction> {
     vec![]
-}
-
-fn default_enabled() -> bool {
-    true
 }
 
 #[yfunc]

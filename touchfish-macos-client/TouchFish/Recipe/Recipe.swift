@@ -2,6 +2,8 @@ import SwiftUI
 
 struct Recipe {
     
+    var host: String? = nil
+    var port: String? = nil
     var bundleId: String
     var author: String
     var version: Int
@@ -14,7 +16,6 @@ struct Recipe {
     var actions: [RecipeAction] = []
     var color: LinearGradient
     var order: Int
-    var enabled: Bool = true
     
     enum RecipeType: String, Codable {
         case Task
@@ -29,7 +30,7 @@ struct Recipe {
     
     func execute() {
         for action in actions {
-            action.execute()
+            action.execute(host: host, port: port)
         }
     }
     
@@ -100,7 +101,7 @@ struct RecipeAction: Codable {
         
     }
     
-    func execute() {
+    func execute(host: String?, port: String?) {
         switch type {
         case .Back:
             RecipeManager.goToRecipe(recipeId: nil)
@@ -126,6 +127,14 @@ struct RecipeAction: Codable {
                 Log.warning("run recipe action: skip shell action: bundleId=nil")
                 return
             }
+            guard let host = host else {
+                Log.warning("run recipe action: skip shell action: host=nil, bundleId=\(bundleId)")
+                return
+            }
+            guard let port = port else {
+                Log.warning("run recipe action: skip shell action: port=nil, bundleId=\(bundleId)")
+                return
+            }
             var cmd: String? = nil
             var argments: [String] = []
             for (index, argument) in arguments.enumerated() {
@@ -144,7 +153,7 @@ struct RecipeAction: Codable {
                 let startTime = Date()
         //        let executeResultText = Functions.runCommand(cmd: script.executor, args: argments)
 //                let executeResultText = AppleScriptRunner.doShellScript(cmd: cmd, args: argments)
-                let executeResultText = await Storage.executeRecipe(bundleId: bundleId, command: cmd, arguments: arguments)
+                let executeResultText = await Storage.executeRecipe(host: host, port: port, bundleId: bundleId, command: cmd, arguments: arguments)
                 let endTime = Date()
                 let timeCost = Int(endTime.timeIntervalSince(startTime)*1000)
                 if RecipeManager.activeRecipe?.type == .View {

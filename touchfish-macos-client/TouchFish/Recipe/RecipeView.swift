@@ -152,7 +152,7 @@ struct UserDefinedRecipeListItemView1: View {
         .onTapGesture {
             if let actions = item.actions {
                 for action in actions {
-                    action.execute()
+                    action.execute(host: nil, port: nil)
                 }
             }
         }
@@ -202,7 +202,7 @@ struct UserDefinedRecipeListItemView2: View {
         .onTapGesture {
             if let actions = item.actions {
                 for action in actions {
-                    action.execute()
+                    action.execute(host: nil, port: nil)
                 }
             }
         }

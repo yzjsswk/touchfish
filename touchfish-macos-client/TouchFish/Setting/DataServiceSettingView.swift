@@ -59,7 +59,7 @@ struct DataServiceConfigAddView: View {
     @State private var message: String = ""
     @State private var showPopover: Bool = false
     
-    @Binding var dataServiceConfigs: [String:Configuration.ServerConfig]
+    @Binding var dataServiceConfigs: [String:Configuration.DataServerConfig]
     
     var body: some View {
         
@@ -115,7 +115,7 @@ struct DataServiceConfigAddView: View {
                         showPopover = true
                         return
                     }
-                    dataServiceConfigs[name] = Configuration.ServerConfig(host: host, port: port)
+                    dataServiceConfigs[name] = Configuration.DataServerConfig(host: host, port: port)
                     isOpening = false
                     name = ""
                     host = ""
@@ -183,7 +183,7 @@ struct DataServiceConfigItemView: View {
     var host: String
     var port: String
     
-    @Binding var dataServiceConfigs: [String:Configuration.ServerConfig]
+    @Binding var dataServiceConfigs: [String:Configuration.DataServerConfig]
     @Binding var enableDataServiceConfigName: String
     
     @State var timeCost: Int?
