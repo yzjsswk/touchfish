@@ -109,6 +109,24 @@ struct BasicSettingView: View {
             }
             .padding(.vertical, 2)
             Divider()
+            // backWhenAssistiveClick
+            HStack {
+                Text("Back When Assistive Click")
+                    .font(.title3)
+                    .bold()
+                Spacer()
+                Toggle(isOn: $tempSetting.backWhenAssistiveClick) {}
+                    .padding(.horizontal, 5)
+            }
+            .padding(.vertical, 2)
+            HStack{
+                Text("if enabled, when do an assistive click, the last cell in command bar will be removed")
+                    .font(.callout)
+                    .foregroundStyle(.gray)
+                Spacer()
+            }
+            .padding(.vertical, 2)
+            Divider()
         }
         .padding()
     }

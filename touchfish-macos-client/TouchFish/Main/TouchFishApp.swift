@@ -17,6 +17,7 @@ class TouchFishApp {
         Monitor.start(type: .showOrHideMainWindowWhenKeyShortCutPressed)
         Monitor.start(type: .openFishRepositoryWhenKeyShortCutPressed)
         Monitor.start(type: .hideMainWindowWhenClickOutside)
+        Monitor.start(type: .backWhenAssistiveClick)
         Monitor.start(type: .saveFishWhenClipboardChanges)
         Monitor.start(type: .localKeyBoardPressedAsyncEvent)
 //        TFTask.start()

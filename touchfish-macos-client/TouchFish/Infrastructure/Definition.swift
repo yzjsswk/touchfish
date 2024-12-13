@@ -296,6 +296,7 @@ extension Notification.Name {
     static let SpaceKeyWasPressed = Notification.Name("SpaceKeyWasPressed")
     static let DeleteKeyWasPressed = Notification.Name("DeleteKeyWasPressed")
     static let CommandKeyWasPressed = Notification.Name("CommandKeyWasPressed")
+    static let ShouldBack = Notification.Name("ShouldBack")
     static let ShouldRefreshFish = Notification.Name("ShouldRefreshFish")
     static let FishRefreshed = Notification.Name("FishRefreshed")
     static let RecipeRefreshed = Notification.Name("RecipeRefreshed")
@@ -307,5 +308,3 @@ extension Notification.Name {
     static let RecipeCommited = Notification.Name("RecipeCommited")
     static let ShouldRefreshTopic = Notification.Name("ShouldRefreshTopic")
 }
-
-

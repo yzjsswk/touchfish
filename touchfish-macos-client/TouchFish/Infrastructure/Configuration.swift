@@ -69,6 +69,7 @@ struct Configuration: Codable {
     var recipeServiceConfigs: [RecipeServerConfig] = []
     
     var hideMainWindowWhenClickOutSideEnable = true
+    var backWhenAssistiveClick = true
     
     // fish repository
     var fishRepositoryActiveKeyShortcut = KeyboardShortcut(keyCode: 9, modifiers: [.command, .option], events: [.keyDown])

@@ -8,6 +8,7 @@ struct MonitorManager {
     
     enum MonitorType {
         case hideMainWindowWhenClickOutside
+        case backWhenAssistiveClick
         case showOrHideMainWindowWhenKeyShortCutPressed
         case openFishRepositoryWhenKeyShortCutPressed
         case localKeyBoardPressedAsyncEvent
@@ -23,6 +24,7 @@ struct MonitorManager {
     
     static var localKeyBoardPressedAsyncEventMonitor: Any?
     static var hideMainWindowWhenClickOutsideMonitor: Any?
+    static var backWhenAssistiveClickMonitor: Any?
     static var clipboardListenerState: ClipboardListenerState = .unStarted
     static var lastClipboardData = UUID().uuidString.data(using: .utf8)
     
@@ -33,6 +35,13 @@ struct MonitorManager {
                 if Config.hideMainWindowWhenClickOutSideEnable && TouchFishApp.mainWindow.isVisible {
                     TouchFishApp.deactivate()
                 }
+            }
+        case .backWhenAssistiveClick:
+            MonitorManager.backWhenAssistiveClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { [] event in
+                if Config.backWhenAssistiveClick {
+                    NotificationCenter.default.post(name: .ShouldBack, object: nil)
+                }
+                return nil
             }
         case .showOrHideMainWindowWhenKeyShortCutPressed:
             GlobalKeyboardEventListener().startListening(keyboardShortcut: Config.appActiveKeyShortcut) { [] _ in
@@ -148,6 +157,10 @@ struct MonitorManager {
             guard let monitor = MonitorManager.hideMainWindowWhenClickOutsideMonitor else { return }
             NSEvent.removeMonitor(monitor)
             MonitorManager.hideMainWindowWhenClickOutsideMonitor = nil
+        case .backWhenAssistiveClick:
+            guard let monitor = MonitorManager.backWhenAssistiveClickMonitor else { return }
+            NSEvent.removeMonitor(monitor)
+            MonitorManager.backWhenAssistiveClickMonitor = nil
         case .saveFishWhenClipboardChanges:
             if MonitorManager.clipboardListenerState != .unStarted {
                 MonitorManager.clipboardListenerState = .stop
