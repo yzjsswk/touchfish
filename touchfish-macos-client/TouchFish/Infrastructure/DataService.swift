@@ -247,17 +247,21 @@ struct DataService {
         return "http://\(dataServiceConfig.host):\(dataServiceConfig.port)"
     }
     
-    static func tryConnect(host: String, port: String) async -> Int? {
-        let url = "http://\(host):\(port)"
+    static func tryConnect(host: String, port: String, timeoutSecond: TimeInterval = 60) async -> Int? {
+        let url = "http://\(host):\(port)/heartbeat"
+        guard let url = URL(string: url) else {
+            Log.error("DataService.tryConnect - failed: url invalid, url=\(url)")
+            return nil
+        }
         let startTime = Date()
-        let res = await AF.request(url).serializingDecodable(Int.self).result
+        let res = await AF.request(URLRequest(url: url, timeoutInterval: timeoutSecond)).serializingDecodable(DataServiceResponse<NoDataResp>.self).result
         let endTime = Date()
         let timeCost = Int(endTime.timeIntervalSince(startTime)*1000)
         switch res {
         case .success(_):
             return timeCost
         case .failure(let err):
-            Log.warning("DataService.tryConnect - failed, host=\(host), port = \(port), err=\(err)")
+            Log.warning("DataService.tryConnect - failed, url=\(url), err=\(err)")
             return nil
         }
     }
@@ -505,6 +509,3 @@ struct DataService {
     }
     
 }
-
-
-

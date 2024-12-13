@@ -8,6 +8,11 @@ use yfunc_rust::{prelude::*, YBytes};
 mod req;
 mod resp;
 
+#[get("/heartbeat")]
+async fn heart_beat() -> impl Responder {
+    YRes::Ok(()).to_resp()
+}
+
 #[post("/fish/search")]
 async fn search_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<SearchFishReq>) -> impl Responder {
     let fuzzy = req.fuzzy.as_ref().map(|x| x.as_str());
@@ -158,6 +163,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .app_data(fish_api.clone())
             .app_data(topic_api.clone())
+            .service(heart_beat)
             .service(search_fish)
             .service(delect_fish)
             .service(pick_fish)

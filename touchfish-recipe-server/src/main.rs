@@ -2,9 +2,15 @@ use actix_web::{get, middleware::Logger, post, web::{Data, Json}, App, HttpServe
 use req::ExecuteRecipeReq;
 use resp::ToResp;
 use touchfish_core::RecipeApi;
+use yfunc_rust::prelude::*;
 
 mod req;
 mod resp;
+
+#[get("/heartbeat")]
+async fn heart_beat() -> impl Responder {
+    YRes::Ok(()).to_resp()
+}
 
 #[get("/recipe/list")]
 async fn list_recipe(recipe_api: Data<RecipeApi>) -> impl Responder {
@@ -31,6 +37,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(Logger::default())
             .app_data(recipe_api.clone())
+            .service(heart_beat)
             .service(list_recipe)
             .service(execute_recipe)
     })

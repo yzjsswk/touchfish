@@ -70,16 +70,21 @@ struct RecipeService {
         return "http://\(host):\(port)"
     }
     
-    func tryConnect() async -> Int? {
+    func tryConnect(timeoutSecond: TimeInterval = 60) async -> Int? {
+        let url = "http://\(host):\(port)/heartbeat"
+        guard let url = URL(string: url) else {
+            Log.error("RecipeService.tryConnect - failed: url invalid, url=\(url)")
+            return nil
+        }
         let startTime = Date()
-        let res = await AF.request(urlPrefix).serializingDecodable(Int.self).result
+        let res = await AF.request(URLRequest(url: url, timeoutInterval: timeoutSecond)).serializingDecodable(RecipeServiceResponse<NoDataResp>.self).result
         let endTime = Date()
         let timeCost = Int(endTime.timeIntervalSince(startTime)*1000)
         switch res {
         case .success(_):
             return timeCost
         case .failure(let err):
-            Log.warning("RecipeService.tryConnect - failed, host=\(host), port = \(port), err=\(err)")
+            Log.warning("RecipeService.tryConnect - failed, url=\(url), err=\(err)")
             return nil
         }
     }

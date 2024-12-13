@@ -3,15 +3,12 @@ import SwiftUI
 enum SettingTab: CaseIterable {
     
     case basic
-    case dataService
     case fishRespository
     
     var tabName: String {
         switch self {
         case .basic: 
             return "Basic"
-        case .dataService: 
-            return "Data Service"
         case .fishRespository:
             return "Fish Respository"
         }
@@ -35,8 +32,6 @@ struct SettingView: View {
                         switch selectedTab {
                         case .basic:
                             BasicSettingView(tempSetting: $tempSetting)
-                        case .dataService:
-                            DataServiceSettingView(tempSetting: $tempSetting)
                         case .fishRespository:
                             FishRepositorySettingView(tempSetting: $tempSetting)
                         }
@@ -67,7 +62,6 @@ struct SettingView: View {
                     if ok {
                         Config = Configuration.read()
                         RecipeManager.goToRecipe(recipeId: nil)
-//                        Cache.refresh()
                     } else {
                         Functions.doAlert(type: .warning, title: "Warning", message: "Save Failed")
                     }
@@ -128,5 +122,3 @@ struct SettingTabView: View {
     }
     
 }
-
-

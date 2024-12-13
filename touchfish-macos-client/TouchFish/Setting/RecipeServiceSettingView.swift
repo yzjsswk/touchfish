@@ -1,18 +1,16 @@
 import SwiftUI
 
-struct DataServiceConfigListView: View {
+struct RecipeServiceConfigListView: View {
     
     @Binding var tempSetting: Configuration
     
     var body: some View {
-        if tempSetting.dataServiceConfigs.count > 0 {
+        if tempSetting.recipeServiceConfigs.count > 0 {
             VStack(spacing: 10) {
-                ForEach(Array(tempSetting.dataServiceConfigs), id: \.name) { config in
-                    DataServiceConfigItemView(
-                        isEnabled: tempSetting.enableDataServiceConfigName == config.name,
-                        name: config.name, host: config.host, port: config.port,
-                        dataServiceConfigs: $tempSetting.dataServiceConfigs,
-                        enableDataServiceConfigName: $tempSetting.enableDataServiceConfigName
+                ForEach(Array(tempSetting.recipeServiceConfigs), id: \.name) { config in
+                    RecipeServiceConfigItemView(
+                        enable: config.enable, name: config.name, host: config.host, port: config.port,
+                        recipeServiceConfigs: $tempSetting.recipeServiceConfigs
                     )
                 }
             }
@@ -22,13 +20,14 @@ struct DataServiceConfigListView: View {
                 .foregroundStyle(.gray)
         }
     }
+    
 }
 
-struct DataServiceConfigItemView: View {
+struct RecipeServiceConfigItemView: View {
     
     struct RemoveButtonView: View {
         
-        @Binding var dataServiceConfigs: [Configuration.DataServerConfig]
+        @Binding var recipeServiceConfigs: [Configuration.RecipeServerConfig]
         @State var isHovered: Bool = false
         var name: String
         
@@ -41,36 +40,26 @@ struct DataServiceConfigItemView: View {
                 self.isHovered = isHovered
             }
             .onTapGesture {
-                dataServiceConfigs.removeAll(where: { $0.name == name })
+                recipeServiceConfigs.removeAll(where: { $0.name == name })
             }
         }
         
     }
-    
-    @State var isEnabled: Bool = false
+
+    @State var enable: Bool
     var name: String
     var host: String
     var port: String
     
-    @Binding var dataServiceConfigs: [Configuration.DataServerConfig]
-    @Binding var enableDataServiceConfigName: String
+    @Binding var recipeServiceConfigs: [Configuration.RecipeServerConfig]
     
     @State var timeCost: Int?
     
     var body: some View {
         HStack {
-            Toggle("", isOn: $isEnabled)
+            Toggle("", isOn: $enable)
             .toggleStyle(SwitchToggleStyle())
             .padding(.leading, -8)
-            .disabled(isEnabled)
-            .onChange(of: isEnabled) { old, new in
-                if new {
-                    enableDataServiceConfigName = name
-                }
-            }
-            .onChange(of: enableDataServiceConfigName) { old, new in
-                isEnabled = new == name
-            }
             Text("\(name)")
             .font(.title3)
             .bold()
@@ -80,7 +69,7 @@ struct DataServiceConfigItemView: View {
             Text("port: \(port)")
             .font(.title3)
             Spacer()
-            if enableDataServiceConfigName == name {
+            if enable {
                 if let timeCost = timeCost {
                     if timeCost == -1 {
                         Image(systemName: "xmark")
@@ -95,23 +84,28 @@ struct DataServiceConfigItemView: View {
                     Image(systemName: "circle.dotted")
                 }
             }
-            RemoveButtonView(dataServiceConfigs: $dataServiceConfigs, name: name)
+            RemoveButtonView(recipeServiceConfigs: $recipeServiceConfigs, name: name)
         }
         .onAppear {
-            if enableDataServiceConfigName == name {
+            if enable {
                 Task {
-                    let timeCost = await DataService.tryConnect(host: host, port: port, timeoutSecond: 5)
+                    let timeCost = await RecipeService(host: host, port: port).tryConnect(timeoutSecond: 5)
                     withAnimation {
                         self.timeCost = timeCost ?? -1
                     }
                 }
             }
         }
-        .onChange(of: enableDataServiceConfigName) {
+        .onChange(of: enable) { old, new in
+            for (i, c) in recipeServiceConfigs.enumerated() {
+                if c.name == name {
+                    recipeServiceConfigs[i].enable = new
+                }
+            }
             timeCost = nil
-            if enableDataServiceConfigName == name {
+            if new {
                 Task {
-                    let timeCost = await DataService.tryConnect(host: host, port: port, timeoutSecond: 5)
+                    let timeCost = await RecipeService(host: host, port: port).tryConnect(timeoutSecond: 5)
                     withAnimation {
                         self.timeCost = timeCost ?? -1
                     }
@@ -122,7 +116,7 @@ struct DataServiceConfigItemView: View {
     
 }
 
-struct DataServiceConfigAddView: View {
+struct RecipeServiceConfigAddView: View {
     
     @State private var isOpening = false
     
@@ -137,7 +131,7 @@ struct DataServiceConfigAddView: View {
     @State private var message: String = ""
     @State private var showPopover: Bool = false
     
-    @Binding var dataServiceConfigs: [Configuration.DataServerConfig]
+    @Binding var recipeServiceConfigs: [Configuration.RecipeServerConfig]
     
     var body: some View {
         
@@ -188,12 +182,12 @@ struct DataServiceConfigAddView: View {
                         showPopover = true
                         return
                     }
-                    if dataServiceConfigs.contains(where: { $0.name == name }) {
+                    if recipeServiceConfigs.contains(where: { $0.name == name }) {
                         message = "name exists"
                         showPopover = true
                         return
                     }
-                    dataServiceConfigs.append(Configuration.DataServerConfig(name: name, host: host, port: port))
+                    recipeServiceConfigs.append(Configuration.RecipeServerConfig(name: name, host: host, port: port, enable: false))
                     isOpening = false
                     name = ""
                     host = ""

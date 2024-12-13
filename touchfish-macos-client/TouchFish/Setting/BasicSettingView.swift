@@ -55,22 +55,40 @@ struct BasicSettingView: View {
             }
             .padding(.vertical, 2)
             Divider()
-            // hideMainWindowWhenClickOutSideEnable
+            // Data Server
             HStack {
-                Text("Reicpe Directory")
+                Text("Data Server")
                     .font(.title3)
                     .bold()
                 Spacer()
-                RecipeDirectoryAddView(tempSetting: $tempSetting)
+                DataServiceConfigAddView(dataServiceConfigs: $tempSetting.dataServiceConfigs)
             }
             .padding(.vertical, 2)
             HStack{
-                Text("the directorys below will be used to detect user-defined recipes")
+                Text("data server is used to store data like fish and topics")
                     .font(.callout)
                     .foregroundStyle(.gray)
                 Spacer()
             }
-            RecipeDirectoryListView(tempSetting: $tempSetting)
+            DataServiceConfigListView(tempSetting: $tempSetting)
+            .padding(.vertical, 5)
+            Divider()
+            // Recipe Server
+            HStack {
+                Text("Reicpe Server")
+                    .font(.title3)
+                    .bold()
+                Spacer()
+                RecipeServiceConfigAddView(recipeServiceConfigs: $tempSetting.recipeServiceConfigs)
+            }
+            .padding(.vertical, 2)
+            HStack{
+                Text("recipe server is used to detect and execute user-defined recipes")
+                    .font(.callout)
+                    .foregroundStyle(.gray)
+                Spacer()
+            }
+            RecipeServiceConfigListView(tempSetting: $tempSetting)
             .padding(.vertical, 2)
             Divider()
             // hideMainWindowWhenClickOutSideEnable
@@ -93,95 +111,6 @@ struct BasicSettingView: View {
             Divider()
         }
         .padding()
-    }
-    
-}
-
-struct RecipeDirectoryAddView: View {
-    
-    @Binding var tempSetting: Configuration
-    
-    @State var isHovered = false
-    
-    var body: some View {
-        Image(systemName: "plus.circle")
-        .resizable()
-        .frame(width: 20, height: 20)
-        .foregroundStyle(isHovered ? Constant.selectedItemBackgroundColor : Functions.makeLinearGradient(colors: [.gray]))
-        .onHover { isHovered in
-            self.isHovered = isHovered
-        }
-        .onTapGesture {
-            let panel = NSOpenPanel()
-            panel.allowsMultipleSelection = false
-            panel.canChooseDirectories = true
-            panel.canChooseFiles = false
-            Monitor.stop(type:.hideMainWindowWhenClickOutside)
-            let res = panel.runModal()
-            Monitor.start(type:.hideMainWindowWhenClickOutside)
-            if res == .OK, let selectedURL = panel.urls.first {
-                if !tempSetting.recipeDirectorys.contains(selectedURL) {
-                    tempSetting.recipeDirectorys.append(selectedURL)
-                }
-            }
-        }
-    }
-    
-}
-
-struct RecipeDirectoryListView: View {
-    
-    @Binding var tempSetting: Configuration
-    
-    struct RecipeDirectoryRemoveButtonView: View {
-        
-        @Binding var tempSetting: Configuration
-        @State var isHovered: Bool = false
-        var dir: URL
-        
-        var body: some View {
-            Image(systemName: "minus.circle")
-            .resizable()
-            .frame(width: 20, height: 20)
-            .foregroundStyle(isHovered ? Constant.selectedItemBackgroundColor : Functions.makeLinearGradient(colors: [.gray]))
-            .onHover { isHovered in
-                self.isHovered = isHovered
-            }
-            .onTapGesture {
-                tempSetting.recipeDirectorys.removeAll(where: { $0 == dir })
-            }
-        }
-        
-    }
-    
-    var body: some View {
-        if tempSetting.recipeDirectorys.count > 0 {
-            VStack(spacing: 10) {
-                ForEach(tempSetting.recipeDirectorys, id: \.self) { dir in
-                    HStack {
-                        Text("\(dir.path) (\(countRecipe(directory: dir)) recipes)")
-                            .font(.custom("Menlo", size: 13))
-                        Spacer()
-                        RecipeDirectoryRemoveButtonView(tempSetting: $tempSetting, dir: dir)
-                    }
-                    
-                }
-            }
-        } else {
-            Text("-- Empty --")
-                .font(.custom("Menlo", size: 13))
-                .foregroundStyle(.gray)
-        }
-    }
-    
-    private func countRecipe(directory: URL) -> Int {
-        var cnt = 0
-        for fileURL in Functions.getAllFiles(in: directory) {
-            if fileURL.lastPathComponent == "recipe.json" {
-                cnt += 1
-            }
-        }
-        return cnt
     }
     
 }

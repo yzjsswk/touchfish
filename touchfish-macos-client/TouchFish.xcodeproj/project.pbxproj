@@ -18,6 +18,7 @@
 		997FAFDF2CEB861C0023A6BC /* TopicListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997FAFDE2CEB86180023A6BC /* TopicListItemView.swift */; };
 		998020442CDA378D004DC045 /* RecipeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998020432CDA378D004DC045 /* RecipeService.swift */; };
 		9991B00C2C0C88B000EFE02C /* FishAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9991B00B2C0C88B000EFE02C /* FishAddView.swift */; };
+		999C31ED2D0C3DB40083D302 /* RecipeServiceSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 999C31EC2D0C3DAC0083D302 /* RecipeServiceSettingView.swift */; };
 		99AC05A92BB2BCD90046E8C5 /* TouchFishApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05A82BB2BCD90046E8C5 /* TouchFishApp.swift */; };
 		99AC05AD2BB2BCDA0046E8C5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99AC05AC2BB2BCDA0046E8C5 /* Assets.xcassets */; };
 		99AC05B02BB2BCDA0046E8C5 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99AC05AF2BB2BCDA0046E8C5 /* Preview Assets.xcassets */; };
@@ -71,6 +72,7 @@
 		997FAFDE2CEB86180023A6BC /* TopicListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicListItemView.swift; sourceTree = "<group>"; };
 		998020432CDA378D004DC045 /* RecipeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeService.swift; sourceTree = "<group>"; };
 		9991B00B2C0C88B000EFE02C /* FishAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FishAddView.swift; sourceTree = "<group>"; };
+		999C31EC2D0C3DAC0083D302 /* RecipeServiceSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeServiceSettingView.swift; sourceTree = "<group>"; };
 		99AC05A52BB2BCD90046E8C5 /* TouchFish.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TouchFish.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		99AC05A82BB2BCD90046E8C5 /* TouchFishApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchFishApp.swift; sourceTree = "<group>"; };
 		99AC05AC2BB2BCDA0046E8C5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 				995E08292C17242C00659F85 /* SettingView.swift */,
 				99C614F92C43C38B00A99567 /* BasicSettingView.swift */,
 				995E082B2C18345C00659F85 /* DataServiceSettingView.swift */,
+				999C31EC2D0C3DAC0083D302 /* RecipeServiceSettingView.swift */,
 				99C614FB2C43F56500A99567 /* FishRepositorySettingView.swift */,
 			);
 			path = Setting;
@@ -355,6 +358,7 @@
 			files = (
 				99AC05E32BB2BD720046E8C5 /* Fish.swift in Sources */,
 				997FAFDF2CEB861C0023A6BC /* TopicListItemView.swift in Sources */,
+				999C31ED2D0C3DB40083D302 /* RecipeServiceSettingView.swift in Sources */,
 				99AC05FF2BB2BD720046E8C5 /* RecipeListView.swift in Sources */,
 				99EDC33C2CC69FD90023CDF0 /* Metrics.swift in Sources */,
 				99AC05F52BB2BD720046E8C5 /* Log.swift in Sources */,

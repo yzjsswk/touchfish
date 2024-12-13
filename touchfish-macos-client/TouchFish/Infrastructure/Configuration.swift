@@ -43,28 +43,32 @@ struct Configuration: Codable {
     }
     var language: TFLanguage = .English
     var appActiveKeyShortcut = KeyboardShortcut(keyCode: 49, modifiers: [.option], events: [.keyDown])
-    var recipeDirectorys: [URL] = []
-    var hideMainWindowWhenClickOutSideEnable = true
     
-    // data service
     struct DataServerConfig: Codable {
+        var name: String
         var host: String
         var port: String
     }
-    var dataServiceConfigs: [String:DataServerConfig] = ["local": DataServerConfig(host: "127.0.0.1", port: "56173")]
+    var dataServiceConfigs: [DataServerConfig] = [DataServerConfig(name: "local", host: "127.0.0.1", port: "56173")]
     var enableDataServiceConfigName = "local"
     var enableDataServiceConfig: DataServerConfig? {
-        return dataServiceConfigs[enableDataServiceConfigName]
+        for config in dataServiceConfigs {
+            if config.name == enableDataServiceConfigName {
+                return config
+            }
+        }
+        return nil
     }
     
-    // recipe service
     struct RecipeServerConfig: Codable {
         var name: String
         var host: String
         var port: String
         var enable: Bool
     }
-    var recipeServiceConfigs: [RecipeServerConfig] = [RecipeServerConfig(name: "default", host: "127.0.0.1", port: "56189", enable: true)]
+    var recipeServiceConfigs: [RecipeServerConfig] = []
+    
+    var hideMainWindowWhenClickOutSideEnable = true
     
     // fish repository
     var fishRepositoryActiveKeyShortcut = KeyboardShortcut(keyCode: 9, modifiers: [.command, .option], events: [.keyDown])
