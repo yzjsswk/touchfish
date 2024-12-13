@@ -7,9 +7,9 @@ struct RecipeServiceConfigListView: View {
     var body: some View {
         if tempSetting.recipeServiceConfigs.count > 0 {
             VStack(spacing: 10) {
-                ForEach(Array(tempSetting.recipeServiceConfigs), id: \.name) { config in
+                ForEach(tempSetting.recipeServiceConfigs.indices, id: \.self) { idx in
                     RecipeServiceConfigItemView(
-                        enable: config.enable, name: config.name, host: config.host, port: config.port,
+                        config: $tempSetting.recipeServiceConfigs[idx],
                         recipeServiceConfigs: $tempSetting.recipeServiceConfigs
                     )
                 }
@@ -46,30 +46,26 @@ struct RecipeServiceConfigItemView: View {
         
     }
 
-    @State var enable: Bool
-    var name: String
-    var host: String
-    var port: String
-    
+    @Binding var config: Configuration.RecipeServerConfig
     @Binding var recipeServiceConfigs: [Configuration.RecipeServerConfig]
     
     @State var timeCost: Int?
     
     var body: some View {
         HStack {
-            Toggle("", isOn: $enable)
+            Toggle("", isOn: $config.enable)
             .toggleStyle(SwitchToggleStyle())
             .padding(.leading, -8)
-            Text("\(name)")
+            Text("\(config.name)")
             .font(.title3)
             .bold()
             .frame(width: 60, alignment: .leading)
-            Text("host: \(host)")
+            Text("host: \(config.host)")
             .font(.title3)
-            Text("port: \(port)")
+            Text("port: \(config.port)")
             .font(.title3)
             Spacer()
-            if enable {
+            if config.enable {
                 if let timeCost = timeCost {
                     if timeCost == -1 {
                         Image(systemName: "xmark")
@@ -84,28 +80,23 @@ struct RecipeServiceConfigItemView: View {
                     Image(systemName: "circle.dotted")
                 }
             }
-            RemoveButtonView(recipeServiceConfigs: $recipeServiceConfigs, name: name)
+            RemoveButtonView(recipeServiceConfigs: $recipeServiceConfigs, name: config.name)
         }
         .onAppear {
-            if enable {
+            if config.enable {
                 Task {
-                    let timeCost = await RecipeService(host: host, port: port).tryConnect(timeoutSecond: 5)
+                    let timeCost = await RecipeService(host: config.host, port: config.port).tryConnect(timeoutSecond: 5)
                     withAnimation {
                         self.timeCost = timeCost ?? -1
                     }
                 }
             }
         }
-        .onChange(of: enable) { old, new in
-            for (i, c) in recipeServiceConfigs.enumerated() {
-                if c.name == name {
-                    recipeServiceConfigs[i].enable = new
-                }
-            }
+        .onChange(of: config.enable) { old, new in
             timeCost = nil
             if new {
                 Task {
-                    let timeCost = await RecipeService(host: host, port: port).tryConnect(timeoutSecond: 5)
+                    let timeCost = await RecipeService(host: config.host, port: config.port).tryConnect(timeoutSecond: 5)
                     withAnimation {
                         self.timeCost = timeCost ?? -1
                     }

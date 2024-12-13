@@ -18,6 +18,29 @@ enum SettingTab: CaseIterable {
 
 struct SettingView: View {
     
+    struct SettingButtonView: View {
+
+        var label: String
+        
+        @State var isHovered: Bool = false
+        
+        var body: some View {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(isHovered ? "B8B9F4".color : "D6D6F9".color, lineWidth: 2)
+                    .fill(isHovered ? "F8F8FE".color : .white)
+                Text(label)
+                    .font(.body)
+                    .foregroundStyle(isHovered ? "27295F".color : "4C4C4C".color)
+                    .padding(3)
+            }
+            .onHover { isHovered in
+                self.isHovered = isHovered
+            }
+        }
+        
+    }
+    
     @State var tempSetting = Configuration.read()
     @State var selectedTab: SettingTab = .basic
     
@@ -41,23 +64,21 @@ struct SettingView: View {
             }
             HStack {
                 Spacer()
-                Button(action: {
+                SettingButtonView(label: "Undo Changes")
+                .frame(width: 100, height: 40)
+                .onTapGesture {
                     tempSetting = Configuration.read()
-                }) {
-                    Text("Undo Changes")
-                        .font(.title3)
-                        .padding(3)
                 }
                 Spacer()
-                Button(action: {
+                SettingButtonView(label: "Set To Default")
+                .frame(width: 100, height: 40)
+                .onTapGesture {
                     tempSetting = Configuration()
-                }) {
-                    Text("Set To Default")
-                        .font(.title3)
-                        .padding(3)
                 }
                 Spacer()
-                Button(action: {
+                SettingButtonView(label: "Apply Changes")
+                .frame(width: 100, height: 40)
+                .onTapGesture {
                     let ok = tempSetting.save()
                     if ok {
                         Config = Configuration.read()
@@ -65,11 +86,6 @@ struct SettingView: View {
                     } else {
                         Functions.doAlert(type: .warning, title: "Warning", message: "Save Failed")
                     }
-                }) {
-                    Text("Apply Changes")
-                        .font(.title3)
-                        .bold()
-                        .padding(3)
                 }
                 Spacer()
             }
