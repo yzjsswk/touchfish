@@ -49,7 +49,7 @@ async fn pick_fish_by_identity(fish_api: Data<FishApi<MongoStorage>>, identity: 
 }
 
 #[get("/fish/count")]
-async fn count_fish(fish_api: Data<FishApi<MongoStorage>>,) -> impl Responder {
+async fn count_fish(fish_api: Data<FishApi<MongoStorage>>) -> impl Responder {
     fish_api.count_fish().await.to_resp()
 }
 

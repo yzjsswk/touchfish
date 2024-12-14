@@ -3,4 +3,5 @@ target
 touchfish-macos-client/TouchFish.xcodeproj/project.xcworkspace/xcuserdata
 touchfish-macos-client/TouchFish.xcodeproj/xcuserdata/yzjsswk.xcuserdatad
 touchfish-sqlite-storage/.env
+touchfish-python-sdk/src/touchfish/__pycache__
 __todo__

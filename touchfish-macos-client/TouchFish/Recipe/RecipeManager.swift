@@ -173,11 +173,13 @@ struct RecipeManager {
                 for recipe in await Storage.searchRecipe(host: server.host, port: server.port) {
                     allRecipes[server.name, default: []].append(recipe)
                     if let setting = recipeSetting["\(server.name).\(recipe.bundleId)"], setting.enable {
-                        var recipe = recipe
-                        recipe.order = setting.order
                         if recipes.keys.contains(recipe.bundleId) {
                             Log.warning("load recipe - ignore a recipe: bundleId conflicts, bundleId=\(recipe.bundleId), host=\(String(describing: recipe.host)), port=\(String(describing: recipe.port))")
                         } else {
+                            var recipe = recipe
+                            recipe.host = server.host
+                            recipe.port = server.port
+                            recipe.order = setting.order
                             recipes[recipe.bundleId] = recipe
                         }
                     }
