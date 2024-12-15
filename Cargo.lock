@@ -760,9 +760,9 @@ dependencies = [
 
 [[package]]
 name = "diesel"
-version = "2.2.4"
+version = "2.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "158fe8e2e68695bd615d7e4f3227c0727b151330d3e253b525086c348d055d5e"
+checksum = "ccf1bedf64cdb9643204a36dd15b19a6ce8e7aa7f7b105868e9f1fad5ffa7d12"
 dependencies = [
  "diesel_derives",
 ]
@@ -2597,7 +2597,7 @@ dependencies = [
  "toml",
  "uuid",
  "walkdir",
- "yfunc-rust 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yfunc-rust 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2611,7 +2611,7 @@ dependencies = [
  "serde_with",
  "touchfish-core",
  "touchfish-mongo-storage",
- "yfunc-rust 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yfunc-rust 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2623,7 +2623,7 @@ dependencies = [
  "serde_json",
  "tokio",
  "touchfish-core",
- "yfunc-rust 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yfunc-rust 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2636,7 +2636,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "touchfish-core",
- "yfunc-rust 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yfunc-rust 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -3091,7 +3091,7 @@ dependencies = [
 
 [[package]]
 name = "yfunc-rust"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "base64 0.22.1",
  "chrono",
@@ -3109,14 +3109,16 @@ dependencies = [
 
 [[package]]
 name = "yfunc-rust"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47c7cd09453e8486f12d01a08d3171e9e148108a8a55571d12bdbaabca9e916d"
-replace = "yfunc-rust 0.1.0"
+checksum = "dffbdbe04ea88dbe46d454b14ccabb2ba445114d9d5b2b8f0e50ab8304114d72"
+replace = "yfunc-rust 0.1.1"
 
 [[package]]
 name = "yfunc-rust-macro"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "158869ae0832a8f9a7d2c8bb394b941674acfc8040099569c8014d1291710b81"
 dependencies = [
  "proc-macro2",
  "quote",

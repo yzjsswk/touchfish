@@ -3,8 +3,4 @@ members = [
     "touchfish-core", 
     "touchfish-mongo-storage", 
     "touchfish-data-server",
-    "touchfish-recipe-server",
 ]
-
-[replace]
-"yfunc-rust:0.1.1" = { path = "../YFunc/yfunc-rust" }
