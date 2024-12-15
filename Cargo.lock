@@ -2597,7 +2597,7 @@ dependencies = [
  "toml",
  "uuid",
  "walkdir",
- "yfunc-rust 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yfunc-rust 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2611,7 +2611,7 @@ dependencies = [
  "serde_with",
  "touchfish-core",
  "touchfish-mongo-storage",
- "yfunc-rust 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yfunc-rust 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2623,7 +2623,7 @@ dependencies = [
  "serde_json",
  "tokio",
  "touchfish-core",
- "yfunc-rust 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yfunc-rust 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2636,7 +2636,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "touchfish-core",
- "yfunc-rust 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yfunc-rust 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -3091,7 +3091,7 @@ dependencies = [
 
 [[package]]
 name = "yfunc-rust"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "base64 0.22.1",
  "chrono",
@@ -3109,16 +3109,16 @@ dependencies = [
 
 [[package]]
 name = "yfunc-rust"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dffbdbe04ea88dbe46d454b14ccabb2ba445114d9d5b2b8f0e50ab8304114d72"
-replace = "yfunc-rust 0.1.1"
+checksum = "25ab196ed9e13f46c0715ef9097365f68fa1dd329bad098e085c28a788725520"
+replace = "yfunc-rust 0.1.2"
 
 [[package]]
 name = "yfunc-rust-macro"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "158869ae0832a8f9a7d2c8bb394b941674acfc8040099569c8014d1291710b81"
+checksum = "dfdace6bcad2d7d67ec9e6e69b1bbcf09705b353872652978ef602649756f26f"
 dependencies = [
  "proc-macro2",
  "quote",

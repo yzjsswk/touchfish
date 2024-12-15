@@ -1,3 +1,5 @@
+# docker build -f tfds.dockerfile -t touchfish-data-server . 
+
 FROM rust:1.82.0-bookworm as builder
 
 WORKDIR /app

@@ -207,13 +207,14 @@ struct Functions {
     }
     
     static func convertIsoDateToE8(_ isoDateString: String) -> String? {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"
-        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
-        guard let date = dateFormatter.date(from: isoDateString) else {
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        isoFormatter.timeZone = TimeZone(abbreviation: "UTC")
+        guard let date = isoFormatter.date(from: isoDateString) else {
             Log.error("convert iso date to e8 date - failed: parse input date string failed, input=\(isoDateString)")
             return nil
         }
+        let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         dateFormatter.timeZone = TimeZone(identifier: "Asia/Shanghai")
         return dateFormatter.string(from: date)

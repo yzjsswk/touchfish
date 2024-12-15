@@ -1,3 +1,5 @@
+# docker build -f tfrs.dockerfile -t touchfish-recipe-server .
+
 FROM rust:1.82.0-bookworm as builder
 
 WORKDIR /app
