@@ -22,7 +22,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     sdcv && \
     rm -rf /var/lib/apt/lists/*
-COPY example-recipes/Dictionary/stardict /root/.stardict/dic
+COPY dockerbuild/recipes/Dictionary/stardict /root/.stardict/dic
 
 COPY --from=builder /app/target/release/touchfish-recipe-server /usr/local/bin/touchfish-recipe-server
 
