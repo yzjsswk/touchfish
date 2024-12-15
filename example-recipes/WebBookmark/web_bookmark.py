@@ -6,30 +6,29 @@ host = sys.argv[1]
 port = sys.argv[2]
 search_text = sys.argv[3]
 
-tfop = tfoperator(host=host, port=port)
+data_service = DataService(host=host, port=port)
 
-res = tfop.search_fish(fuzzys=search_text, tags=[['bookmark']], page_size=999)
-fish_list: list[FishResp] = res.data[1]
+fish_list = data_service.search_fish(fuzzy=search_text, tags=['bookmark'], page_size=999)
 
 RecipeView(
     type=RecipeViewType.list2,
     default_item_icon='system:link',
     items=[
         RecipeViewItem(
-            title = fish.description,
-            description = fish.preview,
-            icon = f"fish:{ystr(fish.extra_info).json().to_dic().get('bookmark_icon', None)}",
+            title = fish.desc,
+            description = fish.text_data(),
+            icon = None if ((t:=fish.extra_info.get('bookmark_icon_uid', None)) == None) else f'fish:{t}',
             actions = [
                 RecipeAction(
-                    type=RecipeActionType.open,
+                    type=RecipeActionType.Open,
                     arguments=[
                         RecipeActionArg(
-                            type=RecipeActionArgType.plain,
-                            value=fish.preview
+                            type=RecipeActionArgType.Plain,
+                            value=fish.text_data()
                         )
                     ]
                 ),
-                RecipeAction(type=RecipeActionType.hide),
+                RecipeAction(type=RecipeActionType.Hide),
             ]
         ) for fish in fish_list
     ]

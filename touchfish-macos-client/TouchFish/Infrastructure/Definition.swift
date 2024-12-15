@@ -275,12 +275,10 @@ extension String {
         }
         if self.hasPrefix("fish:") {
             let uid = String(self.dropFirst(5))
-            Task {
-                guard let imageData = await Storage.pickFish(uid: uid)?.imageData else {
-                    return Image?(nil)
-                }
+            if let imageData = Storage.fishCache[uid]?.imageData {
                 return Image(nsImage: imageData)
             }
+            return nil
         }
         return nil
     }

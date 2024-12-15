@@ -10,33 +10,33 @@ class RecipeViewType(Enum):
     list2 = 5
 
 class RecipeActionType(Enum):
-    back = 1
-    hide = 2
-    copy = 3
-    open = 4
-    shell = 5
+    Back = 1
+    Hide = 2
+    Copy = 3
+    Open = 4
+    Show = 5
+    Shell = 6
 
 class RecipeActionArgType(Enum):
-    plain = 1
-    para = 2
-    commandBarText = 3
-    file = 4
-    context = 5
+    Plain = 1
+    Para = 2
+    CommandBarText = 3
+    Context = 4
 
 class RecipeActionArg:
-    type: RecipeActionArgType
+    arg_type: RecipeActionArgType
     value: str
 
     def __init__(self, type: RecipeActionArgType, value: str=None) -> None:
-        self.type = type
+        self.arg_type = type
         self.value = value
 
 class RecipeAction:
-    type: RecipeActionType
+    action_type: RecipeActionType
     arguments: list[RecipeActionArg]
 
     def __init__(self, type: RecipeActionType, arguments: list[RecipeActionArg]=[]) -> None:
-        self.type = type
+        self.action_type = type
         self.arguments = arguments
 
 class RecipeViewItem:

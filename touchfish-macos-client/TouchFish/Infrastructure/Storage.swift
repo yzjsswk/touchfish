@@ -2,7 +2,7 @@ import SwiftUI
 
 struct Storage {
     
-    private static var fishCache: [String:Fish] = [:]
+    static var fishCache: [String:Fish] = [:]
     
     static func searchFish(
         fuzzy: String? = nil,

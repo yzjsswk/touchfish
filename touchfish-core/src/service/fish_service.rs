@@ -299,7 +299,7 @@ impl<S> FishService<S> where S: FishStorage {
     ) -> YRes<Page<Fish>> {
         self.storage.page_fish_by_conditions(
             fuzzy, identitys, None, fish_types, desc, tags, is_marked, is_locked, passed_hours,
-            page_num.unwrap_or(1), page_size.unwrap_or(10),
+            page_num.unwrap_or(0), page_size.unwrap_or(10),
         ).await.trace(
             ctx!("search fish: self.storage.page_fish failed")
         )

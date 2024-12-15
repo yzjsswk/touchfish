@@ -1,4 +1,5 @@
-from fish import FishType, Fish
+from .fish import FishType, Fish
+from .recipe_view import RecipeView, RecipeActionType, RecipeAction, RecipeActionArg, RecipeActionArgType, RecipeViewItem, RecipeViewType
 from yfunc import *
 import requests
 
@@ -25,12 +26,12 @@ class DataService:
         is_marked: bool = None,
         is_locked: bool = None,
         passed_hours: int = None,
-        page_num: int = 1,
+        page_num: int = 0,
         page_size: int = 10,
     ) -> list[Fish]:
         url = self.url_prefix + '/fish/search'
         res = requests.post(url=url, json={
-            'fuzzys': fuzzy,
+            'fuzzy': fuzzy,
             'identitys': identitys,
             'fish_types': fish_types,
             'desc': desc, 
@@ -57,7 +58,7 @@ class DataService:
     ) -> list[Fish]:
         url = self.url_prefix + '/fish/delect'
         res = requests.post(url=url, json={
-            'fuzzys': fuzzy,
+            'fuzzy': fuzzy,
             'identitys': identitys,
             'fish_types': fish_types,
             'desc': desc, 

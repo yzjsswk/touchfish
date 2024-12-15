@@ -275,7 +275,7 @@ struct DataService {
         isMarked: Bool? = nil,
         isLocked: Bool? = nil,
         passedHours: Int? = nil,
-        pageNum: Int? = 1,
+        pageNum: Int? = 0,
         pageSize: Int? = 10
     ) async -> Result<DataServiceResponse<SearchFishResp>, AFError> {
         let url = DataService.urlPrefix + "/fish/search"

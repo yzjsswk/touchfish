@@ -6,14 +6,13 @@ host = sys.argv[1]
 port = sys.argv[2]
 support_path = sys.argv[3]
 
-tfop = tfoperator(host=host, port=port)
+data_service = DataService(host=host, port=port)
 
-res = tfop.search_fish(tags=[['bookmark']], page_size=999999)
-fish_list: list[FishResp] = res.data[1]
+fish_list = data_service.search_fish(tags=['bookmark'], page_size=999999)
 exists_bookmark = {}
 for fish in fish_list:
     try:
-        exists_bookmark[ystr(fish.extra_info).json().to_dic()['guid']] = fish
+        exists_bookmark[fish.extra_info['guid']] = fish
     except:
         pass
 _, r = ystr(support_path).find_last('Application Support')
@@ -78,38 +77,38 @@ for guid, name, url in bookmark_info:
 
     if guid in exists_bookmark:
         fish = exists_bookmark[guid]
-        extra_info_dic = ystr(fish.extra_info).json().to_dic()
         del exists_bookmark[guid]
         if icon_data == None:
             continue
-        if 'bookmark_icon' in extra_info_dic and extra_info_dic['bookmark_icon'] == icon_md5:
+        if 'bookmark_icon_md5' in fish.extra_info and fish.extra_info['bookmark_icon_md5'] == icon_md5:
             continue
         else:
-            tfop.remove_fish(fish.identity)
-            tfop.remove_fish(icon_md5)
+            data_service.expire_fish(fish.uid)
+            if 'bookmark_icon_uid' in fish.extra_info:
+                data_service.expire_fish(fish.extra_info['bookmark_icon_uid'])
             do_update = True
             
     md5__url = ystr(url).md5()
-    res = tfop.search_fish(identity=md5__url)
-    fish_list: list[FishResp] = res.data[1]
+    fish_list = data_service.search_fish(identitys=[md5__url])
     if len(fish_list) > 0 and not fish_list[0].is_marked:
-        tfop.remove_fish(identity=md5__url)
+        data_service.expire_fish(identity=fish_list[0].uid)
     
     extra_info = {'guid': guid}
     if icon_data != None:
-        extra_info['bookmark_icon'] = icon_md5
-        tfop.add_fish(
-            value=icon_data, 
-            type='png', 
-            description=f'Icon From {url} \n Add by Sync Google Bookmark', 
-            tags=[['icon']], 
+        extra_info['bookmark_icon_md5'] = icon_md5
+        icon_uid = data_service.add_fish(
+            fish_type=FishType.Image,
+            fish_data=icon_data, 
+            desc=f'Icon From {url} \n Add by Sync Google Bookmark', 
+            tags=['icon'], 
             is_marked=True,
         )
-    tfop.add_fish(
-        value=url, 
-        type='txt', 
-        description=name, 
-        tags=[['bookmark']], 
+        extra_info['bookmark_icon_uid'] = icon_uid
+    data_service.add_fish(
+        fish_type=FishType.Text,
+        fish_data=ybytes.from_str(url),
+        desc=name, 
+        tags=['bookmark'], 
         is_marked=True, 
         extra_info=ystr().json().from_object(extra_info),
     )
@@ -119,12 +118,12 @@ for guid, name, url in bookmark_info:
         added_url.append((name, url))
 
 for guid, fish in exists_bookmark.items():
-    tfop.remove_fish(identity=fish.identity)
-    removed_url.append((fish.description, fish.preview))
+    data_service.expire_fish(fish.uid)
+    removed_url.append((fish.desc, fish.text_data()))
 
-MessageCenter.send(
-    level='info', 
-    content=f'added {len(added_url)} urls, updated {len(update_url)} urls, removed {len(removed_url)} urls\nadded url={added_url}\nupdated_urls={update_url}\nremoved url={removed_url}',
-    title='Sync Google Bookmark',
-    source='com.yzjsswk.SyncGoogleBookmark',
-)
+# MessageCenter.send(
+#     level='info', 
+#     content=f'added {len(added_url)} urls, updated {len(update_url)} urls, removed {len(removed_url)} urls\nadded url={added_url}\nupdated_urls={update_url}\nremoved url={removed_url}',
+#     title='Sync Google Bookmark',
+#     source='com.yzjsswk.SyncGoogleBookmark',
+# )

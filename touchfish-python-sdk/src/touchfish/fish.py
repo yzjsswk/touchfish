@@ -1,5 +1,6 @@
 from enum import Enum
 import base64
+from yfunc import *
 
 class FishType(Enum):
     Text = 'Text'
@@ -54,9 +55,12 @@ class Fish:
         self.tags = arg['tags']
         self.is_marked = arg['is_marked']
         self.is_locked = arg['is_locked']
-        self.extra_info = arg['extra_info']
+        self.extra_info = ystr(arg['extra_info']).json().to_dic()
         self.create_time = arg['create_time']
         self.update_time = arg['update_time']
+
+    def text_data(self) -> str:
+        return self.fish_data.decode('utf-8')
 
     def __str__(self) -> str:
         return str(self.__dict__)
