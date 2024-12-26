@@ -51,7 +51,7 @@ impl RecipeService {
             )
         )?;
         let recipe_path = if let Some(path) = recipe_cache.get(bundle_id) {
-            path
+            path.clone()
         } else {
             *recipe_cache = walkdir::WalkDir::new(&self.folder_path).into_iter().try_fold::<_, _, YRes<_>>(HashMap::new(), |mut acc, it| {
                 let Ok(dir) = it.inspect_err(|e| 
@@ -84,8 +84,11 @@ impl RecipeService {
                     ctx!("execute recipe: recipe not found", bundle_id, command, args)
                 ))
             };
-            path
+            path.clone()
         };
+        drop(recipe_cache);
+        let recipe_path = &recipe_path;
+        // TODO: add execute timeout
         let output = std::process::Command::new(command)
             .args(args).current_dir(recipe_path).output().map_err(|e| {
                 err!("execute recipe failed").trace(

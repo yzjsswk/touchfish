@@ -1,13 +1,14 @@
 from enum import Enum
 import sys
 from yfunc import *
+import base64
 
 class RecipeViewType(Enum):
-    empty = 1
-    error = 2
-    text = 3
-    list1 = 4
-    list2 = 5
+    Empty = 1
+    Error = 2
+    Text = 3
+    List = 4
+    Card = 5
 
 class RecipeActionType(Enum):
     Back = 1
@@ -39,11 +40,21 @@ class RecipeAction:
         self.action_type = type
         self.arguments = arguments
 
+class RecipeViewItemProperty:
+    name: str
+    value: str
+
+    def __init__(self, name, value):
+        self.name = str(name)
+        self.value = str(value)
+
 class RecipeViewItem:
     title: str
     description: str
     icon: str
     tags: list[str]
+    images: list[str]
+    properties: list[RecipeViewItemProperty]
     actions: list[RecipeAction]
 
     def __init__(self,
@@ -51,31 +62,32 @@ class RecipeViewItem:
         description: str,
         icon: str = None,
         tags: list[str] = [],
+        images: list[str] = [],
+        properties: list[RecipeViewItemProperty] = [],
         actions: list[RecipeAction] = [],
     ) -> None:
         self.title = title
         self.description = description
         self.icon = icon
         self.tags = tags
+        self.images = images
+        self.properties = properties
         self.actions = actions
 
 class RecipeView:
 
-    default_item_icon: str
-    error_message: str
     type: RecipeViewType
+    data: list[str]
     items: list[RecipeViewItem]
-
+    
     def __init__(self,
             type: RecipeViewType,
-            items: list[RecipeViewItem],
-            default_item_icon: str = None,
-            error_message: str = None,
+            data: list[bytes] = [],
+            items: list[RecipeViewItem] = [],
     ) -> None:
         self.type = type
-        self.default_item_icon = default_item_icon
+        self.data = [base64.b64encode(s).decode('utf-8') for s in data]
         self.items = items
-        self.error_message = error_message
 
     def show(self):
         sys.stdout.write(ystr().json().from_object(self))

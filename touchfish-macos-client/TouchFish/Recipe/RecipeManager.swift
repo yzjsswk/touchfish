@@ -40,7 +40,7 @@ struct RecipeManager {
                 continue
             }
             for r in rl {
-                if r.bundleId == bundleId {
+                if r.bundleId == bundleId && isEnable(serverName: s, bundleId: bundleId) {
                     return false
                 }
             }
@@ -50,7 +50,7 @@ struct RecipeManager {
     
     static var recipeSetting: [String:RecipeSetting] = [:]
     
-    static private var internalRecipeList = [
+    static var internalRecipeList = [
         Recipe(
             bundleId: "com.touchfish.RecipeManage",
             author: "yzjsswk",

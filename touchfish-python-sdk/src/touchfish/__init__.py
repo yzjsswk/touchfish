@@ -1,1 +1,1 @@
-from .touchfish import DataService, Fish, FishType, RecipeView, RecipeActionType, RecipeAction, RecipeActionArg, RecipeActionArgType, RecipeViewItem, RecipeViewType
+from .touchfish import DataService, Fish, FishType, RecipeView, RecipeActionType, RecipeAction, RecipeActionArg, RecipeActionArgType, RecipeViewItem, RecipeViewType, RecipeViewItemProperty

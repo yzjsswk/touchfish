@@ -30,10 +30,14 @@ struct MainView: View {
                     case "com.touchfish.AddFish":
                         FishAddView()
                     default:
-                        RecipeView(recipeList: $recipeList, activeRecipeBundleId: activeRecipeBundleId)
+                        if let activeRecipe = RecipeManager.activeRecipe {
+                            DynamicRecipeView(activeRecipe: activeRecipe)
+                        } else {
+                            EmptyView()
+                        }
                     }
                 } else {
-                    RecipeView(recipeList: $recipeList)
+                    RecipeListView(recipeList: $recipeList)
                 }
                 Spacer()
             }

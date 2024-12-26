@@ -28,9 +28,18 @@ struct Recipe {
         var separator: String?
     }
     
+    var isInternal: Bool {
+        for recipe in RecipeManager.internalRecipeList {
+            if bundleId == recipe.bundleId {
+                return true
+            }
+        }
+        return false
+    }
+    
     func execute() {
         for action in actions {
-            action.execute(host: host, port: port)
+            action.execute()
         }
     }
     
@@ -101,7 +110,7 @@ struct RecipeAction: Codable {
         
     }
     
-    func execute(host: String?, port: String?) {
+    func execute() {
         switch type {
         case .Back:
             RecipeManager.goToRecipe(recipeId: nil)
@@ -127,11 +136,11 @@ struct RecipeAction: Codable {
                 Log.warning("run recipe action: skip shell action: bundleId=nil")
                 return
             }
-            guard let host = host else {
+            guard let host = RecipeManager.activeRecipe?.host else {
                 Log.warning("run recipe action: skip shell action: host=nil, bundleId=\(bundleId)")
                 return
             }
-            guard let port = port else {
+            guard let port = RecipeManager.activeRecipe?.port else {
                 Log.warning("run recipe action: skip shell action: port=nil, bundleId=\(bundleId)")
                 return
             }
@@ -151,75 +160,46 @@ struct RecipeAction: Codable {
             let arguments = argments
             Task {
                 let startTime = Date()
-        //        let executeResultText = Functions.runCommand(cmd: script.executor, args: argments)
-//                let executeResultText = AppleScriptRunner.doShellScript(cmd: cmd, args: argments)
-                let executeResultText = await Storage.executeRecipe(host: host, port: port, bundleId: bundleId, command: cmd, arguments: arguments)
+                let result = await RecipeService(host: host, port: port).executeRecipe(bundleId: bundleId, command: cmd, arguments: arguments)
                 let endTime = Date()
                 let timeCost = Int(endTime.timeIntervalSince(startTime)*1000)
-                if RecipeManager.activeRecipe?.type == .View {
-                    var view: UserDefinedRecipeView
-                    if let executeResultText = executeResultText {
-                        view = UserDefinedRecipeView.parse(jsonText: executeResultText)
+                let info: DynamicRecipeViewInfo
+                switch result {
+                case .success(let resp):
+                    if !resp.isOk() {
+                        Log.error("request recipe server to execute shell recipe action - fail: resp is not ok, resp.code=\(resp.code), host=\(host), port=\(port), bundleId=\(bundleId), command=\(cmd)")
+                        info = DynamicRecipeViewInfo(
+                            type: .Error,
+                            items: [DynamicRecipeViewInfo.DynamicRecipeViewItem(
+                                    title: "Server executing recipe failed.",
+                                    description: String(resp.msg.prefix(2000))
+                            )]
+                        )
                     } else {
-                        view = UserDefinedRecipeView(type: .empty)
+                        if let data = resp.data {
+                            info = DynamicRecipeViewInfoJsonText.parse(from: data)
+                        } else {
+                            info = DynamicRecipeViewInfo(type: .Empty)
+                        }
                     }
-                    view.timeCost = timeCost
-                    let v = view
+                case .failure(let err):
+                    Log.error("request recipe server to execute shell recipe action - fail: request recipe server failed, host=\(host), port=\(port), err=\(err), bundleId=\(bundleId), command=\(cmd)")
+                    info = DynamicRecipeViewInfo(
+                        type: .Error,
+                        items: [DynamicRecipeViewInfo.DynamicRecipeViewItem(
+                                title: "Request server failed.",
+                                description: "host=\(host), port=\(port) \n err=\(err)"
+                        )]
+                    )
+                }
+                if RecipeManager.activeRecipe?.type == .View {
                     DispatchQueue.main.async {
-                        NotificationCenter.default.post(name: .UserDefinedRecipeViewChanged, object: nil, userInfo: ["view":v])
+                        NotificationCenter.default.post(name: .DynamicRecipeViewChanged, object: nil, userInfo: ["info":info, "startTime":startTime, "timeCost": timeCost])
                     }
                 }
-                Log.debug("execute shell command: \(cmd) \(arguments), timeCost=\(timeCost)")
+//                Log.debug("execute shell command: \(cmd) \(arguments), timeCost=\(timeCost)")
             }
         }
     }
     
 }
-
-struct UserDefinedRecipeView: Codable {
-    
-    var type: UserDefinedRecipeViewType
-    var defaultItemIcon: String?
-    var items: [UserDefinedRecipeViewItem] = []
-    var errorMessage: String?
-    var timeCost: Int?
-    
-    enum CodingKeys: String, CodingKey {
-        case type = "type"
-        case defaultItemIcon = "default_item_icon"
-        case items = "items"
-        case errorMessage = "error_message"
-        case timeCost = "time_cost"
-    }
-
-    enum UserDefinedRecipeViewType: String, Codable {
-        case empty
-        case error
-        case text
-        case list1
-        case list2
-    }
-    
-    struct UserDefinedRecipeViewItem: Codable {
-        var title: String
-        var description: String?
-        var icon: String?
-        var tags: [String]?
-        var actions: [RecipeAction]?
-    }
-    
-    static func parse(jsonText: String) -> UserDefinedRecipeView {
-        if jsonText.count == 0 {
-            return UserDefinedRecipeView(type: .empty)
-        }
-        guard let data = jsonText.data(using: .utf8) else {
-            return UserDefinedRecipeView(type: .error, errorMessage: "Decoded Failed: \n\n \(jsonText)")
-        }
-        guard let result = try? JSONDecoder().decode(UserDefinedRecipeView.self, from: data) else {
-            return UserDefinedRecipeView(type: .error, errorMessage: "Decoded Failed: \n\n \(jsonText)")
-        }
-        return result
-    }
-    
-}
-

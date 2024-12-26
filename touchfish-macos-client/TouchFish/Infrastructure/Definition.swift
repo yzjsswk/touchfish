@@ -303,7 +303,7 @@ extension Notification.Name {
     static let CommandTextChanged = Notification.Name("CommandTextChanged")
     static let CommandBarEndEditing = Notification.Name("CommandBarEndEditing")
     static let CommandBarShouldFocus = Notification.Name("CommandBarShouldFocus")
-    static let UserDefinedRecipeViewChanged = Notification.Name("UserDefinedRecipeViewChanged")
+    static let DynamicRecipeViewChanged = Notification.Name("DynamicRecipeViewChanged")
     static let RecipeCommited = Notification.Name("RecipeCommited")
     static let ShouldRefreshTopic = Notification.Name("ShouldRefreshTopic")
 }

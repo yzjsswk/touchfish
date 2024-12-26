@@ -423,26 +423,5 @@ struct Storage {
         }
         return ret
     }
-    
-    static func executeRecipe(
-        host: String, port: String, bundleId: String, command: String, arguments: [String]
-    ) async -> String? {
-        let result = await RecipeService(host: host, port: port).executeRecipe(bundleId: bundleId, command: command, arguments: arguments)
-        switch result {
-        case .success(let resp):
-            if !resp.isOk() {
-                Log.error("Storage.executeRecipe - fail: resp is not ok, resp.code=\(resp.code), host=\(host), port=\(port), bundleId=\(bundleId), command=\(command)")
-            }
-            guard let data = resp.data else {
-                Log.error("Storage.executeRecipe - fail: resp.data=nil, resp.code=\(resp.code), host=\(host), port=\(port), bundleId=\(bundleId), command=\(command)")
-                return nil
-            }
-            return data
-        case .failure(let err):
-            Log.error("Storage.executeRecipe - fail: request recipe server failed, host=\(host), port=\(port), err=\(err), bundleId=\(bundleId), command=\(command)")
-            return nil
-        }
-    }
   
 }
-

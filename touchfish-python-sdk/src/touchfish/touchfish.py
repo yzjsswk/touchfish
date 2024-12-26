@@ -1,5 +1,5 @@
 from .fish import FishType, Fish
-from .recipe_view import RecipeView, RecipeActionType, RecipeAction, RecipeActionArg, RecipeActionArgType, RecipeViewItem, RecipeViewType
+from .recipe_view import RecipeView, RecipeActionType, RecipeAction, RecipeActionArg, RecipeActionArgType, RecipeViewItem, RecipeViewType, RecipeViewItemProperty
 from yfunc import *
 import requests
 
@@ -96,7 +96,7 @@ class DataService:
         tags: list[str] = None,
         is_marked: bool = None,
         is_locked: bool = None,
-        extra_info: str = None,
+        extra_info: dict = None,
     ) -> str:
         url = self.url_prefix + '/fish/add'
         import base64
@@ -108,7 +108,7 @@ class DataService:
             'tags': tags, 
             'is_marked': is_marked,
             'is_locked': is_locked,
-            'extra_info': extra_info,
+            'extra_info': ystr().json().from_object(extra_info) if extra_info != None else None,
         })
         res_dic = ystr(res.text).json().to_dic()
         return res_dic['data']
@@ -118,14 +118,14 @@ class DataService:
         uid: str,
         desc: str = None,
         tags: list[str] = None,
-        extra_info: str = None,
+        extra_info: dict = None,
     ):
         url = self.url_prefix + '/fish/modify'
         res = requests.post(url=url, json={
             'uid': uid,
             'desc': desc, 
             'tags': tags, 
-            'extra_info': extra_info,
+            'extra_info': ystr().json().from_object(extra_info) if extra_info != None else None,
         })
         res_dic = ystr(res.text).json().to_dic()
         return res_dic['data']
