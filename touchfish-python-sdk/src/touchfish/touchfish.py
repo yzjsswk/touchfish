@@ -1,5 +1,5 @@
 from .fish import FishType, Fish
-from .recipe_view import RecipeView, RecipeActionType, RecipeAction, RecipeActionArg, RecipeActionArgType, RecipeViewItem, RecipeViewType, RecipeViewItemProperty
+from .recipe_view import RecipeView, RecipeActionType, RecipeAction, RecipeActionArg, RecipeActionArgType, RecipeViewItem, RecipeViewType, RecipeViewItemProperty, RecipeViewItemOperation
 from yfunc import *
 import requests
 

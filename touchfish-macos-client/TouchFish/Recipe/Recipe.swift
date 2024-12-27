@@ -170,7 +170,7 @@ struct RecipeAction: Codable {
                         Log.error("request recipe server to execute shell recipe action - fail: resp is not ok, resp.code=\(resp.code), host=\(host), port=\(port), bundleId=\(bundleId), command=\(cmd)")
                         info = DynamicRecipeViewInfo(
                             type: .Error,
-                            items: [DynamicRecipeViewInfo.DynamicRecipeViewItem(
+                            items: [DynamicRecipeViewInfo.ViewItem(
                                     title: "Server executing recipe failed.",
                                     description: String(resp.msg.prefix(2000))
                             )]
@@ -186,7 +186,7 @@ struct RecipeAction: Codable {
                     Log.error("request recipe server to execute shell recipe action - fail: request recipe server failed, host=\(host), port=\(port), err=\(err), bundleId=\(bundleId), command=\(cmd)")
                     info = DynamicRecipeViewInfo(
                         type: .Error,
-                        items: [DynamicRecipeViewInfo.DynamicRecipeViewItem(
+                        items: [DynamicRecipeViewInfo.ViewItem(
                                 title: "Request server failed.",
                                 description: "host=\(host), port=\(port) \n err=\(err)"
                         )]

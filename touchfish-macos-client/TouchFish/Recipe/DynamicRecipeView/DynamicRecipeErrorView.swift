@@ -32,7 +32,7 @@ struct DynamicRecipeErrorView: View {
                         }
                     }
                 }
-                .padding(.vertical)
+                .padding()
             }
         }
     }

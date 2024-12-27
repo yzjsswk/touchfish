@@ -3,7 +3,7 @@ import SwiftUI
 struct DynamicRecipeCardView: View {
     
     var data: [Data]
-    var item: DynamicRecipeViewInfo.DynamicRecipeViewItem
+    var item: DynamicRecipeViewInfo.ViewItem
     
     @State var isSelected: Bool = false
     
@@ -34,12 +34,32 @@ struct DynamicRecipeCardView: View {
                         }
                     }
                     Spacer()
-                    TabView {
-                        ForEach(item.images, id: \.self) { image in
-                            (item.patternToImage(pattern: image) ?? Image(systemName: "doc.plaintext"))
-                            .resizable()
-                            .scaledToFit()
-                            .cornerRadius(10)
+                    ZStack {
+                        TabView {
+                            ForEach(item.images, id: \.self) { image in
+                                (item.patternToImage(pattern: image) ?? Image(systemName: "doc.plaintext"))
+                                    .resizable()
+                                    .scaledToFit()
+                                    .cornerRadius(10)
+                            }
+                        }
+                        if isSelected {
+                            HStack {
+                                Spacer()
+                                VStack {
+                                    Spacer()
+                                    ForEach(Array(item.operations.enumerated()), id: \.0) { _, op in
+                                        DynamicRecipeCardButtonView(label: op.name)
+                                            .frame(width: 90, height: 25)
+                                            .offset(x: -5, y: -5)
+                                            .onTapGesture {
+                                                for action in op.actions {
+                                                    action.execute()
+                                                }
+                                            }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -73,17 +93,33 @@ struct DynamicRecipeCardView: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 10)
         .frame(height: Constant.userDefinedRecipeItemHeight*6)
-//        .background(Constant.mainBackgroundColor)
-//        .cornerRadius(5)
         .onHover { isHovered in
             withAnimation(.spring(duration: 0.1)) {
                 isSelected = isHovered
             }
         }
-        .onTapGesture {
-            for action in item.actions {
-                action.execute()
-            }
+    }
+    
+}
+
+struct DynamicRecipeCardButtonView: View {
+
+    var label: String
+    
+    @State var isHovered: Bool = false
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(isHovered ? "B8B9F4".color : "D6D6F9".color, lineWidth: 2)
+                .fill(isHovered ? "F8F8FE".color : .white)
+            Text(label)
+                .font(.body)
+                .foregroundStyle(isHovered ? "27295F".color : "4C4C4C".color)
+                .padding(3)
+        }
+        .onHover { isHovered in
+            self.isHovered = isHovered
         }
     }
     

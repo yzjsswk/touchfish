@@ -44,9 +44,17 @@ class RecipeViewItemProperty:
     name: str
     value: str
 
-    def __init__(self, name, value):
+    def __init__(self, name: str, value):
         self.name = str(name)
         self.value = str(value)
+
+class RecipeViewItemOperation:
+    name: str
+    actions: list[RecipeAction]
+
+    def __init__(self, name: str="", actions: list[RecipeAction]=[]):
+        self.name = name
+        self.actions = actions
 
 class RecipeViewItem:
     title: str
@@ -55,7 +63,7 @@ class RecipeViewItem:
     tags: list[str]
     images: list[str]
     properties: list[RecipeViewItemProperty]
-    actions: list[RecipeAction]
+    operations: list[RecipeViewItemOperation]
 
     def __init__(self,
         title: str,
@@ -64,7 +72,7 @@ class RecipeViewItem:
         tags: list[str] = [],
         images: list[str] = [],
         properties: list[RecipeViewItemProperty] = [],
-        actions: list[RecipeAction] = [],
+        operations: list[RecipeAction] = [],
     ) -> None:
         self.title = title
         self.description = description
@@ -72,7 +80,7 @@ class RecipeViewItem:
         self.tags = tags
         self.images = images
         self.properties = properties
-        self.actions = actions
+        self.operations = operations
 
 class RecipeView:
 

@@ -3,7 +3,7 @@ import SwiftUI
 struct DynamicRecipeListView: View {
     
     var data: [Data]
-    var item: DynamicRecipeViewInfo.DynamicRecipeViewItem
+    var item: DynamicRecipeViewInfo.ViewItem
     
     @State var isSelected: Bool = false
     
@@ -39,18 +39,18 @@ struct DynamicRecipeListView: View {
                 isSelected = isHovered
             }
         }
-        .onTapGesture {
-            for action in item.actions {
-                action.execute()
-            }
-        }
+//        .onTapGesture {
+//            for action in item.actions {
+//                action.execute()
+//            }
+//        }
     }
     
 }
 
 struct UserDefinedRecipeListItemView2: View {
     
-    var item: DynamicRecipeViewInfo.DynamicRecipeViewItem
+    var item: DynamicRecipeViewInfo.ViewItem
     var defaultItemIcon: String?
     
     @State var isSelected: Bool = false
@@ -87,11 +87,11 @@ struct UserDefinedRecipeListItemView2: View {
                 isSelected = isHovered
             }
         }
-        .onTapGesture {
-            for action in item.actions {
-                action.execute()
-            }
-        }
+//        .onTapGesture {
+//            for action in item.actions {
+//                action.execute()
+//            }
+//        }
     }
     
 }

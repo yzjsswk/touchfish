@@ -2,11 +2,11 @@ import SwiftUI
 
 struct DynamicRecipeViewInfo: Codable {
     
-    var type: DynamicRecipeViewType
+    var type: ViewType
     var data: [Data] = []
-    var items: [DynamicRecipeViewItem] = []
+    var items: [ViewItem] = []
 
-    enum DynamicRecipeViewType: String, Codable {
+    enum ViewType: String, Codable {
         case Empty
         case Error
         case Text
@@ -14,11 +14,16 @@ struct DynamicRecipeViewInfo: Codable {
         case Card
     }
     
-    struct DynamicRecipeViewItem: Codable {
+    struct ViewItem: Codable {
         
-        struct DynamicRecipeViewItemProperty: Codable {
+        struct Property: Codable {
             var name: String
             var value: String
+        }
+        
+        struct Operation: Codable {
+            var name: String
+            var actions: [RecipeAction]
         }
         
         var data: [Data] = []
@@ -27,8 +32,8 @@ struct DynamicRecipeViewInfo: Codable {
         var iconPattern: String?
         var tags: [String] = []
         var images: [String] = []
-        var properties: [DynamicRecipeViewItemProperty] = []
-        var actions: [RecipeAction] = []
+        var properties: [Property] = []
+        var operations: [Operation] = []
         
         enum CodingKeys: String, CodingKey {
             case title = "title"
@@ -37,7 +42,7 @@ struct DynamicRecipeViewInfo: Codable {
             case tags = "tags"
             case images = "images"
             case properties = "properties"
-            case actions = "actions"
+            case operations = "operations"
         }
         
         var icon: Image? {
@@ -93,9 +98,9 @@ struct DynamicRecipeViewInfo: Codable {
 
 struct DynamicRecipeViewInfoJsonText: Codable {
     
-    var type: DynamicRecipeViewInfo.DynamicRecipeViewType
+    var type: DynamicRecipeViewInfo.ViewType
     var data: [String] = []
-    var items: [DynamicRecipeViewInfo.DynamicRecipeViewItem] = []
+    var items: [DynamicRecipeViewInfo.ViewItem] = []
     
     enum CodingKeys: String, CodingKey {
         case type = "type"
@@ -110,7 +115,7 @@ struct DynamicRecipeViewInfoJsonText: Codable {
         guard let data = jsonText.data(using: .utf8) else {
             return DynamicRecipeViewInfo(
                 type: .Error,
-                items: [DynamicRecipeViewInfo.DynamicRecipeViewItem(
+                items: [DynamicRecipeViewInfo.ViewItem(
                         title: "Recipe output parsing failed, please make sure the output format is correct.",
                         description: String(jsonText.prefix(2000))
                 )]
@@ -119,7 +124,7 @@ struct DynamicRecipeViewInfoJsonText: Codable {
         guard let result = try? JSONDecoder().decode(DynamicRecipeViewInfoJsonText.self, from: data) else {
             return DynamicRecipeViewInfo(
                 type: .Error,
-                items: [DynamicRecipeViewInfo.DynamicRecipeViewItem(
+                items: [DynamicRecipeViewInfo.ViewItem(
                         title: "Recipe output parsing failed, please make sure the output format is correct.",
                         description: String(jsonText.prefix(2000))
                 )]
@@ -130,7 +135,7 @@ struct DynamicRecipeViewInfoJsonText: Codable {
             guard let cur = Data(base64Encoded: d) else {
                 return DynamicRecipeViewInfo(
                     type: .Error,
-                    items: [DynamicRecipeViewInfo.DynamicRecipeViewItem(
+                    items: [DynamicRecipeViewInfo.ViewItem(
                             title: "Failed to parse data in result, please make sure the data is a base64 encoded string.",
                             description: "pos=\(i), data=\(d.prefix(2000))"
                     )]
@@ -138,7 +143,7 @@ struct DynamicRecipeViewInfoJsonText: Codable {
             }
             decodedData.append(cur)
         }
-        var items: [DynamicRecipeViewInfo.DynamicRecipeViewItem] = []
+        var items: [DynamicRecipeViewInfo.ViewItem] = []
         for var item in result.items {
             item.data = decodedData
             items.append(item)
