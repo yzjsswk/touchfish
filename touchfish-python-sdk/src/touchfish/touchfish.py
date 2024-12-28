@@ -1,4 +1,5 @@
 from .fish import FishType, Fish
+from .topic import TopicType, TopicExtraInfo, MessageLevel, MessageExtraInfo
 from .recipe_view import RecipeView, RecipeActionType, RecipeAction, RecipeActionArg, RecipeActionArgType, RecipeViewItem, RecipeViewType, RecipeViewItemProperty, RecipeViewItemOperation
 from yfunc import *
 import requests
@@ -273,3 +274,44 @@ class DataService:
         })
         res_dic = ystr(res.text).json().to_dic()
         return res_dic['data']
+
+    def create_topic(
+            self,
+            topic_type: TopicType,
+            subject: str,
+            source: str,
+            title: str,
+            extra_info: TopicExtraInfo={},
+        ):
+        url = self.url_prefix + '/topic/create'
+        res = requests.post(url=url, json={
+            'topic_type': topic_type.name,
+            'subject': subject,
+            'source': source,
+            'title': title,
+            'extra_info': extra_info,
+        })
+        res_dic = ystr(res.text).json().to_dic()
+        return res_dic['data']
+
+    def send_message(
+            self,
+            topic_subject: str,
+            level: MessageLevel,
+            title: str,
+            body: str,
+            has_read: bool=False,
+            extra_info: MessageExtraInfo={},
+        ):
+        url = self.url_prefix + '/message/send'
+        res = requests.post(url=url, json={
+            'topic_subject': topic_subject,
+            'level': level.name,
+            'title': title,
+            'body': body,
+            'has_read': has_read,
+            'extra_info': extra_info,
+        })
+        res_dic = ystr(res.text).json().to_dic()
+        return res_dic['data']
+    
