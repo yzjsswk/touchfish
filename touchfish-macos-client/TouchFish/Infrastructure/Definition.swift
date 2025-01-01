@@ -133,11 +133,8 @@ struct Functions {
         process.standardError = pipe
         do {
             try process.run()
-            Log.debug("here")
             process.waitUntilExit()
-            Log.debug("here")
             if let data = try pipe.fileHandleForReading.readToEnd() {
-                Log.debug("here")
                 return String(data: data, encoding: .utf8)
             }
         } catch {

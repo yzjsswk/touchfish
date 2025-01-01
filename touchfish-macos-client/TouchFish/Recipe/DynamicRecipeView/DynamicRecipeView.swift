@@ -76,9 +76,9 @@ struct DynamicRecipeView: View {
             if let timeCost = notification.userInfo?["timeCost"] as? Int {
                 self.timeCost = timeCost
             }
-            if let startTime = notification.userInfo?["startTime"] as? Date,
+            if let startTime = notification.userInfo?["executeTime"] as? Date,
                let info = notification.userInfo?["info"] as? DynamicRecipeViewInfo {
-                if startTime > self.lastRefreshTime {
+                if startTime >= self.lastRefreshTime {
                     withAnimation(.spring) {
                         self.dynamicRecipeViewInfo = info
                     }

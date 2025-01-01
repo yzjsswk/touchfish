@@ -98,4 +98,4 @@ class RecipeView:
         self.items = items
 
     def show(self):
-        sys.stdout.write(ystr().json().from_object(self))
+        sys.stdout.write(ystr().json().from_object(self)+"\n<RECIPE_OUTPUT_FRAME_END>\n")

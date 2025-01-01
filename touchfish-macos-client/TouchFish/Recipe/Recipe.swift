@@ -159,11 +159,10 @@ struct RecipeAction: Codable {
             }
             let arguments = argments
             Task {
-                let startTime = Date()
+                let executeTime = Date()
                 let result = await RecipeService(host: host, port: port).executeRecipe(bundleId: bundleId, command: cmd, arguments: arguments)
-                let endTime = Date()
-                let timeCost = Int(endTime.timeIntervalSince(startTime)*1000)
                 let info: DynamicRecipeViewInfo
+                var executeUid: String? = nil
                 switch result {
                 case .success(let resp):
                     if !resp.isOk() {
@@ -171,15 +170,22 @@ struct RecipeAction: Codable {
                         info = DynamicRecipeViewInfo(
                             type: .Error,
                             items: [DynamicRecipeViewInfo.ViewItem(
-                                    title: "Server executing recipe failed.",
+                                    title: "Failed to start executing recipe task.",
                                     description: String(resp.msg.prefix(2000))
                             )]
                         )
                     } else {
-                        if let data = resp.data {
-                            info = DynamicRecipeViewInfoJsonText.parse(from: data)
-                        } else {
+                        executeUid = resp.data
+                        if executeUid != nil {
                             info = DynamicRecipeViewInfo(type: .Empty)
+                        } else {
+                            info = DynamicRecipeViewInfo(
+                                type: .Error,
+                                items: [DynamicRecipeViewInfo.ViewItem(
+                                        title: "Lose task.",
+                                        description: "server did not return a recipe execute uid"
+                                )]
+                            )
                         }
                     }
                 case .failure(let err):
@@ -192,14 +198,97 @@ struct RecipeAction: Codable {
                         )]
                     )
                 }
-                if RecipeManager.activeRecipe?.type == .View {
-                    DispatchQueue.main.async {
-                        NotificationCenter.default.post(name: .DynamicRecipeViewChanged, object: nil, userInfo: ["info":info, "startTime":startTime, "timeCost": timeCost])
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(
+                        name: .DynamicRecipeViewChanged, object: nil, userInfo: ["info":info, "executeTime":executeTime]
+                    )
+                }
+                if let executeUid = executeUid {
+                    Task {
+                        await fetchExecuteResult(host: host, port: port, executeUid: executeUid, executeTime: executeTime, fetchCount: 0)
                     }
                 }
-//                Log.debug("execute shell command: \(cmd) \(arguments), timeCost=\(timeCost)")
             }
         }
     }
     
+}
+
+func fetchExecuteResult(host: String, port: String, executeUid: String, executeTime: Date, fetchCount: Int) async {
+    let info: DynamicRecipeViewInfo
+    var timeCost: Int? = nil
+    let result = await RecipeService(host: host, port: port).fetchExecuteResult(executeUid: executeUid)
+    switch result {
+    case .success(let resp):
+        if !resp.isOk() {
+            info = DynamicRecipeViewInfo(
+                type: .Error,
+                items: [DynamicRecipeViewInfo.ViewItem(
+                        title: "Fetch execute result failed.",
+                        description: "host=\(host), port=\(port), executeUid=\(executeUid) \n err=\(resp.msg)"
+                )]
+            )
+        } else {
+            if let data = resp.data {
+                timeCost = data.timeCost
+                if data.status == .Fail {
+                    info = DynamicRecipeViewInfo(
+                        type: .Error,
+                        items: [DynamicRecipeViewInfo.ViewItem(
+                                title: "Recipe execute failed.",
+                                description: "host=\(host), port=\(port), executeUid=\(executeUid) \n err=\(data.stderr.prefix(2000))"
+                        )]
+                    )
+                } else {
+                    info = DynamicRecipeViewInfoJsonText.parse(from: data.stdout)
+                }
+                if data.status == .Running {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        Task {
+                            await fetchExecuteResult(host: host, port: port, executeUid: executeUid, executeTime: executeTime, fetchCount: fetchCount+1)
+                        }
+                    }
+                }
+            } else {
+                if fetchCount < 300 {
+                    info = DynamicRecipeViewInfo(type: .Empty)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        Task {
+                            await fetchExecuteResult(host: host, port: port, executeUid: executeUid, executeTime: executeTime, fetchCount: fetchCount+1)
+                        }
+                    }
+                } else {
+                    info = DynamicRecipeViewInfo(
+                        type: .Error,
+                        items: [DynamicRecipeViewInfo.ViewItem(
+                                title: "Fetch execute result failed.",
+                                description: "host=\(host), port=\(port), executeUid=\(executeUid) \n err=no data in resp"
+                        )]
+                    )
+                }
+            }
+        }
+    case .failure(let err):
+        Log.error("request recipe server to fetch execute result - fail: request recipe server failed, host=\(host), port=\(port), err=\(err), executeUid=\(executeUid)")
+        info = DynamicRecipeViewInfo(
+            type: .Error,
+            items: [DynamicRecipeViewInfo.ViewItem(
+                    title: "Fetch execute result failed.",
+                    description: "host=\(host), port=\(port), executeUid=\(executeUid) \n err=\(err)"
+            )]
+        )
+    }
+    if let timeCost = timeCost {
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(
+                name: .DynamicRecipeViewChanged, object: nil, userInfo: ["info":info, "executeTime":executeTime, "timeCost":timeCost]
+            )
+        }
+    } else {
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(
+                name: .DynamicRecipeViewChanged, object: nil, userInfo: ["info":info, "executeTime":executeTime]
+            )
+        }
+    }
 }

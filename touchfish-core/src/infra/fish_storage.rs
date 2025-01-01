@@ -1,51 +1,47 @@
-use std::future::Future;
-
 use yfunc_rust::{Page, YBytes, prelude::*};
 
 use crate::{DataInfo, Fish, FishType, Statistics};
 
 pub trait FishStorage {
 
-    fn add_fish(
+    async fn add_fish(
         &self, identity: &str, count: i32, fish_type: FishType, fish_data: YBytes, data_info: &DataInfo,
         desc: &str, tags: &Vec<&str>, is_marked: bool, is_locked: bool, extra_info: &str,
-    ) -> impl Future<Output = YRes<String>> + Send;
+    ) -> YRes<String>;
 
-    fn expire_fish(&self, uids: &Vec<&str>) -> impl Future<Output = YRes<()>> + Send;
+    async fn expire_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    fn modify_fish(
-        &self, uid: &str, desc: Option<&str>, tags: Option<&Vec<&str>>, extra_info: Option<&str>,
-    ) -> impl Future<Output = YRes<()>> + Send;
+    async fn modify_fish(&self, uid: &str, desc: Option<&str>, tags: Option<&Vec<&str>>, extra_info: Option<&str>) -> YRes<()>;
 
-    fn mark_fish(&self, uids: &Vec<&str>) -> impl Future<Output = YRes<()>> + Send;
+    async fn mark_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    fn unmark_fish(&self, uids: &Vec<&str>) -> impl Future<Output = YRes<()>> + Send;
+    async fn unmark_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    fn lock_fish(&self, uids: &Vec<&str>) -> impl Future<Output = YRes<()>> + Send;
+    async fn lock_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    fn unlock_fish(&self, uids: &Vec<&str>) -> impl Future<Output = YRes<()>> + Send;
+    async fn unlock_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    fn pin_fish(&self, uids: &Vec<&str>) -> impl Future<Output = YRes<()>> + Send;
+    async fn pin_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    fn increase_count(&self, uids: &Vec<&str>) -> impl Future<Output = YRes<()>> + Send;
+    async fn increase_count(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    fn pick_fish(&self, uid: &str) -> impl Future<Output = YRes<Option<Fish>>> + Send;
+    async fn pick_fish(&self, uid: &str) -> YRes<Option<Fish>>;
 
-    fn pick_fish_by_identity(&self, identity: &str) -> impl Future<Output = YRes<Option<Fish>>> + Send;
+    async fn pick_fish_by_identity(&self, identity: &str) -> YRes<Option<Fish>>;
 
-    fn page_fish_by_conditions(
+    async fn page_fish_by_conditions(
         &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, count: Option<i32>,
         fish_types: Option<&Vec<FishType>>, desc: Option<&str>, tags: Option<&Vec<&str>>, 
         is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
         page_num: u64, page_size: u64,
-    ) -> impl Future<Output = YRes<Page<Fish>>> + Send;
+    ) -> YRes<Page<Fish>>;
 
-    fn detect_fish_by_conditions(
+    async fn detect_fish_by_conditions(
         &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, count: Option<i32>,
         fish_types: Option<&Vec<FishType>>, desc: Option<&str>, tags: Option<&Vec<&str>>, 
         is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
-    ) -> impl Future<Output = YRes<Vec<String>>> + Send;
+    ) -> YRes<Vec<String>>;
 
-    fn count_fish(&self) -> impl Future<Output = YRes<Statistics>> + Send;
+    async fn count_fish(&self) -> YRes<Statistics>;
 
 }

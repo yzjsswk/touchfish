@@ -61,6 +61,34 @@ struct RecipeResp: Codable {
     
 }
 
+struct RecipeExecuteResult: Codable {
+    
+    enum RecipeExecuteStatus: String, Codable {
+        case Success
+        case Fail
+        case Running
+    }
+    
+    var bundleId: String
+    var command: String
+    var args: [String]
+    var stdout: String
+    var stderr: String
+    var status: RecipeExecuteStatus
+    var timeCost: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case bundleId = "bundle_id"
+        case command = "command"
+        case args = "args"
+        case stdout = "stdout"
+        case stderr = "stderr"
+        case status = "status"
+        case timeCost = "time_cost"
+    }
+    
+}
+
 struct RecipeService {
     
     let host: String
@@ -106,6 +134,11 @@ struct RecipeService {
         return await AF.request(
             url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
         ).serializingDecodable(RecipeServiceResponse.self).result
+    }
+    
+    func fetchExecuteResult(executeUid: String) async -> Result<RecipeServiceResponse<RecipeExecuteResult>, AFError> {
+        let url = urlPrefix + "/recipe/fetch_result/\(executeUid)"
+        return await AF.request(url).serializingDecodable(RecipeServiceResponse.self).result
     }
             
 }

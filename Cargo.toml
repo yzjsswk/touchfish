@@ -2,8 +2,9 @@
 members = [
     "touchfish-core", 
     "touchfish-mongo-storage", 
+    "touchfish-redis-cache",
     "touchfish-data-server",
-    "touchfish-recipe-server",
+    "touchfish-recipe-server", 
 ]
 
 [replace]

@@ -23,6 +23,7 @@ struct DynamicRecipeCardView: View {
                             }
                             Text(item.title)
                             .font(.title2)
+                            DynamicRecipeCardTagView(item: item)
                         }
                         .frame(height: 20)
                         if let desc = item.description {
@@ -121,6 +122,45 @@ struct DynamicRecipeCardButtonView: View {
         .onHover { isHovered in
             self.isHovered = isHovered
         }
+    }
+    
+}
+
+struct DynamicRecipeCardTagView: View {
+    
+    struct TagView: View {
+        
+        var label: String
+        
+        var body: some View {
+            Text(label)
+            .frame(minWidth: 40)
+            .background(
+                GeometryReader { geometry in
+                    RoundedRectangle(cornerRadius: 5)
+                        .fill("5B5BCF".color)
+                        .frame(width: geometry.size.width+5, height: geometry.size.height+8)
+                        .offset(x: -2.5, y: -4)
+                }
+            )
+            .foregroundStyle(.white)
+        }
+    }
+    
+    var item: DynamicRecipeViewInfo.ViewItem
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack {
+                ForEach(Array(item.tags.enumerated()), id: \.0) { (_, tg) in
+                    TagView(label: tg)
+                }
+                Spacer()
+            }
+            .frame(height: 20)
+            .padding(3)
+        }
+        
     }
     
 }
