@@ -49,19 +49,15 @@ struct DynamicRecipeView: View {
                         Spacer()
                         HStack {
                             if info.type == .List || info.type == .Card {
-                                Text("total: \(info.items.count)")
-                                    .font(.system(.footnote, design: .monospaced))
+                                Text("\(info.items.count) items")
+                                .font(.system(.footnote, design: .monospaced))
                             }
                             Spacer()
                             HStack(spacing: 0) {
                                 if let timeCost = timeCost {
-                                    Text("timeCost: ")
-                                        .font(.system(.footnote, design: .monospaced))
-                                    Text("\(timeCost)")
-                                        .font(.system(.footnote, design: .monospaced))
-                                        .foregroundStyle(timeCost < 200 ? .green : (timeCost < 500 ? .yellow : .red))
-                                    Text(" ms")
-                                        .font(.system(.footnote, design: .monospaced))
+                                    Text(Functions.descTimeInterval(timeCost))
+                                    .font(.system(.footnote, design: .monospaced))
+                                    .foregroundStyle(.green)
                                 }
                             }
                         }
@@ -73,17 +69,17 @@ struct DynamicRecipeView: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .DynamicRecipeViewChanged)) { notification in
-            if let timeCost = notification.userInfo?["timeCost"] as? Int {
-                self.timeCost = timeCost
-            }
             if let startTime = notification.userInfo?["executeTime"] as? Date,
                let info = notification.userInfo?["info"] as? DynamicRecipeViewInfo {
                 if startTime >= self.lastRefreshTime {
+                    if let timeCost = notification.userInfo?["timeCost"] as? Int {
+                        self.timeCost = timeCost
+                    }
+                    self.lastRefreshTime = startTime
                     withAnimation(.spring) {
                         self.dynamicRecipeViewInfo = info
                     }
                 }
-                self.lastRefreshTime = startTime
             }
         }
     }

@@ -144,7 +144,7 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
                         stdout: last_frame.clone(),
                         stderr: "".to_string(),
                         status: RecipeExecuteStatus::Running,
-                        time_cost: start_time.elapsed().as_secs(),
+                        time_cost: start_time.elapsed().as_millis() as u64,
                     }, Some(3*24*3600)).await.trace(
                         ctx!("execute recipe -> got a frame when running -> set frame: self.cache.set_recipe_execute_result failed")
                     )?;
@@ -163,7 +163,7 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
                         stdout: last_frame.clone(),
                         stderr: "".to_string(),
                         status: RecipeExecuteStatus::Success,
-                        time_cost: start_time.elapsed().as_secs(),
+                        time_cost: start_time.elapsed().as_millis() as u64,
                     }, Some(3*24*3600)).await.trace(
                         ctx!("execute recipe -> execute finished and success -> update result: self.cache.set_recipe_execute_result failed")
                     )?;
@@ -184,7 +184,7 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
                         stdout: last_frame.clone(),
                         stderr: err_msg,
                         status: RecipeExecuteStatus::Fail,
-                        time_cost: start_time.elapsed().as_secs(),
+                        time_cost: start_time.elapsed().as_millis() as u64,
                     }, Some(3*24*3600)).await.trace(
                         ctx!("execute recipe -> execute finished and fail -> update result: self.cache.set_recipe_execute_result failed")
                     )?;

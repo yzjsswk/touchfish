@@ -198,10 +198,12 @@ struct RecipeAction: Codable {
                         )]
                     )
                 }
-                DispatchQueue.main.async {
-                    NotificationCenter.default.post(
-                        name: .DynamicRecipeViewChanged, object: nil, userInfo: ["info":info, "executeTime":executeTime]
-                    )
+                if info.type != .Empty {
+                    DispatchQueue.main.async {
+                        NotificationCenter.default.post(
+                            name: .DynamicRecipeViewChanged, object: nil, userInfo: ["info":info, "executeTime":executeTime]
+                        )
+                    }
                 }
                 if let executeUid = executeUid {
                     Task {
@@ -217,6 +219,7 @@ struct RecipeAction: Codable {
 func fetchExecuteResult(host: String, port: String, executeUid: String, executeTime: Date, fetchCount: Int) async {
     let info: DynamicRecipeViewInfo
     var timeCost: Int? = nil
+    var refresh = true
     let result = await RecipeService(host: host, port: port).fetchExecuteResult(executeUid: executeUid)
     switch result {
     case .success(let resp):
@@ -252,7 +255,8 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
             } else {
                 if fetchCount < 300 {
                     info = DynamicRecipeViewInfo(type: .Empty)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    refresh = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + getRefreshInterval(fetchCount: fetchCount)) {
                         Task {
                             await fetchExecuteResult(host: host, port: port, executeUid: executeUid, executeTime: executeTime, fetchCount: fetchCount+1)
                         }
@@ -278,6 +282,9 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
             )]
         )
     }
+    if !refresh {
+        return
+    }
     if let timeCost = timeCost {
         DispatchQueue.main.async {
             NotificationCenter.default.post(
@@ -291,4 +298,24 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
             )
         }
     }
+    
+}
+
+func getRefreshInterval(fetchCount: Int) -> Double {
+    if fetchCount < 6 {
+        return 0.05 // 50 ms * 6, 300ms
+    }
+    if fetchCount < 10 {
+        return 0.1 // 100 ms * 4, 1s
+    }
+    if fetchCount < 15 {
+        return 0.2 // 200 ms * 5, 2s
+    }
+    if fetchCount < 31 {
+        return 0.5 // 500 ms * 16, 10s
+    }
+    if fetchCount < 81 {
+        return 1 // 1s * 50, 1min
+    }
+    return 2
 }

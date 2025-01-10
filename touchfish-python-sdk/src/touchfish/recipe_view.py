@@ -97,5 +97,6 @@ class RecipeView:
         self.data = [base64.b64encode(s).decode('utf-8') for s in data]
         self.items = items
 
-    def show(self):
+    def update(self):
+        sys.stdout.reconfigure(line_buffering=True)
         sys.stdout.write(ystr().json().from_object(self)+"\n<RECIPE_OUTPUT_FRAME_END>\n")

@@ -124,6 +124,25 @@ struct Functions {
         return "\(GBCount)GB"
     }
     
+    static func descTimeInterval(_ millSec: Int) -> String {
+        if millSec < 1000 {
+            return "\(millSec)ms"
+        }
+        var s = millSec / 1000
+        let ms = millSec % 1000
+        if s < 60 {
+            return ms == 0 ? "\(s)s" : "\(s)s\(ms)ms"
+        }
+        let min = s / 60
+        s = min % 60
+        if min < 60 {
+            return s == 0 ? "\(min)m" : "\(min)m\(s)s"
+        }
+        let h = min / 60
+        s = min % 60
+        return min == 0 ? "\(h)h" : "\(h)h\(min)m"
+    }
+    
     static func runCommand(cmd: String, args: [String] = []) -> String? {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: cmd)

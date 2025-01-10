@@ -38,10 +38,14 @@ struct DynamicRecipeCardView: View {
                     ZStack {
                         TabView {
                             ForEach(item.images, id: \.self) { image in
-                                (item.patternToImage(pattern: image) ?? Image(systemName: "doc.plaintext"))
+                                if image == "loading" {
+                                    DynamicRecipeLoadingIconView()
+                                } else {
+                                    (item.patternToImage(pattern: image) ?? Image(systemName: "doc.plaintext"))
                                     .resizable()
                                     .scaledToFit()
                                     .cornerRadius(10)
+                                }
                             }
                         }
                         if isSelected {
@@ -161,6 +165,26 @@ struct DynamicRecipeCardTagView: View {
             .padding(3)
         }
         
+    }
+    
+}
+
+struct DynamicRecipeLoadingIconView: View {
+    
+    @State private var isAnimating = false
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "arrow.trianglehead.2.clockwise.rotate.90")
+            .resizable()
+            .scaledToFit()
+            .rotationEffect(Angle(degrees: isAnimating ? 360 : 0))
+            .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false), value: isAnimating)
+
+        }
+        .onAppear {
+            isAnimating = true
+        }
     }
     
 }
