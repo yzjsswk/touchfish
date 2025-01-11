@@ -37,14 +37,20 @@ struct DynamicRecipeCardView: View {
                     Spacer()
                     ZStack {
                         TabView {
-                            ForEach(item.images, id: \.self) { image in
-                                if image == "loading" {
+                            ForEach(item.images, id: \.self) { pattern in
+                                if pattern == "loading" {
                                     DynamicRecipeLoadingIconView()
                                 } else {
-                                    (item.patternToImage(pattern: image) ?? Image(systemName: "doc.plaintext"))
-                                    .resizable()
-                                    .scaledToFit()
-                                    .cornerRadius(10)
+                                    if let image = item.patternToImage(pattern: pattern) {
+                                        image
+                                        .resizable()
+                                        .scaledToFit()
+                                    } else {
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .foregroundStyle(.yellow)
+                                    }
                                 }
                             }
                         }
@@ -180,7 +186,6 @@ struct DynamicRecipeLoadingIconView: View {
             .scaledToFit()
             .rotationEffect(Angle(degrees: isAnimating ? 360 : 0))
             .animation(Animation.linear(duration: 1).repeatForever(autoreverses: false), value: isAnimating)
-
         }
         .onAppear {
             isAnimating = true

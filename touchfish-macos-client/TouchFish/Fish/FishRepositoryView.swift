@@ -202,7 +202,7 @@ struct FishRepositoryView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .CommandBarEndEditing)) { notification in
             fuzzy = nil
-            if let commandText = notification.userInfo?["commandText"] as? String, !isEditing {
+            if let commandText = notification.userInfo?["commandText"] as? String, !isEditing, commandText != "" {
                 fuzzy = commandText
             }
             NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)

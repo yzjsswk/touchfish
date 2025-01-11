@@ -68,7 +68,7 @@ struct RecipeManager {
             version: 0,
             type: .View,
             name: "Topics",
-            icon: Image(systemName: "mail.stack"),
+            icon: Image(systemName: "list.bullet.rectangle"),
             command: "topic",
             parameters: [
                 Recipe.Parameter(name: "type")

@@ -109,7 +109,7 @@ class DataService:
             'tags': tags, 
             'is_marked': is_marked,
             'is_locked': is_locked,
-            'extra_info': ystr().json().from_object(extra_info) if extra_info != None else None,
+            'extra_info': ystr().json().from_object(extra_info) if extra_info != None else '{}',
         })
         res_dic = ystr(res.text).json().to_dic()
         return res_dic['data']

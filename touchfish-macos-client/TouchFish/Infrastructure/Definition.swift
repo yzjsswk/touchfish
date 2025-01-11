@@ -231,7 +231,7 @@ struct Functions {
             return nil
         }
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
         dateFormatter.timeZone = TimeZone(identifier: "Asia/Shanghai")
         return dateFormatter.string(from: date)
     }

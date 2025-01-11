@@ -124,13 +124,7 @@ struct MonitorManager {
                             let identity = Functions.getMD5(of: clipboardData.1)
                             Task {
                                 if let fish = await Storage.pickFishByIdentity(identity: identity) {
-                                    let newFish = await Storage.addFish(
-                                        fish.fishType, fish.fishData, description: fish.description, tags: fish.tags,
-                                        isMarked: fish.isMarked, isLocked: fish.isLocked, extraInfo: fish.extraInfo
-                                    )
-                                    if newFish == nil {
-                                        Log.error("save fish from clipboard - fail: Storage.addFish return nil")
-                                    }
+                                    await Storage.pinFish([fish.uid])
                                 } else {
                                     let newFish = await Storage.addFish(
                                         clipboardData.0, clipboardData.1, extraInfo: ex
