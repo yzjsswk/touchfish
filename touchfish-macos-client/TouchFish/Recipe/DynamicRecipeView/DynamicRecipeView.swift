@@ -11,62 +11,57 @@ struct DynamicRecipeView: View {
     
     var body: some View {
         VStack {
-            switch activeRecipe.type {
-            case .Task, .Commit:
-                EmptyView()
-            case .View:
-                if let info = dynamicRecipeViewInfo {
-                    VStack {
-                        switch info.type {
-                        case .Empty:
-                            EmptyView()
-                        case .Error:
-                            DynamicRecipeErrorView(info: info)
-                        case.Text:
+            if let info = dynamicRecipeViewInfo {
+                VStack {
+                    switch info.type {
+                    case .Empty:
+                        EmptyView()
+                    case .Error:
+                        DynamicRecipeErrorView(info: info)
+                    case.Text:
+                        VStack {
+                            ForEach(info.items, id: \.title) { item in
+                                Text(item.title)
+                            }
+                        }
+                    case .List:
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: 5) {
+                                ForEach(info.items, id: \.title) { item in
+                                    DynamicRecipeListView(data: info.data, item: item)
+                                }
+                            }
+                        }.padding(.vertical)
+                    case .Card:
+                        ScrollView(showsIndicators: false) {
                             VStack {
                                 ForEach(info.items, id: \.title) { item in
-                                    Text(item.title)
+                                    DynamicRecipeCardView(data: info.data, item: item)
                                 }
                             }
-                        case .List:
-                            ScrollView(showsIndicators: false) {
-                                VStack(spacing: 5) {
-                                    ForEach(info.items, id: \.title) { item in
-                                        DynamicRecipeListView(data: info.data, item: item)
-                                    }
-                                }
-                            }.padding(.vertical)
-                        case .Card:
-                            ScrollView(showsIndicators: false) {
-                                VStack {
-                                    ForEach(info.items, id: \.title) { item in
-                                        DynamicRecipeCardView(data: info.data, item: item)
-                                    }
-                                }
-                                .padding(.vertical)
-                            }
+                            .padding(.vertical)
+                        }
+                    }
+                    Spacer()
+                    HStack {
+                        if info.type == .List || info.type == .Card {
+                            Text("\(info.items.count) items")
+                            .font(.system(.footnote, design: .monospaced))
                         }
                         Spacer()
-                        HStack {
-                            if info.type == .List || info.type == .Card {
-                                Text("\(info.items.count) items")
+                        HStack(spacing: 0) {
+                            if let timeCost = timeCost {
+                                Text(Functions.descTimeInterval(timeCost))
                                 .font(.system(.footnote, design: .monospaced))
-                            }
-                            Spacer()
-                            HStack(spacing: 0) {
-                                if let timeCost = timeCost {
-                                    Text(Functions.descTimeInterval(timeCost))
-                                    .font(.system(.footnote, design: .monospaced))
-                                    .foregroundStyle(.green)
-                                }
+                                .foregroundStyle(.green)
                             }
                         }
-                        .padding(.horizontal)
                     }
-               } else {
-                   EmptyView()
-               }
-            }
+                    .padding(.horizontal)
+                }
+           } else {
+               EmptyView()
+           }
         }
         .onReceive(NotificationCenter.default.publisher(for: .DynamicRecipeViewChanged)) { notification in
             if let startTime = notification.userInfo?["executeTime"] as? Date,

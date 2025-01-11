@@ -7,21 +7,15 @@ struct Recipe {
     var bundleId: String
     var author: String
     var version: Int
-    var type: RecipeType
     var name: String
     var description: String?
     var icon: Image
     var command: String?
+    var autoExecute: Bool
     var parameters: [Parameter] = []
     var actions: [RecipeAction] = []
     var color: LinearGradient
     var order: Int
-    
-    enum RecipeType: String, Codable {
-        case Task
-        case View
-        case Commit
-    }
     
     struct Parameter: Codable {
         var name: String

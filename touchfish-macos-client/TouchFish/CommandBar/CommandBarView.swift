@@ -90,17 +90,17 @@ struct CommandBarView: View {
         }
         // todo: carefully controll event, avoid repeat execute
         .onReceive(NotificationCenter.default.publisher(for: .RecipeStatusChanged)) { _ in
-            if let recipe = RecipeManager.activeRecipe, !recipe.isInternal, recipe.type != .Commit {
+            if let recipe = RecipeManager.activeRecipe, !recipe.isInternal, recipe.autoExecute {
                 recipe.execute()
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .RecipeCommited)) { _ in
-            if let recipe = RecipeManager.activeRecipe, !recipe.isInternal, recipe.type == .Commit {
+            if let recipe = RecipeManager.activeRecipe, !recipe.isInternal, !recipe.autoExecute {
                 recipe.execute()
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .CommandBarEndEditing)) { notification in
-            if let recipe = RecipeManager.activeRecipe, !recipe.isInternal, recipe.type == .View {
+            if let recipe = RecipeManager.activeRecipe, !recipe.isInternal, recipe.autoExecute {
                 recipe.execute()
             }
         }

@@ -19,11 +19,11 @@ struct RecipeResp: Codable {
     var bundleId: String
     var author: String
     var version: Int
-    var type: Recipe.RecipeType
     var name: String
     var description: String?
     var icon: String? // system:xxx fish:xxx
     var command: String?
+    var autoExecute: Bool
     var parameters: [Recipe.Parameter]?
     var actions: [RecipeAction]?
     var color: String?
@@ -32,11 +32,11 @@ struct RecipeResp: Codable {
         case bundleId = "bundle_id"
         case author = "author"
         case version = "version"
-        case type = "recipe_type"
         case name = "name"
         case description = "description"
         case icon = "icon"
         case command = "command"
+        case autoExecute = "auto_execute"
         case parameters = "parameters"
         case actions = "actions"
         case color = "color"
@@ -47,11 +47,11 @@ struct RecipeResp: Codable {
             bundleId: self.bundleId,
             author: self.author,
             version: self.version,
-            type: self.type,
             name: self.name,
             description: self.description,
-            icon: self.icon?.icon ?? Image(systemName: "frying.pan"),
+            icon: self.icon?.icon ?? Image(systemName: "questionmark"),
             command: self.command,
+            autoExecute: self.autoExecute,
             parameters: self.parameters ?? [],
             actions: self.actions ?? [],
             color: self.color?.linearGradient ?? Constant.userDefinedRecipeDefaultIemColor,

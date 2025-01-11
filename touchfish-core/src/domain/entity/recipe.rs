@@ -8,16 +8,21 @@ pub struct Recipe {
     pub bundle_id: String,
     pub version: i32,
     pub author: String,
-    pub recipe_type: RecipeType,
     pub name: String,
     pub description: Option<String>,
     pub icon: Option<String>,
     pub command: Option<String>,
+    #[serde(default = "default_auto_execute")]
+    pub auto_execute: bool,
     #[serde(default = "default_parameters")]
     pub parameters: Vec<RecipePara>,
     #[serde(default = "default_actions")]
     pub actions: Vec<RecipeAction>,
     pub color: Option<String>,
+}
+
+fn default_auto_execute() -> bool {
+    true
 }
 
 fn default_parameters() -> Vec<RecipePara> {
@@ -26,14 +31,6 @@ fn default_parameters() -> Vec<RecipePara> {
 
 fn default_actions() -> Vec<RecipeAction> {
     vec![]
-}
-
-#[yfunc]
-#[derive(Serialize, Deserialize, Debug, EnumString, Display, PartialEq, Eq, Hash, Clone, Copy)]
-pub enum RecipeType {
-    Task,
-    View,
-    Commit,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
