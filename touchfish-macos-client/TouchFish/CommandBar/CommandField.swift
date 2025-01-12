@@ -58,11 +58,21 @@ class CommandFieldViewController: NSViewController, NSTextFieldDelegate {
     override func viewDidAppear() {
         view.window?.makeFirstResponder(view)
         fieldEditor.insertionPointColor = .gray
-        textField.selectText(nil) // todo: do not select
+        if let textView = textField.currentEditor() as? NSTextView {
+            let textLength = (textField.stringValue as NSString).length
+            textView.setSelectedRange(NSMakeRange(textLength, 0))
+        }
     }
     
     func controlTextDidChange(_ obj: Notification) {
         text = textField.stringValue
+    }
+    
+    func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+        if commandSelector == #selector(insertNewline(_:)) {
+            return true
+        }
+        return false
     }
     
 }

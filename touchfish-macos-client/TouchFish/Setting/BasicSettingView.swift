@@ -8,18 +8,18 @@ struct BasicSettingView: View {
         VStack {
             // language
             HStack {
-                    Text("Language")
-                        .font(.title3)
-                        .bold()
-                    Spacer()
+                Text("Language")
+                    .font(.title3)
+                    .bold()
+                Spacer()
                 Picker("", selection: $tempSetting.language) {
-                        ForEach(Configuration.TFLanguage.allCases) { lan in
-                            Text(lan.rawValue)
-                                .tag(lan)
-                        }
+                    ForEach(Configuration.TFLanguage.allCases) { lan in
+                        Text(lan.rawValue)
+                            .tag(lan)
                     }
-                    .pickerStyle(.menu)
-                    .frame(width: 150)
+                }
+                .pickerStyle(.menu)
+                .frame(width: 150)
             }
             .padding(.vertical, 2)
             HStack{

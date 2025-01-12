@@ -71,7 +71,7 @@ struct RecipeManager {
             command: "topic",
             autoExecute: true,
             parameters: [
-                Recipe.Parameter(name: "type")
+                Recipe.Parameter(name: "type", type: .Text, inputer: .SingleLineEdit)
             ],
             color: Constant.internalRecipeItemColor,
             order: -500
@@ -108,13 +108,13 @@ struct RecipeManager {
             command: "fish",
             autoExecute: true,
             parameters: [
-                Recipe.Parameter(name: "identity"),
-                Recipe.Parameter(name: "type", separator: ","),
-                Recipe.Parameter(name: "tag", separator: ","),
-                Recipe.Parameter(name: "marked"),
-                Recipe.Parameter(name: "locked"),
-                Recipe.Parameter(name: "passed"),
-                Recipe.Parameter(name: "sort")
+                Recipe.Parameter(name: "identity", type: .Text, inputer: .SingleLineEdit, separator: ","),
+                Recipe.Parameter(name: "type", type: .Text, inputer: .SingleLineEdit, separator: ","),
+                Recipe.Parameter(name: "tag", type: .Text, inputer: .SingleLineEdit, separator: ","),
+                Recipe.Parameter(name: "marked", type: .Bool, inputer: .SingleLineEdit),
+                Recipe.Parameter(name: "locked", type: .Bool, inputer: .SingleLineEdit),
+                Recipe.Parameter(name: "passed", type: .Number, inputer: .SingleLineEdit),
+                Recipe.Parameter(name: "sort", type: .Text, inputer: .SingleLineEdit)
             ],
             color: Constant.internalRecipeItemColor,
             order: -200

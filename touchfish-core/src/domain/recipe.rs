@@ -36,6 +36,8 @@ fn default_actions() -> Vec<RecipeAction> {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RecipePara {
     pub name: String,
+    pub para_type: RecipeParaType,
+    pub inputer: RecipeParaInputer,
     pub separator: Option<String>,
 }
 
@@ -47,13 +49,21 @@ pub struct RecipeAction {
 
 #[yfunc]
 #[derive(Serialize, Deserialize, Debug, EnumString, Display, PartialEq, Eq, Hash, Clone, Copy)]
+pub enum RecipeParaType {
+    Text, Number, Bool,
+}
+
+#[yfunc]
+#[derive(Serialize, Deserialize, Debug, EnumString, Display, PartialEq, Eq, Hash, Clone, Copy)]
+pub enum RecipeParaInputer {
+    SingleLineEdit,
+    MultLineEdit,
+}
+
+#[yfunc]
+#[derive(Serialize, Deserialize, Debug, EnumString, Display, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum RecipeActionType {
-    Back,
-    Hide,
-    Copy,
-    Open,
-    Show,
-    Shell,
+    Back, Hide, Copy, Open, Show, Shell,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -65,8 +75,5 @@ pub struct RecipeActionArg {
 #[yfunc]
 #[derive(Serialize, Deserialize, Debug, EnumString, Display, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum RecipeActionArgType {
-    Plain,
-    Para,
-    CommandBarText,
-    Context,
+    Plain, Para, CommandBarText, Context,
 }

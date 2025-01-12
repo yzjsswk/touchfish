@@ -11,6 +11,7 @@
 		995E082C2C18345C00659F85 /* DataServiceSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995E082B2C18345C00659F85 /* DataServiceSettingView.swift */; };
 		996FEE492BC3E2E50047EB82 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996FEE482BC3E2E50047EB82 /* DataService.swift */; };
 		996FEE562BC917AE0047EB82 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 996FEE552BC917AE0047EB82 /* Alamofire */; };
+		997920382D33B66F007C187A /* DynamicRecipeParaFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997920372D33B662007C187A /* DynamicRecipeParaFieldView.swift */; };
 		997FAFD72CEB695D0023A6BC /* Topic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997FAFD62CEB69530023A6BC /* Topic.swift */; };
 		997FAFD92CEB818E0023A6BC /* RecipeManageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997FAFD82CEB81870023A6BC /* RecipeManageView.swift */; };
 		997FAFDB2CEB83610023A6BC /* RecipeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997FAFDA2CEB835B0023A6BC /* RecipeManager.swift */; };
@@ -69,6 +70,7 @@
 		995E08292C17242C00659F85 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		995E082B2C18345C00659F85 /* DataServiceSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataServiceSettingView.swift; sourceTree = "<group>"; };
 		996FEE482BC3E2E50047EB82 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
+		997920372D33B662007C187A /* DynamicRecipeParaFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicRecipeParaFieldView.swift; sourceTree = "<group>"; };
 		997FAFD62CEB69530023A6BC /* Topic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Topic.swift; sourceTree = "<group>"; };
 		997FAFD82CEB81870023A6BC /* RecipeManageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeManageView.swift; sourceTree = "<group>"; };
 		997FAFDA2CEB835B0023A6BC /* RecipeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeManager.swift; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 				999C31F72D130D8B0083D302 /* DynamicRecipeErrorView.swift */,
 				999C31F32D1300210083D302 /* DynamicRecipeListView.swift */,
 				999C31F52D1300310083D302 /* DynamicRecipeCardView.swift */,
+				997920372D33B662007C187A /* DynamicRecipeParaFieldView.swift */,
 			);
 			path = DynamicRecipeView;
 			sourceTree = "<group>";
@@ -401,6 +404,7 @@
 				99AC05FD2BB2BD720046E8C5 /* Recipe.swift in Sources */,
 				99AC05F72BB2BD720046E8C5 /* Storage.swift in Sources */,
 				99AC05F82BB2BD720046E8C5 /* CommandBarView.swift in Sources */,
+				997920382D33B66F007C187A /* DynamicRecipeParaFieldView.swift in Sources */,
 				999C31EF2D1151FF0083D302 /* DynamicRecipeViewInfo.swift in Sources */,
 				99AC05FB2BB2BD720046E8C5 /* CommandManager.swift in Sources */,
 				996FEE492BC3E2E50047EB82 /* DataService.swift in Sources */,

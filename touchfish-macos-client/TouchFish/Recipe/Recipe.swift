@@ -18,8 +18,30 @@ struct Recipe {
     var order: Int
     
     struct Parameter: Codable {
+        
+        enum ParameterType: String, Codable {
+            case Text
+            case Number
+            case Bool
+        }
+        
+        enum ParameterInputer: String, Codable {
+            case SingleLineEdit
+            case MultLineEdit
+        }
+        
         var name: String
+        var type: ParameterType
+        var inputer: ParameterInputer
         var separator: String?
+        
+        enum CodingKeys: String, CodingKey {
+            case name = "name"
+            case type = "para_type"
+            case inputer = "inputer"
+            case separator = "separator"
+        }
+        
     }
     
     var isInternal: Bool {

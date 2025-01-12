@@ -10,13 +10,20 @@ struct DynamicRecipeView: View {
     @State var fishSideEnable: Bool = false
     @State var topicSideEnable: Bool = false
     
-    @State var lastRefreshTime: Date = Date()
+    @State var lastRefreshTime: Date = Date(timeIntervalSince1970: 0)
     @State var timeCost: Int?
     
     var body: some View {
         VStack {
-            if let info = dynamicRecipeViewInfo {
-                VStack {
+            HStack(spacing: 0) {
+                if paraFieldEnbale {
+                    DynamicRecipeParaFieldView()
+                        .frame(width: Constant.mainWidth * 0.3)
+                        .padding(5)
+                    Divider()
+                    Spacer(minLength: 0)
+                }
+                if let info = dynamicRecipeViewInfo {
                     switch info.type {
                     case .Empty:
                         EmptyView()
@@ -35,7 +42,8 @@ struct DynamicRecipeView: View {
                                     DynamicRecipeListView(data: info.data, item: item)
                                 }
                             }
-                        }.padding(.vertical)
+                            .padding(.vertical)
+                        }
                     case .Card:
                         ScrollView(showsIndicators: false) {
                             VStack {
@@ -46,9 +54,9 @@ struct DynamicRecipeView: View {
                             .padding(.vertical)
                         }
                     }
+                } else {
+                    EmptyView()
                 }
-           } else {
-               EmptyView()
             }
             Spacer()
             HStack {
@@ -114,7 +122,9 @@ struct DynamicRecipeViewShowParaFieldButtonView: View {
             self.isHovered = isHovered
         }
         .onTapGesture {
-            self.paraFieldEnable.toggle()
+            withAnimation(.easeInOut(duration: 0.4)) {
+                self.paraFieldEnable.toggle()
+            }
         }
     }
     
@@ -140,7 +150,9 @@ struct DynamicRecipeViewShowFishSideButtonView: View {
             self.isHovered = isHovered
         }
         .onTapGesture {
-            self.fishSideEnable.toggle()
+            withAnimation(.easeInOut(duration: 0.4)) {
+                self.fishSideEnable.toggle()
+            }
         }
     }
     
@@ -166,7 +178,9 @@ struct DynamicRecipeViewShowTopicSideButtonView: View {
             self.isHovered = isHovered
         }
         .onTapGesture {
-            self.topicSideEnable.toggle()
+            withAnimation(.easeInOut(duration: 0.4)) {
+                self.topicSideEnable.toggle()
+            }
         }
     }
     

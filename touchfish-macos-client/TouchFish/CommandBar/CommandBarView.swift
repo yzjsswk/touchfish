@@ -31,7 +31,7 @@ struct CommandBarView: View {
                 ZStack {
                     CommandField(commandText: $commandText)
                         .frame(height: Constant.commandFieldHeight)
-                        .offset(y: 2)
+                        .offset(y: isFocused ? 2 : 8.8)
                         .focused($isFocused)
                     if commandText.count == 0 {
                         HStack {
@@ -39,6 +39,9 @@ struct CommandBarView: View {
                                 .font(.custom("Menlo", size: 20))
                                 .foregroundStyle("A3A3A3".color)
                                 .offset(x: 3, y: 1)
+                                .onTapGesture {
+                                    isFocused = true
+                                }
                             Spacer()
                         }
                     }

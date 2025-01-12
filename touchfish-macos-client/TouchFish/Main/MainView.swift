@@ -77,7 +77,7 @@ struct MainView: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .CommandTextChanged)) { notification in
-            if let commandText = notification.userInfo?["commandText"] as? String {
+            if let commandText = notification.userInfo?["commandText"] as? String, self.commandText != commandText {
                 self.commandText = commandText
             }
         }

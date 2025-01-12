@@ -24,16 +24,17 @@ struct DynamicRecipeListView: View {
                 if let desc = item.description {
                     ScrollView(.horizontal, showsIndicators: false) {
                         Text(desc)
-                            .font(.caption)
-                            .foregroundColor(.gray)
+                        .font(.caption)
+                        .foregroundColor(.gray)
                     }
                 }
             }
             Spacer()
         }
-        .frame(width: Constant.mainWidth-30, height: Constant.userDefinedRecipeItemHeight)
+        .frame(height: Constant.userDefinedRecipeItemHeight)
         .background(isSelected ? Constant.selectedItemBackgroundColor : Constant.mainBackgroundColor)
         .cornerRadius(5)
+        .padding(.horizontal, 12)
         .onHover { isHovered in
             withAnimation(.spring(duration: 0.1)) {
                 isSelected = isHovered
