@@ -6,6 +6,10 @@ struct DynamicRecipeView: View {
 
     @State var dynamicRecipeViewInfo: DynamicRecipeViewInfo?
     
+    @State var paraFieldEnbale: Bool = false
+    @State var fishSideEnable: Bool = false
+    @State var topicSideEnable: Bool = false
+    
     @State var lastRefreshTime: Date = Date()
     @State var timeCost: Int?
     
@@ -42,26 +46,35 @@ struct DynamicRecipeView: View {
                             .padding(.vertical)
                         }
                     }
-                    Spacer()
-                    HStack {
-                        if info.type == .List || info.type == .Card {
-                            Text("\(info.items.count) items")
-                            .font(.system(.footnote, design: .monospaced))
-                        }
-                        Spacer()
-                        HStack(spacing: 0) {
-                            if let timeCost = timeCost {
-                                Text(Functions.descTimeInterval(timeCost))
-                                .font(.system(.footnote, design: .monospaced))
-                                .foregroundStyle(.green)
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
                 }
            } else {
                EmptyView()
-           }
+            }
+            Spacer()
+            HStack {
+                HStack(spacing: 10) {
+                    DynamicRecipeViewShowFishSideButtonView(fishSideEnable: $fishSideEnable)
+                    DynamicRecipeViewShowParaFieldButtonView(paraFieldEnable: $paraFieldEnbale)
+                    DynamicRecipeViewShowTopicSideButtonView(topicSideEnable: $topicSideEnable)
+                }
+                .frame(height: 16)
+                Spacer()
+                if let info = dynamicRecipeViewInfo {
+                    HStack(spacing: 20) {
+                        if info.type == .List || info.type == .Card {
+                            Text("\(info.items.count) items")
+                                .font(.callout)
+                                .foregroundStyle(.gray)
+                        }
+                        if let timeCost = timeCost {
+                            Text(Functions.descTimeInterval(timeCost))
+                                .font(.callout)
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal)
         }
         .onReceive(NotificationCenter.default.publisher(for: .DynamicRecipeViewChanged)) { notification in
             if let startTime = notification.userInfo?["executeTime"] as? Date,
@@ -76,6 +89,84 @@ struct DynamicRecipeView: View {
                     }
                 }
             }
+        }
+    }
+    
+}
+
+struct DynamicRecipeViewShowParaFieldButtonView: View {
+    
+    @State var isHovered: Bool = false
+    @Binding var paraFieldEnable: Bool
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "square.split.2x1.fill")
+            .resizable()
+            .scaledToFit()
+            .foregroundStyle(paraFieldEnable ? .black : .gray)
+            .background(
+                RoundedRectangle(cornerRadius: 3)
+                    .stroke(isHovered ? Color.gray.opacity(0.5) : Color.clear, lineWidth: 5)
+            )
+        }
+        .onHover { isHovered in
+            self.isHovered = isHovered
+        }
+        .onTapGesture {
+            self.paraFieldEnable.toggle()
+        }
+    }
+    
+}
+
+struct DynamicRecipeViewShowFishSideButtonView: View {
+    
+    @State var isHovered: Bool = false
+    @Binding var fishSideEnable: Bool
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "square.lefthalf.filled")
+            .resizable()
+            .scaledToFit()
+            .foregroundStyle(fishSideEnable ? .black : .gray)
+            .background(
+                RoundedRectangle(cornerRadius: 3)
+                    .stroke(isHovered ? Color.gray.opacity(0.5) : Color.clear, lineWidth: 5)
+            )
+        }
+        .onHover { isHovered in
+            self.isHovered = isHovered
+        }
+        .onTapGesture {
+            self.fishSideEnable.toggle()
+        }
+    }
+    
+}
+
+struct DynamicRecipeViewShowTopicSideButtonView: View {
+    
+    @State var isHovered: Bool = false
+    @Binding var topicSideEnable: Bool
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "square.righthalf.filled")
+            .resizable()
+            .scaledToFit()
+            .foregroundStyle(topicSideEnable ? .black : .gray)
+            .background(
+                RoundedRectangle(cornerRadius: 3)
+                    .stroke(isHovered ? Color.gray.opacity(0.5) : Color.clear, lineWidth: 5)
+            )
+        }
+        .onHover { isHovered in
+            self.isHovered = isHovered
+        }
+        .onTapGesture {
+            self.topicSideEnable.toggle()
         }
     }
     
