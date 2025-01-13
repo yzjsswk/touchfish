@@ -52,11 +52,13 @@ struct FishEditView: View {
                         RoundedRectangle(cornerRadius: 5)
                             .stroke("A1A9C6".color, lineWidth: 3)
                         VStack {
-                            Spacer()
+                            Spacer(minLength: 0)
                             TextEditor(text: $description)
                                 .font(.custom("Menlo", size: 16))
-                            Spacer()
-                        }.padding(.horizontal, 5)
+                            Spacer(minLength: 0)
+                        }
+                        .padding(.vertical, 5)
+                        .padding(.horizontal, 2)
                     }
                     .background(Color.white)
                     .cornerRadius(5)

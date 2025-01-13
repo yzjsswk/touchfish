@@ -112,7 +112,7 @@ struct DynamicRecipeViewShowParaFieldButtonView: View {
             Image(systemName: "square.split.2x1.fill")
             .resizable()
             .scaledToFit()
-            .foregroundStyle(paraFieldEnable ? .black : .gray)
+            .foregroundStyle(paraFieldEnable ? "27295F".color : .gray)
             .background(
                 RoundedRectangle(cornerRadius: 3)
                     .stroke(isHovered ? Color.gray.opacity(0.5) : Color.clear, lineWidth: 5)
@@ -140,7 +140,7 @@ struct DynamicRecipeViewShowFishSideButtonView: View {
             Image(systemName: "square.lefthalf.filled")
             .resizable()
             .scaledToFit()
-            .foregroundStyle(fishSideEnable ? .black : .gray)
+            .foregroundStyle(fishSideEnable ? "27295F".color : .gray)
             .background(
                 RoundedRectangle(cornerRadius: 3)
                     .stroke(isHovered ? Color.gray.opacity(0.5) : Color.clear, lineWidth: 5)
@@ -168,7 +168,7 @@ struct DynamicRecipeViewShowTopicSideButtonView: View {
             Image(systemName: "square.righthalf.filled")
             .resizable()
             .scaledToFit()
-            .foregroundStyle(topicSideEnable ? .black : .gray)
+            .foregroundStyle(topicSideEnable ? "27295F".color : .gray)
             .background(
                 RoundedRectangle(cornerRadius: 3)
                     .stroke(isHovered ? Color.gray.opacity(0.5) : Color.clear, lineWidth: 5)

@@ -37,6 +37,7 @@ fn default_actions() -> Vec<RecipeAction> {
 pub struct RecipePara {
     pub name: String,
     pub para_type: RecipeParaType,
+    pub desc: Option<String>,
     pub inputer: RecipeParaInputer,
     pub separator: Option<String>,
 }

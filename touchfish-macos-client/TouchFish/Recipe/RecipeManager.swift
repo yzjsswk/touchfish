@@ -257,11 +257,19 @@ struct RecipeManager {
     }
     
     static func addArg(key: String, value: String) {
-        if let validArgs = activeRecipe?.parameters.map({$0.name}),
-           validArgs.contains(key),
-           !activeRecipeArguments.keys.contains(key) {
+        if let validArgs = activeRecipe?.parameters.map({$0.name}), validArgs.contains(key), !activeRecipeArguments.keys.contains(key) {
             activeRecipeArguments[key] = value
             activeRecipeArgumentsAddOrder.append(key)
+            NotificationCenter.default.post(name: .RecipeStatusChanged, object: nil)
+        }
+    }
+    
+    static func modifyArg(key: String, value: String) {
+        if let validArgs = activeRecipe?.parameters.map({$0.name}), validArgs.contains(key) {
+            if !activeRecipeArguments.keys.contains(key) {
+                activeRecipeArgumentsAddOrder.append(key)
+            }
+            activeRecipeArguments[key] = value
             NotificationCenter.default.post(name: .RecipeStatusChanged, object: nil)
         }
     }

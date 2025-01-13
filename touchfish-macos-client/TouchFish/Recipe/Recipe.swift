@@ -32,12 +32,14 @@ struct Recipe {
         
         var name: String
         var type: ParameterType
+        var description: String?
         var inputer: ParameterInputer
         var separator: String?
         
         enum CodingKeys: String, CodingKey {
             case name = "name"
             case type = "para_type"
+            case description = "desc"
             case inputer = "inputer"
             case separator = "separator"
         }

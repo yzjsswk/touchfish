@@ -105,20 +105,18 @@ struct TopicListMessageItemView: View {
                 HStack {
                     Text(message.createTime)
                         .font(.custom("Menlo", size: 14))
-                        .bold()
                         .padding(.vertical, 5)
                         .padding(.leading, 5)
                         .padding(.trailing, 3)
                     Text("- \(message.title)")
                         .font(.custom("Menlo", size: 13))
-                        .bold()
                         .padding(.trailing, 5)
                     Spacer()
                 }
                 HStack {
                     Text(message.body)
                         .font(.custom("Menlo", size: 12))
-                        .foregroundColor(.black)
+                        .foregroundColor(message.hasRead ? .gray : .black)
                         .padding(.bottom, 5)
                         .padding(.leading, 5)
                     Spacer()
