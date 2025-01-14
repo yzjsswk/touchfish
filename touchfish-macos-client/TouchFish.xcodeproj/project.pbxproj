@@ -18,6 +18,8 @@
 		997FAFDD2CEB86130023A6BC /* TopicListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997FAFDC2CEB860F0023A6BC /* TopicListView.swift */; };
 		997FAFDF2CEB861C0023A6BC /* TopicListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997FAFDE2CEB86180023A6BC /* TopicListItemView.swift */; };
 		998020442CDA378D004DC045 /* RecipeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998020432CDA378D004DC045 /* RecipeService.swift */; };
+		998EB13B2D36967C00A4844A /* DynamicRecipeFishSideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998EB13A2D36967400A4844A /* DynamicRecipeFishSideView.swift */; };
+		998EB13F2D36972E00A4844A /* DynamicRecipeTopicSideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998EB13E2D36972700A4844A /* DynamicRecipeTopicSideView.swift */; };
 		9991B00C2C0C88B000EFE02C /* FishAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9991B00B2C0C88B000EFE02C /* FishAddView.swift */; };
 		999C31ED2D0C3DB40083D302 /* RecipeServiceSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 999C31EC2D0C3DAC0083D302 /* RecipeServiceSettingView.swift */; };
 		999C31EF2D1151FF0083D302 /* DynamicRecipeViewInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 999C31EE2D1151D30083D302 /* DynamicRecipeViewInfo.swift */; };
@@ -77,6 +79,8 @@
 		997FAFDC2CEB860F0023A6BC /* TopicListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicListView.swift; sourceTree = "<group>"; };
 		997FAFDE2CEB86180023A6BC /* TopicListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicListItemView.swift; sourceTree = "<group>"; };
 		998020432CDA378D004DC045 /* RecipeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeService.swift; sourceTree = "<group>"; };
+		998EB13A2D36967400A4844A /* DynamicRecipeFishSideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicRecipeFishSideView.swift; sourceTree = "<group>"; };
+		998EB13E2D36972700A4844A /* DynamicRecipeTopicSideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicRecipeTopicSideView.swift; sourceTree = "<group>"; };
 		9991B00B2C0C88B000EFE02C /* FishAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FishAddView.swift; sourceTree = "<group>"; };
 		999C31EC2D0C3DAC0083D302 /* RecipeServiceSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeServiceSettingView.swift; sourceTree = "<group>"; };
 		999C31EE2D1151D30083D302 /* DynamicRecipeViewInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicRecipeViewInfo.swift; sourceTree = "<group>"; };
@@ -193,6 +197,8 @@
 				999C31F32D1300210083D302 /* DynamicRecipeListView.swift */,
 				999C31F52D1300310083D302 /* DynamicRecipeCardView.swift */,
 				997920372D33B662007C187A /* DynamicRecipeParaFieldView.swift */,
+				998EB13A2D36967400A4844A /* DynamicRecipeFishSideView.swift */,
+				998EB13E2D36972700A4844A /* DynamicRecipeTopicSideView.swift */,
 			);
 			path = DynamicRecipeView;
 			sourceTree = "<group>";
@@ -389,6 +395,7 @@
 				99AC06022BB2BD720046E8C5 /* StatusBar.swift in Sources */,
 				999C31F62D1300360083D302 /* DynamicRecipeCardView.swift in Sources */,
 				99C614FC2C43F56500A99567 /* FishRepositorySettingView.swift in Sources */,
+				998EB13B2D36967C00A4844A /* DynamicRecipeFishSideView.swift in Sources */,
 				995E082A2C17242C00659F85 /* SettingView.swift in Sources */,
 				99AC05EA2BB2BD720046E8C5 /* MainView.swift in Sources */,
 				99AC06002BB2BD720046E8C5 /* DynamicRecipeView.swift in Sources */,
@@ -420,6 +427,7 @@
 				99EDC33E2CC6A5540023CDF0 /* FishStatsView.swift in Sources */,
 				99AC05F62BB2BD720046E8C5 /* Monitor.swift in Sources */,
 				997FAFDD2CEB86130023A6BC /* TopicListView.swift in Sources */,
+				998EB13F2D36972E00A4844A /* DynamicRecipeTopicSideView.swift in Sources */,
 				99EDC3382CC630420023CDF0 /* BarChartView.swift in Sources */,
 				99C614FA2C43C38B00A99567 /* BasicSettingView.swift in Sources */,
 				99AC05F42BB2BD720046E8C5 /* Definition.swift in Sources */,

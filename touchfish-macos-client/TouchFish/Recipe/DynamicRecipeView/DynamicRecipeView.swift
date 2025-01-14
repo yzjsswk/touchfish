@@ -6,9 +6,9 @@ struct DynamicRecipeView: View {
 
     @State var dynamicRecipeViewInfo: DynamicRecipeViewInfo?
     
-    @State var paraFieldEnbale: Bool = false
-    @State var fishSideEnable: Bool = false
-    @State var topicSideEnable: Bool = false
+    @State var paraFieldEnbale: Bool = Config.paraFieldEnable
+    @State var fishSideEnable: Bool = Config.fishSideEnable
+    @State var topicSideEnable: Bool = Config.topicSideEnable
     
     @State var lastRefreshTime: Date = Date(timeIntervalSince1970: 0)
     @State var timeCost: Int?
@@ -16,11 +16,18 @@ struct DynamicRecipeView: View {
     var body: some View {
         VStack {
             HStack(spacing: 0) {
+                if fishSideEnable {
+                    DynamicRecipeFishSideView()
+                    .frame(width: Constant.sideWidth)
+                    Divider()
+                }
                 if paraFieldEnbale {
                     DynamicRecipeParaFieldView()
-                        .frame(width: Constant.mainWidth * 0.3)
-                        .padding(5)
+                    .frame(width: Constant.mainWidth * 0.3)
+                    .padding(5)
                     Divider()
+                }
+                if fishSideEnable || paraFieldEnbale {
                     Spacer(minLength: 0)
                 }
                 if let info = dynamicRecipeViewInfo {
@@ -56,6 +63,12 @@ struct DynamicRecipeView: View {
                     }
                 } else {
                     EmptyView()
+                }
+                if topicSideEnable {
+                    Spacer()
+                    Divider()
+                    DynamicRecipeTopicSideView()
+                    .frame(width: Constant.sideWidth)
                 }
             }
             Spacer()
@@ -98,6 +111,74 @@ struct DynamicRecipeView: View {
                 }
             }
         }
+        .onAppear {
+            if fishSideEnable && topicSideEnable {
+                TouchFishApp.mainWindow.setFrame(NSRect(
+                    x: TouchFishApp.mainWindow.frame.origin.x - Constant.sideWidth,
+                    y: TouchFishApp.mainWindow.frame.origin.y,
+                    width: TouchFishApp.mainWindow.frame.width + Constant.sideWidth*2,
+                    height: TouchFishApp.mainWindow.frame.height
+                ), display: true, animate: false)
+            }
+            if fishSideEnable && !topicSideEnable {
+                TouchFishApp.mainWindow.setFrame(NSRect(
+                    x: TouchFishApp.mainWindow.frame.origin.x - Constant.sideWidth,
+                    y: TouchFishApp.mainWindow.frame.origin.y,
+                    width: TouchFishApp.mainWindow.frame.width + Constant.sideWidth,
+                    height: TouchFishApp.mainWindow.frame.height
+                ), display: true, animate: false)
+            }
+            if !fishSideEnable && topicSideEnable {
+                TouchFishApp.mainWindow.setFrame(NSRect(
+                    x: TouchFishApp.mainWindow.frame.origin.x,
+                    y: TouchFishApp.mainWindow.frame.origin.y,
+                    width: TouchFishApp.mainWindow.frame.width + Constant.sideWidth,
+                    height: TouchFishApp.mainWindow.frame.height
+                ), display: true, animate: false)
+            }
+        }
+        .onChange(of: fishSideEnable) {
+            if fishSideEnable {
+                TouchFishApp.mainWindow.setFrame(NSRect(
+                    x: TouchFishApp.mainWindow.frame.origin.x - Constant.sideWidth,
+                    y: TouchFishApp.mainWindow.frame.origin.y,
+                    width: TouchFishApp.mainWindow.frame.width + Constant.sideWidth,
+                    height: TouchFishApp.mainWindow.frame.height
+                ), display: true, animate: true)
+            } else {
+                TouchFishApp.mainWindow.setFrame(NSRect(
+                    x: TouchFishApp.mainWindow.frame.origin.x + Constant.sideWidth,
+                    y: TouchFishApp.mainWindow.frame.origin.y,
+                    width: TouchFishApp.mainWindow.frame.width - Constant.sideWidth,
+                    height: TouchFishApp.mainWindow.frame.height
+                ), display: true, animate: true)
+            }
+        }
+        .onChange(of: topicSideEnable) {
+            if topicSideEnable {
+                TouchFishApp.mainWindow.setFrame(NSRect(
+                    x: TouchFishApp.mainWindow.frame.origin.x,
+                    y: TouchFishApp.mainWindow.frame.origin.y,
+                    width: TouchFishApp.mainWindow.frame.width + Constant.sideWidth,
+                    height: TouchFishApp.mainWindow.frame.height
+                ), display: true, animate: true)
+            } else {
+                TouchFishApp.mainWindow.setFrame(NSRect(
+                    x: TouchFishApp.mainWindow.frame.origin.x,
+                    y: TouchFishApp.mainWindow.frame.origin.y,
+                    width: TouchFishApp.mainWindow.frame.width - Constant.sideWidth,
+                    height: TouchFishApp.mainWindow.frame.height
+                ), display: true, animate: true)
+            }
+        }
+        .onDisappear {
+            TouchFishApp.mainWindow.setFrame(NSRect(
+                x: TouchFishApp.mainWindow.frame.origin.x + (fishSideEnable ? Constant.sideWidth : 0),
+                y: TouchFishApp.mainWindow.frame.origin.y,
+                width: Constant.mainWidth,
+                height: Constant.mainHeight
+            ), display: true, animate: false)
+        }
     }
     
 }
@@ -124,6 +205,8 @@ struct DynamicRecipeViewShowParaFieldButtonView: View {
         .onTapGesture {
             withAnimation(.easeInOut(duration: 0.4)) {
                 self.paraFieldEnable.toggle()
+                Config.paraFieldEnable = paraFieldEnable
+                let _ = Config.save()
             }
         }
     }
@@ -152,6 +235,8 @@ struct DynamicRecipeViewShowFishSideButtonView: View {
         .onTapGesture {
             withAnimation(.easeInOut(duration: 0.4)) {
                 self.fishSideEnable.toggle()
+                Config.fishSideEnable = fishSideEnable
+                let _ = Config.save()
             }
         }
     }
@@ -180,6 +265,8 @@ struct DynamicRecipeViewShowTopicSideButtonView: View {
         .onTapGesture {
             withAnimation(.easeInOut(duration: 0.4)) {
                 self.topicSideEnable.toggle()
+                Config.topicSideEnable = topicSideEnable
+                let _ = Config.save()
             }
         }
     }

@@ -7,6 +7,7 @@ struct Constant {
     
     static let mainWidth: CGFloat = 800
     static let mainHeight: CGFloat = 600
+    static let sideWidth: CGFloat = 250
     static let commandBarHeight: CGFloat = 40
     static let commandFieldHeight: CGFloat = 28
     static let userDefinedRecipeItemHeight: CGFloat = 50

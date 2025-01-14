@@ -70,6 +70,9 @@ struct Configuration: Codable {
     
     var hideMainWindowWhenClickOutSideEnable = true
     var backWhenAssistiveClick = true
+    var paraFieldEnable = false
+    var fishSideEnable = false
+    var topicSideEnable = false
     
     // fish repository
     var fishRepositoryActiveKeyShortcut = KeyboardShortcut(keyCode: 9, modifiers: [.command, .option], events: [.keyDown])
