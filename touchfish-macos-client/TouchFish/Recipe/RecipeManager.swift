@@ -269,15 +269,20 @@ struct RecipeManager {
             if !activeRecipeArguments.keys.contains(key) {
                 activeRecipeArgumentsAddOrder.append(key)
             }
+            if let existedValue = activeRecipeArguments[key], existedValue == value {
+                return
+            }
             activeRecipeArguments[key] = value
             NotificationCenter.default.post(name: .RecipeStatusChanged, object: nil)
         }
     }
     
     static func delArg(key: String) {
-        activeRecipeArguments.removeValue(forKey: key)
-        activeRecipeArgumentsAddOrder.removeAll {$0 == key}
-        NotificationCenter.default.post(name: .RecipeStatusChanged, object: nil)
+        if let validArgs = activeRecipe?.parameters.map({$0.name}), validArgs.contains(key), activeRecipeArguments.keys.contains(key) {
+            activeRecipeArguments.removeValue(forKey: key)
+            activeRecipeArgumentsAddOrder.removeAll {$0 == key}
+            NotificationCenter.default.post(name: .RecipeStatusChanged, object: nil)
+        }
     }
     
     static func delLastArg() {

@@ -40,6 +40,12 @@ pub struct RecipePara {
     pub desc: Option<String>,
     pub inputer: RecipeParaInputer,
     pub separator: Option<String>,
+    #[serde(default = "default_options")]
+    pub options: Vec<String>,
+}
+
+fn default_options() -> Vec<String> {
+    vec![]
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -59,6 +65,9 @@ pub enum RecipeParaType {
 pub enum RecipeParaInputer {
     SingleLineEdit,
     MultLineEdit,
+    Choice,
+    Check,
+    Slide,
 }
 
 #[yfunc]

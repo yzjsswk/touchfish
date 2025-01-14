@@ -113,8 +113,8 @@ struct CommandBarView: View {
 func getCellText(originText: String) -> String {
     let isSingleLine = !originText.contains("\n")
     let line = Functions.getLinePreview(originText)
-    let tooLong = line.count > 20
-    var preview = String(line.prefix(20))
+    let tooLong = line.count > 25
+    var preview = String(line.prefix(25))
     if !isSingleLine || tooLong {
         preview += "..."
     }

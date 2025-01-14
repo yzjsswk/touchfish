@@ -28,6 +28,9 @@ struct Recipe {
         enum ParameterInputer: String, Codable {
             case SingleLineEdit
             case MultLineEdit
+            case Choice
+            case Check
+            case Slide
         }
         
         var name: String
@@ -35,6 +38,7 @@ struct Recipe {
         var description: String?
         var inputer: ParameterInputer
         var separator: String?
+        var options: [String] = []
         
         enum CodingKeys: String, CodingKey {
             case name = "name"
@@ -42,6 +46,7 @@ struct Recipe {
             case description = "desc"
             case inputer = "inputer"
             case separator = "separator"
+            case options = "options"
         }
         
     }
