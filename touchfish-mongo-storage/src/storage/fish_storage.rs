@@ -447,7 +447,7 @@ impl MongoStorage {
 
     async fn count_marked_fish(&self) -> YRes<u64> {
         let filter = doc! {
-            "expired_time": Bson::Null,
+            "expire_time": Bson::Null,
             "is_marked": true,
         };
         let count = self.collection__fish().count_documents(filter).await.map_err(|e| {
@@ -460,7 +460,7 @@ impl MongoStorage {
 
     async fn count_unmarked_fish(&self) -> YRes<u64> {
         let filter = doc! {
-            "expired_time": Bson::Null,
+            "expire_time": Bson::Null,
             "is_marked": false,
         };
         let count = self.collection__fish().count_documents(filter).await.map_err(|e| {
@@ -473,7 +473,7 @@ impl MongoStorage {
 
     async fn count_locked_fish(&self) -> YRes<u64> {
         let filter = doc! {
-            "expired_time": Bson::Null,
+            "expire_time": Bson::Null,
             "is_locked": true,
         };
         let count = self.collection__fish().count_documents(filter).await.map_err(|e| {
@@ -486,7 +486,7 @@ impl MongoStorage {
 
     async fn count_unlocked_fish(&self) -> YRes<u64> {
         let filter = doc! {
-            "expired_time": Bson::Null,
+            "expire_time": Bson::Null,
             "is_locked": false,
         };
         let count = self.collection__fish().count_documents(filter).await.map_err(|e| {
@@ -500,7 +500,7 @@ impl MongoStorage {
     async fn count_fish_by_type(&self) -> YRes<HashMap<FishType, u64>> {
         let pipeline = vec![
             doc! {
-                "$match": { "expired_time": Bson::Null },
+                "$match": { "expire_time": Bson::Null },
             },
             doc! {
                 "$group": {
@@ -530,7 +530,7 @@ impl MongoStorage {
     async fn count_fish_by_tag(&self) -> YRes<HashMap<String, u64>> {
         let pipeline = vec![
             doc! {
-                "$match": { "expired_time": Bson::Null },
+                "$match": { "expire_time": Bson::Null },
             },
             doc! {
                 "$unwind": "$tags",
@@ -555,7 +555,7 @@ impl MongoStorage {
             result.insert(stats_model.name, stats_model.count);
         }
         let filter = doc! {
-            "expired_time": Bson::Null,
+            "expire_time": Bson::Null,
             "tags": { "$size": 0 }, 
         };
         let no_tag_count = self.collection__fish().count_documents(filter).await.map_err(|e| {
@@ -569,9 +569,6 @@ impl MongoStorage {
 
     async fn count_fish_by_day(&self) -> YRes<HashMap<String, u64>> {
         let pipeline = vec![
-            doc! {
-                "$match": { "expired_time": Bson::Null },
-            },
             doc! {
                 "$project": {
                     "date": { 

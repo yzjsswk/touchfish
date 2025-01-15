@@ -84,7 +84,8 @@ struct DetailTagView: View {
         
         var body: some View {
             Text(label)
-            .frame(minWidth: 40)
+                .font(.custom("Menlo", size: 12))
+                .frame(minWidth: 30)
             .background(
                 GeometryReader { geometry in
                     RoundedRectangle(cornerRadius: 5)
