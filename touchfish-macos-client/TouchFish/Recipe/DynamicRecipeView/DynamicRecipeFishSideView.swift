@@ -8,10 +8,11 @@ struct DynamicRecipeFishSideView: View {
     @State var selectedFish: Fish? = nil
     
     @State var searchText: String = ""
+    @State var type: Fish.FishType?
+    @State var tags: [String:Bool] = [:]
     @State var isMarked: Bool?
     @State var isLocked: Bool?
-    @State var tags: [String:Bool] = [:]
-    @State var sortField: String = "update"
+    @State var sortField: String = "Update Time"
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -28,26 +29,25 @@ struct DynamicRecipeFishSideView: View {
                     DynamicRecipeFishSideDetailView(fish: .constant(fish))
                 } else {
                     VStack {
-                        DynamicRecipeFishSideFilterView(isMarked: $isMarked, isLocked: $isLocked, tags: $tags, sortField: $sortField)
-                        Spacer()
+                        DynamicRecipeFishSideFilterView(type: $type, tags: $tags, isMarked: $isMarked, isLocked: $isLocked, sortField: $sortField)
                         HStack {
                             Spacer()
                             Text("\(fishList.count) items")
                                 .font(.callout)
                                 .foregroundStyle(.gray)
                         }
-                        .padding(3)
+                        .padding([.bottom, .horizontal], 3)
                     }
                 }
             }
-            .frame(height: 180)
+            .frame(height: 182)
             .padding(.horizontal, 3)
         }
         .padding(5)
         .onAppear {
             Task {
                 let fish = await Storage.searchFish()
-                self.fishList = fish.values.sorted(by: { $0.updateTime > $1.updateTime })
+                self.fishList = fish.values.sorted(by: { $0.updateTime == $1.updateTime ? $0.uid > $1.uid : $0.updateTime > $1.updateTime })
                 self.tags.removeAll()
                 if let stats = await Storage.countFish() {
                     let tags = stats.tagCount.keys.filter { !$0.isEmpty }
@@ -60,6 +60,9 @@ struct DynamicRecipeFishSideView: View {
         .onChange(of: searchText) {
             updateFishList()
         }
+        .onChange(of: type) {
+            updateFishList()
+        }
         .onChange(of: tags) {
             updateFishList()
         }
@@ -69,15 +72,33 @@ struct DynamicRecipeFishSideView: View {
         .onChange(of: isLocked) {
             updateFishList()
         }
+        .onChange(of: sortField) {
+            updateFishList()
+        }
     }
     
     private func updateFishList() {
         let fuzzy = searchText == "" ? nil : searchText
         let tags = Array(tags.filter { $0.value }.keys)
+        let type = type == nil ? nil : [type!]
         Task {
-            let fish = await Storage.searchFish(fuzzy: fuzzy, tags: tags.isEmpty ? nil : tags, isMarked: isMarked, isLocked: isLocked)
+            let fish = await Storage.searchFish(fuzzy: fuzzy, fishTypes: type, tags: tags.isEmpty ? nil : tags, isMarked: isMarked, isLocked: isLocked)
+            let sortedFish = fish.values.sorted(by: {
+                if sortField == "Create Time" {
+                    return $0.createTime == $1.createTime ? $0.uid > $1.uid : $0.createTime > $1.createTime
+                }
+                if sortField == "Type" {
+                    return $0.fishType == $1.fishType ? $0.uid > $1.uid : $0.fishType.rawValue > $1.fishType.rawValue
+                }
+                if sortField == "Size" {
+                    let size0 = $0.dataInfo.byteCount ?? -1
+                    let size1 = $1.dataInfo.byteCount ?? -1
+                    return size0 == $1.dataInfo.byteCount ? $0.uid > $1.uid : size0 > size1
+                }
+                return $0.updateTime == $1.updateTime ? $0.uid > $1.uid : $0.updateTime > $1.updateTime
+            })
             withAnimation {
-                self.fishList = fish.values.sorted(by: { $0.updateTime > $1.updateTime })
+                self.fishList = sortedFish
             }
         }
     }
@@ -86,39 +107,13 @@ struct DynamicRecipeFishSideView: View {
 
 struct DynamicRecipeFishSideFilterView: View {
     
-    struct TagView: View {
-        
-        var label: String
-        @Binding var tags: [String:Bool]
-        
-        var body: some View {
-            Text(label)
-                .font(.custom("Menlo", size: 12))
-                .frame(minWidth: 30)
-                .background(
-                    GeometryReader { geometry in
-                        RoundedRectangle(cornerRadius: 5)
-                            .stroke("A1A9C6".color, lineWidth: tags[label, default: false] ? 0 : 1)
-                            .fill(
-                                tags[label, default: false] ? "5B5BCF".color : Color.clear
-                            )
-                            .frame(width: geometry.size.width+5, height: geometry.size.height+8)
-                            .offset(x: -2.5, y: -4)
-                    }
-                )
-                .foregroundStyle(tags[label, default: false] ? Color.white : "222D59".color)
-                .onTapGesture {
-                    tags[label]?.toggle()
-                }
-        }
-        
-    }
-
-    
+    @Binding var type: Fish.FishType?
+    @Binding var tags: [String:Bool]
     @Binding var isMarked: Bool?
     @Binding var isLocked: Bool?
-    @Binding var tags: [String:Bool]
     @Binding var sortField: String
+    
+    @State var typeValue: String = "All"
     
     @State var isMarkedValue: Bool = false
     @State var isMarkedEnable: Bool = false
@@ -130,6 +125,20 @@ struct DynamicRecipeFishSideFilterView: View {
     
     var body: some View {
         VStack {
+            HStack {
+                Text("Type")
+                Spacer()
+                Picker("", selection: $typeValue) {
+                    ForEach(getOptions(), id: \.self) { opt in
+                        Text(opt)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(width: 80)
+                .onChange(of: typeValue) {
+                    self.type = Fish.FishType(rawValue: typeValue)
+                }
+            }
             HStack {
                 Text("Tags")
                 Spacer()
@@ -148,7 +157,7 @@ struct DynamicRecipeFishSideFilterView: View {
                 }
             }
             .padding(.top, -3)
-            .frame(height: 40)
+            .frame(height: 32)
             HStack(spacing: 10) {
                 if let isMarked = isMarked {
                     Text("Marked: \(isMarked ? "Yes" : "No")")
@@ -195,9 +204,23 @@ struct DynamicRecipeFishSideFilterView: View {
                 }
                 Toggle(isOn: $isLockedValue) {}
             }
+            HStack {
+                Text("Sort By")
+                Spacer()
+                Picker("", selection: $sortField) {
+                    ForEach(["Update Time", "Create Time", "Type", "Size"], id: \.self) { opt in
+                        Text(opt)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(width: 120)
+            }
         }
-        .padding(5)
+        .padding([.top, .horizontal], 5)
         .onAppear {
+            if let type = type {
+                self.typeValue = type.rawValue
+            }
             if let isMarked = isMarked {
                 isMarkedEnable = true
                 isMarkedValue = isMarked
@@ -227,6 +250,12 @@ struct DynamicRecipeFishSideFilterView: View {
                 isLocked = nil
             }
         }
+    }
+    
+    private func getOptions() -> [String] {
+        var fishTypes = Fish.FishType.allCases.map { $0.rawValue }
+        fishTypes.append("All")
+        return fishTypes
     }
     
 }

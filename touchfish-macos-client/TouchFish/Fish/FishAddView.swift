@@ -9,7 +9,7 @@ struct FishAddView: View {
         VStack {
             ScrollView(.horizontal, showsIndicators: false) {
                 Picker("", selection: $selectedFile) {
-                    let urls = Array(toAddFiles.keys).sorted {$0.path < $1.path}
+                    let urls = Array(toAddFiles.keys).sorted { $0.path < $1.path }
                     ForEach(urls, id: \.self) { url in
                         Text(url.lastPathComponent + "\((toAddFiles[url]?.exists ?? false) ? " (Exists)" : "")")
                     }
