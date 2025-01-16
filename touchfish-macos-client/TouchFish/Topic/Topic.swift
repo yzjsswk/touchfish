@@ -23,6 +23,23 @@ struct Topic {
     let extraInfo: ExtraInfo
     let createTime: String
     let updateTime: String
+    
+    var infoCount: Int {
+        return messages.filter { $0.level == .Info }.count
+    }
+    
+    var warningCount: Int {
+        return messages.filter { $0.level == .Warning }.count
+    }
+    
+    var errorCount: Int {
+        return messages.filter { $0.level == .Error }.count
+    }
+    
+    var unreadCount: Int {
+        return messages.filter { !$0.hasRead }.count
+    }
+    
 }
 
 struct Message {

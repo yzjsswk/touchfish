@@ -293,7 +293,7 @@ extension String {
         }
         if self.hasPrefix("fish:") {
             let uid = String(self.dropFirst(5))
-            if let imageData = Storage.fishCache[uid]?.imageData {
+            if let imageData = Storage.getFishFromCache(uid)?.imageData {
                 return Image(nsImage: imageData)
             }
             return nil

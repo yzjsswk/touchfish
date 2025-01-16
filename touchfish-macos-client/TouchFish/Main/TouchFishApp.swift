@@ -20,7 +20,6 @@ class TouchFishApp {
         Monitor.start(type: .backWhenAssistiveClick)
         Monitor.start(type: .saveFishWhenClipboardChanges)
         Monitor.start(type: .localKeyBoardPressedAsyncEvent)
-//        TFTask.start()
         TouchFishApp.statusBar = StatusBar()
         TouchFishApp.mainWindow = MainWindow()
         TouchFishApp.activate()

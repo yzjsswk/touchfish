@@ -274,6 +274,17 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
                             await fetchExecuteResult(host: host, port: port, executeUid: executeUid, executeTime: executeTime, fetchCount: fetchCount+1)
                         }
                     }
+                    if fetchCount % 5 == 0 {
+                        DispatchQueue.main.async {
+                            NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
+                            NotificationCenter.default.post(name: .ShouldRefreshTopic, object: nil)
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
+                        NotificationCenter.default.post(name: .ShouldRefreshTopic, object: nil)
+                    }
                 }
             } else {
                 if fetchCount < 300 {

@@ -75,7 +75,11 @@ struct DynamicRecipeView: View {
             HStack {
                 HStack(spacing: 10) {
                     DynamicRecipeViewShowFishSideButtonView(fishSideEnable: $fishSideEnable)
-                    DynamicRecipeViewShowParaFieldButtonView(paraFieldEnable: $paraFieldEnbale)
+                    if let info = self.dynamicRecipeViewInfo, info.type != .Empty && info.items.count > 0 {
+                        DynamicRecipeViewShowParaFieldButtonView(withAnima: true, paraFieldEnable: $paraFieldEnbale)
+                    } else {
+                        DynamicRecipeViewShowParaFieldButtonView(withAnima: false, paraFieldEnable: $paraFieldEnbale)
+                    }
                     DynamicRecipeViewShowTopicSideButtonView(topicSideEnable: $topicSideEnable)
                 }
                 .frame(height: 16)
@@ -185,6 +189,8 @@ struct DynamicRecipeView: View {
 
 struct DynamicRecipeViewShowParaFieldButtonView: View {
     
+    var withAnima: Bool = true
+    
     @State var isHovered: Bool = false
     @Binding var paraFieldEnable: Bool
     
@@ -203,11 +209,16 @@ struct DynamicRecipeViewShowParaFieldButtonView: View {
             self.isHovered = isHovered
         }
         .onTapGesture {
-            withAnimation(.easeInOut(duration: 0.4)) {
+            if withAnima {
+                withAnimation(.easeInOut(duration: 0.4)) {
+                    self.paraFieldEnable.toggle()
+                }
+            } else {
                 self.paraFieldEnable.toggle()
-                Config.paraFieldEnable = paraFieldEnable
-                let _ = Config.save()
             }
+            Config.paraFieldEnable = paraFieldEnable
+            let _ = Config.save()
+
         }
     }
     

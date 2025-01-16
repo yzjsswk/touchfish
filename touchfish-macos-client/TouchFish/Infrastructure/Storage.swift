@@ -2,7 +2,69 @@ import SwiftUI
 
 struct Storage {
     
-    static var fishCache: [String:Fish] = [:]
+    struct FishCache {
+        private var cache: [String:Fish] = [:]
+        private var lock = NSLock()
+        
+        func getFish(_ uid: String) -> Fish? {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            return cache[uid]
+        }
+        
+        mutating func setFish(_ fish: Fish) {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            cache[fish.uid] = fish
+        }
+        
+        mutating func batchSetFish(_ fishList: [Fish]) {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            for fish in fishList {
+                cache[fish.uid] = fish
+            }
+        }
+        
+        mutating func removeFish(_ uid: String) {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            cache.removeValue(forKey: uid)
+        }
+        
+        mutating func batchRemoveFish(_ uids: [String]) {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            for uid in uids {
+                cache.removeValue(forKey: uid)
+            }
+        }
+        
+        mutating func clear() {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            cache.removeAll()
+        }
+        
+    }
+    
+    private static var fishCache = FishCache()
+    
+    static func getFishFromCache(_ uid: String) -> Fish? {
+        return fishCache.getFish(uid)
+    }
     
     static func searchFish(
         fuzzy: String? = nil,
@@ -35,7 +97,7 @@ struct Storage {
             Log.error("Storage.searchFish - fail: delectFish request failed, err=\(err)")
         }
         for uid in uids {
-            if let fish = fishCache[uid] {
+            if let fish = fishCache.getFish(uid) {
                 ret[fish.uid] = fish
                 continue
             }
@@ -55,7 +117,7 @@ struct Storage {
                     continue
                 }
                 ret[fish.uid] = fish
-                fishCache[fish.uid] = fish
+                fishCache.setFish(fish)
             case .failure(let err):
                 Log.warning("Storage.searchFish - ignore one fish: pickFish request failed, err=\(err), fish.uid=\(uid)")
             }
@@ -64,7 +126,7 @@ struct Storage {
     }
     
     static func pickFish(uid: String) async -> Fish? {
-        if let fish = fishCache[uid] {
+        if let fish = fishCache.getFish(uid) {
             return fish
         }
         let result = await DataService.pickFish(uid: uid)
@@ -81,7 +143,7 @@ struct Storage {
                 Log.error("Storage.pickFish - failed: parse fishResp to Fish failed, fish.uid=\(uid)")
                 return nil
             }
-            fishCache[fish.uid] = fish
+            fishCache.setFish(fish)
             return fish
         case .failure(let err):
             Log.error("Storage.pickFish - failed: pickFish request failed, err=\(err), fish.uid=\(uid)")
@@ -104,7 +166,7 @@ struct Storage {
                 Log.error("Storage.pickFish - failed: parse fishResp to Fish failed, fish.identity=\(identity)")
                 return nil
             }
-            fishCache[fish.uid] = fish
+            fishCache.setFish(fish)
             return fish
         case .failure(let err):
             Log.error("Storage.pickFish - failed: pickFish request failed, err=\(err), fish.identity=\(identity)")
@@ -140,7 +202,7 @@ struct Storage {
                 Log.error("Storage.addFish - fail: resp.data=nil, resp.code=\(resp.code)")
                 return nil
             }
-            fishCache.removeValue(forKey: uid)
+            fishCache.removeFish(uid)
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -171,7 +233,7 @@ struct Storage {
                 Log.error("Storage.modifyFish - fail: resp is not ok, resp.code=\(resp.code)")
                 return false
             }
-            fishCache.removeValue(forKey: uid)
+            fishCache.removeFish(uid)
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -189,9 +251,7 @@ struct Storage {
             if !resp.isOk() {
                 Log.error("Storage.removeFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            for uid in uids {
-                fishCache.removeValue(forKey: uid)
-            }
+            fishCache.batchRemoveFish(uids)
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -207,9 +267,7 @@ struct Storage {
             if !resp.isOk() {
                 Log.error("Storage.markFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            for uid in uids {
-                fishCache.removeValue(forKey: uid)
-            }
+            fishCache.batchRemoveFish(uids)
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -225,9 +283,7 @@ struct Storage {
             if !resp.isOk() {
                 Log.error("Storage.unMarkFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            for uid in uids {
-                fishCache.removeValue(forKey: uid)
-            }
+            fishCache.batchRemoveFish(uids)
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -243,9 +299,7 @@ struct Storage {
             if !resp.isOk() {
                 Log.error("Storage.lockFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            for uid in uids {
-                fishCache.removeValue(forKey: uid)
-            }
+            fishCache.batchRemoveFish(uids)
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -261,9 +315,7 @@ struct Storage {
             if !resp.isOk() {
                 Log.error("Storage.unLockFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            for uid in uids {
-                fishCache.removeValue(forKey: uid)
-            }
+            fishCache.batchRemoveFish(uids)
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
@@ -279,9 +331,7 @@ struct Storage {
             if !resp.isOk() {
                 Log.error("Storage.pinFish - fail: resp is not ok, resp.code=\(resp.code)")
             }
-            for uid in uids {
-                fishCache.removeValue(forKey: uid)
-            }
+            fishCache.batchRemoveFish(uids)
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }

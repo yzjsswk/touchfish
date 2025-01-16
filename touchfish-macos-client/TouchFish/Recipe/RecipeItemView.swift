@@ -6,8 +6,6 @@ struct RecipeItemView: View {
     
     @State var isSelected: Bool = false
     
-    @State var unreadMessageCount = Topic.unreadMsgCount
-    
     var body: some View {
         HStack(spacing: 10) {
             HStack {
@@ -37,22 +35,10 @@ struct RecipeItemView: View {
                 }
             }
             Spacer()
-            if recipe.bundleId == "com.touchfish.Topics", unreadMessageCount > 0 {
-                ZStack {
-                    Image(systemName: "circle.fill")
-                        .resizable()
-                        .frame(width: 30, height: 30)
-                        .foregroundStyle(Constant.unreadMessageTipColor)
-                    Text(String(unreadMessageCount))
-                        .font(.custom("Menlo", size: 12))
-                        .foregroundStyle(.white)
-                }
-            }
         }
         .padding(5)
         .frame(width: Constant.mainWidth-30, height: isSelected ? Constant.recipeItemSelectedHeight : Constant.recipeItemHeight)
         .background(isSelected ? "F0F0F3".color : Color.clear)
-//        .saturation(1.0)
         .cornerRadius(10)
         .onHover { isHovered in
             withAnimation(.spring(duration: 0.1)) {
@@ -61,9 +47,6 @@ struct RecipeItemView: View {
         }
         .onTapGesture(count: 1) {
             RecipeManager.goToRecipe(recipeId: recipe.bundleId)
-        }
-        .onAppear {
-            unreadMessageCount = Topic.unreadMsgCount
         }
     }
     

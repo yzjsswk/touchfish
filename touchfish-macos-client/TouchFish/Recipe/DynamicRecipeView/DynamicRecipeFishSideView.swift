@@ -15,12 +15,15 @@ struct DynamicRecipeFishSideView: View {
     @State var sortField: String = "Update Time"
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 3) {
             DynamicRecipeFishSideSearchView(searchText: $searchText)
             ScrollView(showsIndicators: false) {
-                ForEach(fishList, id: \.uid) { fish in
-                    DynamicRecipeFishSideItemView(fish: fish, hoveredFish: $hoveredFish, selectedFish: $selectedFish)
+                LazyVStack {
+                    ForEach(fishList, id: \.uid) { fish in
+                        DynamicRecipeFishSideItemView(fish: fish, hoveredFish: $hoveredFish, selectedFish: $selectedFish)
+                    }
                 }
+                .padding(.top, 5)
             }
             ZStack {
                 RoundedRectangle(cornerRadius: 5)
@@ -48,13 +51,36 @@ struct DynamicRecipeFishSideView: View {
             Task {
                 let fish = await Storage.searchFish()
                 self.fishList = fish.values.sorted(by: { $0.updateTime == $1.updateTime ? $0.uid > $1.uid : $0.updateTime > $1.updateTime })
-                self.tags.removeAll()
+                var newTags: [String:Bool] = [:]
                 if let stats = await Storage.countFish() {
                     let tags = stats.tagCount.keys.filter { !$0.isEmpty }
                     for tag in tags {
-                        self.tags[tag] = false
+                        if let selected = self.tags[tag] {
+                            newTags[tag] = selected
+                        } else {
+                            newTags[tag] = false
+                        }
                     }
                 }
+                self.tags = newTags
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .ShouldRefreshFish)) { _ in
+            Task {
+                let fish = await Storage.searchFish()
+                self.fishList = fish.values.sorted(by: { $0.updateTime == $1.updateTime ? $0.uid > $1.uid : $0.updateTime > $1.updateTime })
+                var newTags: [String:Bool] = [:]
+                if let stats = await Storage.countFish() {
+                    let tags = stats.tagCount.keys.filter { !$0.isEmpty }
+                    for tag in tags {
+                        if let selected = self.tags[tag] {
+                            newTags[tag] = selected
+                        } else {
+                            newTags[tag] = false
+                        }
+                    }
+                }
+                self.tags = newTags
             }
         }
         .onChange(of: searchText) {
@@ -332,7 +358,7 @@ struct DynamicRecipeFishSideItemView: View {
         .padding(5)
         .background(isSelected ? "C6C7F4".color : (isHovered ? "EEF2FD".color : .clear))
         .cornerRadius(5)
-        .frame(height: 20)
+        .frame(height: 19)
         .onHover { isHovered in
             self.isHovered = isHovered
             TouchFishApp.mainWindow.isMovableByWindowBackground = !isHovered
