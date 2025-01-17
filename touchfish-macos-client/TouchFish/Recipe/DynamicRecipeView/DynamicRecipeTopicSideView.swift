@@ -9,11 +9,13 @@ struct DynamicRecipeTopicSideView: View {
         VStack {
             if let selectedTopic = selectedTopic {
                 DynamicRecipeTopicSideTopicItemView(topic: selectedTopic, unreadMessageCount: selectedTopic.unreadCount, isSelected: true)
+                .id(selectedTopic.uid)
                 .onTapGesture {
                     withAnimation {
                         self.selectedTopic = nil
                     }
                 }
+                .transition(.move(edge: .bottom))
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 7) {
                         ForEach(selectedTopic.messages.sorted(by: { $0.createTime > $1.createTime }), id: \.uid) { message in
@@ -26,11 +28,13 @@ struct DynamicRecipeTopicSideView: View {
                 ScrollView(showsIndicators: false) {
                     ForEach(topics, id: \.uid) { topic in
                         DynamicRecipeTopicSideTopicItemView(topic: topic, unreadMessageCount: topic.unreadCount)
+                        .id(topic.uid)
                         .onTapGesture {
                             withAnimation {
                                 self.selectedTopic = topic
                             }
                         }
+                        .transition(.move(edge: .top))
                     }
                 }
             }
@@ -61,6 +65,8 @@ struct DynamicRecipeTopicSideMessageItemView: View {
     
     var message: Message
     var topicUid: String
+    
+    @State var readEnable: Bool = false
     
     var backgroundColor: Color {
         switch message.level {
@@ -117,8 +123,13 @@ struct DynamicRecipeTopicSideMessageItemView: View {
             .padding(5)
         }
         .padding(.horizontal, 6)
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                readEnable = true
+            }
+        }
         .onHover { isHovered in
-            if isHovered && !message.hasRead {
+            if isHovered && !message.hasRead && readEnable {
                 Task {
                     let _ = await Storage.readMessage(topicUid: topicUid, messageUid: message.uid)
                     NotificationCenter.default.post(name: .ShouldRefreshTopic, object: nil)

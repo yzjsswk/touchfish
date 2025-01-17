@@ -21,7 +21,8 @@ async fn search_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<SearchFish
     let tags = req.tags.as_ref().map(|x| x.into_iter().map(|y| y.as_str()).collect::<Vec<&str>>());
     fish_api.search_fish(
         fuzzy, identitys.as_ref(), req.fish_types.as_ref(), desc,
-        tags.as_ref(), req.is_marked, req.is_locked, req.passed_hours,
+        tags.as_ref(), req.is_marked, req.is_locked, 
+        req.create_after, req.create_before, req.update_after, req.update_before,
         req.page_num, req.page_size,
     ).await.to_resp()
 }
@@ -34,7 +35,8 @@ async fn delect_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<DelectFish
     let tags = req.tags.as_ref().map(|x| x.into_iter().map(|y| y.as_str()).collect::<Vec<&str>>());
     fish_api.detect_fish(
         fuzzy, identitys.as_ref(), req.fish_types.as_ref(), desc,
-        tags.as_ref(), req.is_marked, req.is_locked, req.passed_hours,
+        tags.as_ref(), req.is_marked, req.is_locked,
+        req.create_after, req.create_before, req.update_after, req.update_before,
     ).await.to_resp()
 }
 

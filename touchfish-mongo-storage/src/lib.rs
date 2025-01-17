@@ -65,7 +65,9 @@ mod tests {
     #[tokio::test]
     async fn detect_fish_works() -> YRes<()> {
         let db = MongoStorage::new("mongodb://mongodb:mongodb@localhost:27017").await?;
-        let uids = db.detect_fish_by_conditions(Some("lo"), None, None, None, None, Some(&vec!["aaa"]), None, None, None).await?;
+        let uids = db.detect_fish_by_conditions(
+            Some("lo"), None, None, None, None, Some(&vec!["aaa"]), None, None, None, None, None, None,
+        ).await?;
         dbg!(uids);
         Ok(())
     }

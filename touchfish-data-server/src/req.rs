@@ -10,7 +10,10 @@ pub struct SearchFishReq {
     pub tags: Option<Vec<String>>,
     pub is_marked: Option<bool>,
     pub is_locked: Option<bool>,
-    pub passed_hours: Option<i32>,
+    pub create_after: Option<i64>,
+    pub create_before: Option<i64>,
+    pub update_after: Option<i64>,
+    pub update_before: Option<i64>,
     pub page_num: Option<u64>,
     pub page_size: Option<u64>,
 }
@@ -24,7 +27,10 @@ pub struct DelectFishReq {
     pub tags: Option<Vec<String>>,
     pub is_marked: Option<bool>,
     pub is_locked: Option<bool>,
-    pub passed_hours: Option<i32>,
+    pub create_after: Option<i64>,
+    pub create_before: Option<i64>,
+    pub update_after: Option<i64>,
+    pub update_before: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

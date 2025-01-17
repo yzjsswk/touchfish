@@ -274,7 +274,10 @@ struct DataService {
         tags: [String]? = nil,
         isMarked: Bool? = nil,
         isLocked: Bool? = nil,
-        passedHours: Int? = nil,
+        createAfter: Int64? = nil,
+        createBefore: Int64? = nil,
+        updateAfter: Int64? = nil,
+        updateBefore: Int64? = nil,
         pageNum: Int? = 0,
         pageSize: Int? = 10
     ) async -> Result<DataServiceResponse<SearchFishResp>, AFError> {
@@ -287,7 +290,10 @@ struct DataService {
             "tags": tags,
             "is_marked": isMarked,
             "is_locked": isLocked,
-            "passed_hours": passedHours,
+            "create_after": createAfter,
+            "create_before": createBefore,
+            "update_after": updateAfter,
+            "update_before": updateBefore,
             "page_num": pageNum,
             "page_size": pageSize,
         ]
@@ -304,7 +310,10 @@ struct DataService {
         tags: [String]? = nil,
         isMarked: Bool? = nil,
         isLocked: Bool? = nil,
-        passedHours: Int? = nil
+        createAfter: Int64? = nil,
+        createBefore: Int64? = nil,
+        updateAfter: Int64? = nil,
+        updateBefore: Int64? = nil
     ) async -> Result<DataServiceResponse<[String]>, AFError> {
         let url = DataService.urlPrefix + "/fish/delect"
         let para: [String:Any?] = [
@@ -315,7 +324,10 @@ struct DataService {
             "tags": tags,
             "is_marked": isMarked,
             "is_locked": isLocked,
-            "passed_hours": passedHours
+            "create_after": createAfter,
+            "create_before": createBefore,
+            "update_after": updateAfter,
+            "update_before": updateBefore,
         ]
         return await AF.request(
             url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default

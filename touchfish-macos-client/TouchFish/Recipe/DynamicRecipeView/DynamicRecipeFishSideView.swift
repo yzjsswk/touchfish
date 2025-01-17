@@ -48,27 +48,14 @@ struct DynamicRecipeFishSideView: View {
         }
         .padding(5)
         .onAppear {
-            Task {
-                let fish = await Storage.searchFish()
-                self.fishList = fish.values.sorted(by: { $0.updateTime == $1.updateTime ? $0.uid > $1.uid : $0.updateTime > $1.updateTime })
-                var newTags: [String:Bool] = [:]
-                if let stats = await Storage.countFish() {
-                    let tags = stats.tagCount.keys.filter { !$0.isEmpty }
-                    for tag in tags {
-                        if let selected = self.tags[tag] {
-                            newTags[tag] = selected
-                        } else {
-                            newTags[tag] = false
-                        }
-                    }
-                }
-                self.tags = newTags
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .ShouldRefreshFish)) { _ in
+            Storage.incrementalUpdate()
             Task {
-                let fish = await Storage.searchFish()
-                self.fishList = fish.values.sorted(by: { $0.updateTime == $1.updateTime ? $0.uid > $1.uid : $0.updateTime > $1.updateTime })
+                let fish = await Storage.searchFish().values.sorted(by: { $0.updateTime == $1.updateTime ? $0.uid > $1.uid : $0.updateTime > $1.updateTime })
                 var newTags: [String:Bool] = [:]
                 if let stats = await Storage.countFish() {
                     let tags = stats.tagCount.keys.filter { !$0.isEmpty }
@@ -80,7 +67,10 @@ struct DynamicRecipeFishSideView: View {
                         }
                     }
                 }
-                self.tags = newTags
+                withAnimation(.easeInOut(duration: 0.4)) {
+                    self.fishList = fish
+                    self.tags = newTags
+                }
             }
         }
         .onChange(of: searchText) {

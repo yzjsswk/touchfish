@@ -255,7 +255,8 @@ impl FishStorage for MongoStorage {
     async fn page_fish_by_conditions(
         &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, count: Option<i32>,
         fish_types: Option<&Vec<FishType>>, desc: Option<&str>, tags: Option<&Vec<&str>>, 
-        is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
+        is_marked: Option<bool>, is_locked: Option<bool>, create_after: Option<i64>,
+        create_before: Option<i64>, update_after: Option<i64>, update_before: Option<i64>,
         page_num: u64, page_size: u64,
     ) -> YRes<Page<Fish>> {
         let mut filter = doc! { "expire_time": Bson::Null };
@@ -284,9 +285,20 @@ impl FishStorage for MongoStorage {
         if let Some(is_locked) = is_locked {
             filter.insert("is_locked", is_locked);
         }
-        if let Some(passed_hours) = passed_hours {
-            let bound_time_ts = YTime::now().duration((passed_hours as i64) * -3600).timestamp();
-            let bound_time = DateTime::from_millis(bound_time_ts);
+        if let Some(create_after) = create_after {
+            let bound_time = DateTime::from_millis(create_after);
+            filter.insert("create_time", doc! { "$gte": bound_time });
+        }
+        if let Some(create_before) = create_before {
+            let bound_time = DateTime::from_millis(create_before);
+            filter.insert("create_time", doc! { "$lt": bound_time });
+        }
+        if let Some(update_after) = update_after {
+            let bound_time = DateTime::from_millis(update_after);
+            filter.insert("update_time", doc! { "$gte": bound_time });
+        }
+        if let Some(update_before) = update_before {
+            let bound_time = DateTime::from_millis(update_before);
             filter.insert("update_time", doc! { "$lt": bound_time });
         }
         let total_count = self.collection__fish().count_documents(filter.clone()).await.map_err(|e| {
@@ -326,7 +338,8 @@ impl FishStorage for MongoStorage {
     async fn detect_fish_by_conditions(
         &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, count: Option<i32>,
         fish_types: Option<&Vec<FishType>>, desc: Option<&str>, tags: Option<&Vec<&str>>, 
-        is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
+        is_marked: Option<bool>, is_locked: Option<bool>, create_after: Option<i64>,
+        create_before: Option<i64>, update_after: Option<i64>, update_before: Option<i64>,
     ) -> YRes<Vec<String>> {
         let mut filter = doc! { "expire_time": Bson::Null };
         if let Some(fuzzy) = fuzzy {
@@ -354,9 +367,20 @@ impl FishStorage for MongoStorage {
         if let Some(is_locked) = is_locked {
             filter.insert("is_locked", is_locked);
         }
-        if let Some(passed_hours) = passed_hours {
-            let bound_time_ts = YTime::now().duration((passed_hours as i64) * -3600).timestamp();
-            let bound_time = DateTime::from_millis(bound_time_ts);
+        if let Some(create_after) = create_after {
+            let bound_time = DateTime::from_millis(create_after);
+            filter.insert("create_time", doc! { "$gte": bound_time });
+        }
+        if let Some(create_before) = create_before {
+            let bound_time = DateTime::from_millis(create_before);
+            filter.insert("create_time", doc! { "$lt": bound_time });
+        }
+        if let Some(update_after) = update_after {
+            let bound_time = DateTime::from_millis(update_after);
+            filter.insert("update_time", doc! { "$gte": bound_time });
+        }
+        if let Some(update_before) = update_before {
+            let bound_time = DateTime::from_millis(update_before);
             filter.insert("update_time", doc! { "$lt": bound_time });
         }
         let sort = doc! { "update_time": -1 , "_id": -1 };

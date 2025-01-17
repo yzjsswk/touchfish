@@ -1,4 +1,5 @@
 import SwiftUI
+import Alamofire
 
 struct Storage {
     
@@ -60,7 +61,87 @@ struct Storage {
         
     }
     
+    struct Version {
+        private var version = Int64(Date().timeIntervalSince1970 * 1000)
+        private var lock = NSLock()
+        
+        func getLatestVersion() -> Int64 {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            return version
+        }
+        
+        mutating func updateVersion() {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            version = Int64(Date().timeIntervalSince1970 * 1000)
+        }
+        
+    }
+    
     private static var fishCache = FishCache()
+    private static var version: Version? = nil
+    
+    private static let incrementalUpdateQueue = DispatchQueue(label: "incremental_update_fish_cache")
+    
+    static func incrementalUpdate() {
+        incrementalUpdateQueue.async {
+            let semaphore = DispatchSemaphore(value: 0)
+            Task {
+                let result: Result<DataServiceResponse<[String]>, AFError>
+                if var version = self.version {
+                    let lastUpdateTime = version.getLatestVersion()
+                    version.updateVersion()
+                    result = await DataService.delectFish(updateAfter: lastUpdateTime)
+                } else {
+                    self.version = Version()
+                    result = await DataService.delectFish()
+                }
+                var uids: [String] = []
+                switch result {
+                case .success(let resp):
+                    if !resp.isOk() {
+                        Log.error("Storage.incrementalUpdate - fail: delectFish.resp.code is not ok, resp.code=\(resp.code)")
+                        return
+                    }
+                    guard let data = resp.data else {
+                        Log.error("Storage.incrementalUpdate - fail: delectFish.resp.data=nil, resp.code=\(resp.code)")
+                        return
+                    }
+                    uids = data
+                case .failure(let err):
+                    Log.error("Storage.incrementalUpdate - fail: delectFish request failed, err=\(err)")
+                }
+                for uid in uids {
+                    let result = await DataService.pickFish(uid: uid)
+                    switch result {
+                    case .success(let resp):
+                        if !resp.isOk() {
+                            Log.warning("Storage.incrementalUpdate - ignore one fish: pickFish.resp.code is not ok, resp.code=\(resp.code), fish.uid=\(uid)")
+                            continue
+                        }
+                        guard let data = resp.data else {
+                            Log.warning("Storage.incrementalUpdate - ignore one fish: pickFish.resp.data=nil, resp.code=\(resp.code), fish.uid=\(uid)")
+                            continue
+                        }
+                        guard let fish = data.toEntity() else {
+                            Log.warning("Storage.incrementalUpdate - ignore one fish: parse fishResp to Fish failed, fish.uid=\(uid)")
+                            continue
+                        }
+                        fishCache.setFish(fish)
+                    case .failure(let err):
+                        Log.warning("Storage.incrementalUpdate - ignore one fish: pickFish request failed, err=\(err), fish.uid=\(uid)")
+                    }
+                }
+                semaphore.signal()
+            }
+            semaphore.wait()
+        }
+    }
     
     static func getFishFromCache(_ uid: String) -> Fish? {
         return fishCache.getFish(uid)
@@ -76,10 +157,20 @@ struct Storage {
         isLocked: Bool? = nil,
         passedHours: Int? = nil
     ) async -> [String:Fish] {
+        var updateBefore: Int64? = nil
+        if let passedHours = passedHours {
+            let now = Date()
+            let hoursAgoDate = Calendar.current.date(byAdding: .hour, value: -passedHours, to: now)
+            guard let hoursAgoDate = hoursAgoDate else {
+                Log.error("Storage.searchFish - fail: pass passedHours to timestamp failed, passedHours=\(passedHours)")
+                return [:]
+            }
+            updateBefore = Int64(hoursAgoDate.timeIntervalSince1970 * 1000)
+        }
         var ret: [String:Fish] = [:]
         let result = await DataService.delectFish(
             fuzzy: fuzzy, identitys: identitys, fishTypes: fishTypes, description: description, tags: tags,
-            isMarked: isMarked, isLocked: isLocked, passedHours: passedHours
+            isMarked: isMarked, isLocked: isLocked, updateBefore: updateBefore
         )
         var uids: [String] = []
         switch result {

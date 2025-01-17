@@ -32,14 +32,16 @@ pub trait FishStorage {
     async fn page_fish_by_conditions(
         &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, count: Option<i32>,
         fish_types: Option<&Vec<FishType>>, desc: Option<&str>, tags: Option<&Vec<&str>>, 
-        is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
+        is_marked: Option<bool>, is_locked: Option<bool>, create_after: Option<i64>,
+        create_before: Option<i64>, update_after: Option<i64>, update_before: Option<i64>,
         page_num: u64, page_size: u64,
     ) -> YRes<Page<Fish>>;
 
     async fn detect_fish_by_conditions(
         &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, count: Option<i32>,
         fish_types: Option<&Vec<FishType>>, desc: Option<&str>, tags: Option<&Vec<&str>>, 
-        is_marked: Option<bool>, is_locked: Option<bool>, passed_hours: Option<i32>, 
+        is_marked: Option<bool>, is_locked: Option<bool>, create_after: Option<i64>,
+        create_before: Option<i64>, update_after: Option<i64>, update_before: Option<i64>,
     ) -> YRes<Vec<String>>;
 
     async fn count_fish(&self) -> YRes<Statistics>;

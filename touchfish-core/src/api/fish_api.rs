@@ -80,26 +80,28 @@ impl<S> FishApi<S> where S: FishStorage {
     }
 
     pub async fn search_fish(
-        &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, 
-        fish_types: Option<&Vec<FishType>>, desc: Option<&str>,
+        &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, fish_types: Option<&Vec<FishType>>, desc: Option<&str>,
         tags: Option<&Vec<&str>>, is_marked: Option<bool>, is_locked: Option<bool>, 
-        passed_hours: Option<i32>, page_num: Option<u64>, page_size: Option<u64>, 
+        create_after: Option<i64>, create_before: Option<i64>, update_after: Option<i64>, update_before: Option<i64>,
+        page_num: Option<u64>, page_size: Option<u64>, 
     ) -> YRes<Page<Fish>> {
         self.fish_service.search_fish(
-            fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked, passed_hours, page_num, page_size,
+            fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked,
+            create_after, create_before, update_after, update_before,
+            page_num, page_size,
         ).await.trace(
             ctx!("search fish: self.fish_service.search_fish failed")
         )
     }
 
     pub async fn detect_fish(
-        &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, 
-        fish_types: Option<&Vec<FishType>>, desc: Option<&str>,
-        tags: Option<&Vec<&str>>, is_marked: Option<bool>, is_locked: Option<bool>,
-        passed_hours: Option<i32>, 
+        &self, fuzzy: Option<&str>, identitys: Option<&Vec<&str>>, fish_types: Option<&Vec<FishType>>,
+        desc: Option<&str>, tags: Option<&Vec<&str>>, is_marked: Option<bool>, is_locked: Option<bool>,
+        create_after: Option<i64>, create_before: Option<i64>, update_after: Option<i64>, update_before: Option<i64>,
     ) -> YRes<Vec<String>> {
         self.fish_service.detect_fish(
-            fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked, passed_hours,
+            fuzzy, identitys, fish_types, desc, tags, is_marked, is_locked,
+            create_after, create_before, update_after, update_before,
         ).await.trace(
             ctx!("detect fish: self.fish_service.detect_fish failed")
         )
