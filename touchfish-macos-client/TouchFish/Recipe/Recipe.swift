@@ -68,93 +68,90 @@ struct Recipe {
     
 }
 
-struct RecipeAction: Codable {
+enum RecipeAction: Codable {
     
-    var type: ActionType
-    var arguments: [Argument] = []
+    case RunShellCommand(command: String, arguments: [String], refreshView: Bool)
+    case CopyToClipboard(content: String)
+    case BackToMenu
+    case HideTouchFish
+    case OpenUrl(url: String)
+    case ActiveExternalApp(bundleId: String)
+    case SetParameter(name: String, value: String)
     
     enum CodingKeys: String, CodingKey {
-        case type = "action_type"
-        case arguments = "arguments"
+        case type
+        case cmd
+        case args
+        case refreshView = "refresh_view"
+        case content
+        case url
+        case bundleId = "bundle_id"
+        case name
+        case value
     }
-    
-    enum ActionType: String, Codable {
-        case Back
-        case Hide
-        case Copy
-        case Open
-        case Show
-        case Shell
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .RunShellCommand(let command, let arguments, let refreshView):
+            try container.encode("run", forKey: .type)
+            try container.encode(command, forKey: .cmd)
+            try container.encode(arguments, forKey: .args)
+            try container.encode(refreshView, forKey: .refreshView)
+        case .CopyToClipboard(let content):
+            try container.encode("copy", forKey: .type)
+            try container.encode(content, forKey: .content)
+        case .BackToMenu:
+            try container.encode("back", forKey: .type)
+        case .HideTouchFish:
+            try container.encode("hide", forKey: .type)
+        case .OpenUrl(let url):
+            try container.encode("open_url", forKey: .type)
+            try container.encode(url, forKey: .url)
+        case .ActiveExternalApp(let bundleId):
+            try container.encode("active_app", forKey: .type)
+            try container.encode(bundleId, forKey: .bundleId)
+        case .SetParameter(let name, let value):
+            try container.encode("set_para", forKey: .type)
+            try container.encode(name, forKey: .name)
+            try container.encode(value, forKey: .value)
+        }
     }
-    
-    struct Argument: Codable {
-        var type: ArgumentType
-        var value: String?
-        
-        enum CodingKeys: String, CodingKey {
-            case type = "arg_type"
-            case value = "value"
-        }
-        
-        enum ArgumentType: String, Codable {
-            case Plain
-            case Para
-            case CommandBarText
-            case Context
-        }
-        
-        func getValue() -> String {
-            switch type {
-            case .Plain:
-                return value ?? ""
-            case .Para:
-                if let value = value {
-                    return RecipeManager.activeRecipeOriginalArg[value, default: ""]
-                }
-                return ""
-            case .CommandBarText:
-                return CommandManager.commandText
-            case .Context:
-                if let value = value {
-                    if value == "host" {
-                        return Config.enableDataServiceConfig?.host ?? ""
-                    }
-                    if value == "port" {
-                        return Config.enableDataServiceConfig?.port ?? ""
-                    }
-                    if value == "support_path" {
-                        return TouchFishApp.appSupportPath.path
-                    }
-                    return ""
-                }
-                return ""
-            }
-        }
-        
-    }
-    
-    func execute() {
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .type)
         switch type {
-        case .Back:
-            RecipeManager.goToRecipe(recipeId: nil)
-        case .Hide:
-            TouchFishApp.deactivate()
-        case .Copy:
-            if let data = arguments.first?.getValue().data(using: .utf8) {
-                Functions.copyDataToClipboard(data: data, type: .Text)
-            } else {
-                Log.warning("run recipe action: skip copy action: to copy data=nil, recipe=\(RecipeManager.activeRecipe?.bundleId ?? "nil")")
-            }
-        case .Open:
-            if let arg = arguments.first?.getValue(), arg.count > 0 {
-                // todo: browser config
-                AppleScriptRunner.openWebUrl(with: "Google Chrome", url: arg)
-            }
-        case .Show:
-            if let arg = arguments.first?.getValue(), arg.count > 0 {
-                AppleScriptRunner.showApplication(app: arg)
-            }
-        case .Shell:
+        case "run":
+            let command = try container.decode(String.self, forKey: .cmd)
+            let arguments = try container.decode([String].self, forKey: .args)
+            let refreshView = try container.decode(Bool.self, forKey: .refreshView)
+            self = .RunShellCommand(command: command, arguments: arguments, refreshView: refreshView)
+        case "copy":
+            let content = try container.decode(String.self, forKey: .content)
+            self = .CopyToClipboard(content: content)
+        case "back":
+            self = .BackToMenu
+        case "hide":
+            self = .HideTouchFish
+        case "open_url":
+            let url = try container.decode(String.self, forKey: .url)
+            self = .OpenUrl(url: url)
+        case "active_app":
+            let bundleId = try container.decode(String.self, forKey: .bundleId)
+            self = .ActiveExternalApp(bundleId: bundleId)
+        case "set_para":
+            let name = try container.decode(String.self, forKey: .name)
+            let value = try container.decode(String.self, forKey: .value)
+            self = .SetParameter(name: name, value: value)
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "invalid recipe action type: \(type)")
+        }
+    }
+
+    func execute() {
+        switch self {
+        case .RunShellCommand(let command, let arguments, let refreshView):
             guard let bundleId = RecipeManager.activeRecipe?.bundleId else {
                 Log.warning("run recipe action: skip shell action: bundleId=nil")
                 return
@@ -167,34 +164,22 @@ struct RecipeAction: Codable {
                 Log.warning("run recipe action: skip shell action: port=nil, bundleId=\(bundleId)")
                 return
             }
-            var cmd: String? = nil
-            var argments: [String] = []
-            for (index, argument) in arguments.enumerated() {
-                if index == 0 {
-                    cmd = argument.getValue()
-                } else {
-                    argments.append(argument.getValue())
-                }
-            }
-            guard let cmd = cmd else {
-                Log.warning("run recipe action: skip shell action: cmd=nil, bundleId=\(bundleId)")
-                return
-            }
-            let arguments = argments
+            var context: [String:String] = RecipeManager.activeRecipeOriginalArg
+            context["command_bar_text"] = CommandManager.commandText
             Task {
                 let executeTime = Date()
-                let result = await RecipeService(host: host, port: port).executeRecipe(bundleId: bundleId, command: cmd, arguments: arguments)
+                let result = await RecipeService(host: host, port: port).executeRecipe(bundleId: bundleId, command: command, arguments: arguments, context: context)
                 let info: DynamicRecipeViewInfo
                 var executeUid: String? = nil
                 switch result {
                 case .success(let resp):
                     if !resp.isOk() {
-                        Log.error("request recipe server to execute shell recipe action - fail: resp is not ok, resp.code=\(resp.code), host=\(host), port=\(port), bundleId=\(bundleId), command=\(cmd)")
+                        Log.error("request recipe server to execute shell recipe action - fail: resp is not ok, resp.code=\(resp.code), host=\(host), port=\(port), bundleId=\(bundleId), command=\(command)")
                         info = DynamicRecipeViewInfo(
                             type: .Error,
                             items: [DynamicRecipeViewInfo.ViewItem(
-                                    title: "Failed to start executing recipe task.",
-                                    description: String(resp.msg.prefix(2000))
+                                title: "Failed to start executing recipe task.",
+                                description: String(resp.msg.prefix(2000))
                             )]
                         )
                     } else {
@@ -205,19 +190,19 @@ struct RecipeAction: Codable {
                             info = DynamicRecipeViewInfo(
                                 type: .Error,
                                 items: [DynamicRecipeViewInfo.ViewItem(
-                                        title: "Lose task.",
-                                        description: "server did not return a recipe execute uid"
+                                    title: "Lose task.",
+                                    description: "server did not return a recipe execute uid"
                                 )]
                             )
                         }
                     }
                 case .failure(let err):
-                    Log.error("request recipe server to execute shell recipe action - fail: request recipe server failed, host=\(host), port=\(port), err=\(err), bundleId=\(bundleId), command=\(cmd)")
+                    Log.error("request recipe server to execute shell recipe action - fail: request recipe server failed, host=\(host), port=\(port), err=\(err), bundleId=\(bundleId), command=\(command)")
                     info = DynamicRecipeViewInfo(
                         type: .Error,
                         items: [DynamicRecipeViewInfo.ViewItem(
-                                title: "Request server failed.",
-                                description: "host=\(host), port=\(port) \n err=\(err)"
+                            title: "Request server failed.",
+                            description: "host=\(host), port=\(port) \n err=\(err)"
                         )]
                     )
                 }
@@ -230,16 +215,33 @@ struct RecipeAction: Codable {
                 }
                 if let executeUid = executeUid {
                     Task {
-                        await fetchExecuteResult(host: host, port: port, executeUid: executeUid, executeTime: executeTime, fetchCount: 0)
+                        await fetchExecuteResult(host: host, port: port, executeUid: executeUid, executeTime: executeTime, refreshView: refreshView, fetchCount: 0)
                     }
                 }
             }
+        case .CopyToClipboard(let content):
+            if let data = content.data(using: .utf8) {
+                Functions.copyDataToClipboard(data: data, type: .Text)
+            } else {
+                Log.warning("run recipe action: skip copy action: got copy data=nil, recipe=\(RecipeManager.activeRecipe?.bundleId ?? "nil")")
+            }
+        case .BackToMenu:
+            RecipeManager.goToRecipe(recipeId: nil)
+        case .HideTouchFish:
+            TouchFishApp.deactivate()
+        case .OpenUrl(let url):
+            // todo: browser config
+            AppleScriptRunner.openWebUrl(with: "Google Chrome", url: url)
+        case .ActiveExternalApp(let bundleId):
+            AppleScriptRunner.showApplication(app: bundleId)
+        case .SetParameter(let name, let value):
+            RecipeManager.modifyArg(key: name, value: value)
         }
     }
     
 }
 
-func fetchExecuteResult(host: String, port: String, executeUid: String, executeTime: Date, fetchCount: Int) async {
+func fetchExecuteResult(host: String, port: String, executeUid: String, executeTime: Date, refreshView: Bool, fetchCount: Int) async {
     let info: DynamicRecipeViewInfo
     var timeCost: Int? = nil
     var refresh = true
@@ -271,7 +273,7 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
                 if data.status == .Running {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                         Task {
-                            await fetchExecuteResult(host: host, port: port, executeUid: executeUid, executeTime: executeTime, fetchCount: fetchCount+1)
+                            await fetchExecuteResult(host: host, port: port, executeUid: executeUid, executeTime: executeTime, refreshView: refreshView, fetchCount: fetchCount+1)
                         }
                     }
                     if fetchCount % 5 == 0 {
@@ -292,7 +294,7 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
                     refresh = false
                     DispatchQueue.main.asyncAfter(deadline: .now() + getRefreshInterval(fetchCount: fetchCount)) {
                         Task {
-                            await fetchExecuteResult(host: host, port: port, executeUid: executeUid, executeTime: executeTime, fetchCount: fetchCount+1)
+                            await fetchExecuteResult(host: host, port: port, executeUid: executeUid, executeTime: executeTime, refreshView: refreshView, fetchCount: fetchCount+1)
                         }
                     }
                 } else {
@@ -316,7 +318,7 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
             )]
         )
     }
-    if !refresh {
+    if !refresh || !refreshView {
         return
     }
     if let timeCost = timeCost {

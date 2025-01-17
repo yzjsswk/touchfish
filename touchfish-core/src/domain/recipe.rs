@@ -49,9 +49,31 @@ fn default_options() -> Vec<String> {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct RecipeAction {
-    pub action_type: RecipeActionType,
-    pub arguments: Vec<RecipeActionArg>,
+#[serde(tag="type")]
+pub enum RecipeAction {
+    #[serde(rename = "run")]
+    RunShellCommand { 
+        cmd: String,
+        args: Vec<String>,
+        #[serde(default = "default_refresh_view")]
+        refresh_view: bool,
+    },
+    #[serde(rename = "copy")]
+    CopyToClipboard { content: String },
+    #[serde(rename = "back")]
+    BackToMenu,
+    #[serde(rename = "hide")]
+    HideTouchFish,
+    #[serde(rename = "open_url")]
+    OpenUrl { url: String },
+    #[serde(rename = "active_app")]
+    ActiveExternalApp { bundle_id: String },
+    #[serde(rename = "set_para")]
+    SetParameter { name: String, value: String },
+}
+
+fn default_refresh_view() -> bool {
+    true
 }
 
 #[yfunc]
@@ -68,22 +90,4 @@ pub enum RecipeParaInputer {
     Choice,
     Check,
     Slide,
-}
-
-#[yfunc]
-#[derive(Serialize, Deserialize, Debug, EnumString, Display, PartialEq, Eq, Hash, Clone, Copy)]
-pub enum RecipeActionType {
-    Back, Hide, Copy, Open, Show, Shell,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct RecipeActionArg {
-    pub arg_type: RecipeActionArgType,
-    pub value: Option<String>,
-}
-
-#[yfunc]
-#[derive(Serialize, Deserialize, Debug, EnumString, Display, PartialEq, Eq, Hash, Clone, Copy)]
-pub enum RecipeActionArgType {
-    Plain, Para, CommandBarText, Context,
 }

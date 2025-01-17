@@ -123,13 +123,14 @@ struct RecipeService {
     }
     
     func executeRecipe(
-        bundleId: String, command: String, arguments: [String]
+        bundleId: String, command: String, arguments: [String], context: [String:String]
     ) async -> Result<RecipeServiceResponse<String>, AFError> {
         let url = urlPrefix + "/recipe/execute"
         let para: [String:Any?] = [
             "bundle_id": bundleId,
             "command": command,
             "args": arguments,
+            "context": context,
         ]
         return await AF.request(
             url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default

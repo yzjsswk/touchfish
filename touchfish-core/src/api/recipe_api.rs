@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{Recipe, RecipeCache, RecipeExecuteResult, RecipeService};
 use yfunc_rust::prelude::*;
@@ -21,8 +21,8 @@ impl<C> RecipeApi<C> where C: RecipeCache+Sync+Send+'static {
         )
     }
 
-    pub async fn execute(&self, bundle_id: &str, command: &str, args: &Vec<String>) -> YRes<String> {
-        Arc::clone(&self.recipe_service).execute(bundle_id, command, args).await.trace(
+    pub async fn execute(&self, bundle_id: &str, command: &str, args: &Vec<String>, context: &HashMap<String, String>) -> YRes<String> {
+        Arc::clone(&self.recipe_service).execute(bundle_id, command, args, context).await.trace(
             ctx!("execute recipe: self.recipe_service.execute failed")
         )
     }

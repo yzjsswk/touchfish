@@ -20,9 +20,7 @@ async fn list_recipe(recipe_api: Data<RecipeApi<RedisCache>>) -> impl Responder 
 
 #[post("/recipe/execute")]
 async fn execute_recipe(recipe_api: Data<RecipeApi<RedisCache>>, req: Json<ExecuteRecipeReq>) -> impl Responder {
-    recipe_api.execute(
-        &req.bundle_id, &req.command, &req.args,
-    ).await.to_resp()
+    recipe_api.execute(&req.bundle_id, &req.command, &req.args, &req.context).await.to_resp()
 }
 
 #[get("/recipe/fetch_result/{execute_uid}")]

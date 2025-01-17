@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use mongodb::bson::{doc, oid::ObjectId, Bson, DateTime};
 use touchfish_core::{DataInfo, Fish, FishStorage, FishType, Statistics};
-use yfunc_rust::{prelude::*, Page, YBytes, YTime};
+use yfunc_rust::{prelude::*, Page, YBytes};
 
 use crate::model::{FishModel, StatsModel, UidModel};
 
