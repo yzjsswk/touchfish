@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use yfunc_rust::{Page, YBytes, prelude::*};
 
 use crate::{DataInfo, Fish, FishType, Statistics};
@@ -5,8 +7,8 @@ use crate::{DataInfo, Fish, FishType, Statistics};
 pub trait FishStorage {
 
     async fn add_fish(
-        &self, identity: &str, count: i32, fish_type: FishType, fish_data: YBytes, data_info: &DataInfo,
-        desc: &str, tags: &Vec<&str>, is_marked: bool, is_locked: bool, extra_info: &str,
+        &self, identity: &str, fish_type: FishType, fish_data: YBytes, data_info: &DataInfo,
+        desc: &str, tags: &Vec<&str>, is_marked: bool, is_locked: bool, extra_info: &HashMap<String, String>,
     ) -> YRes<String>;
 
     async fn expire_fish(&self, uids: &Vec<&str>) -> YRes<()>;
@@ -22,8 +24,6 @@ pub trait FishStorage {
     async fn unlock_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
     async fn pin_fish(&self, uids: &Vec<&str>) -> YRes<()>;
-
-    async fn increase_count(&self, uids: &Vec<&str>) -> YRes<()>;
 
     async fn pick_fish(&self, uid: &str) -> YRes<Option<Fish>>;
 

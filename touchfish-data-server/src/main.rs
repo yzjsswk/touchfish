@@ -61,10 +61,9 @@ async fn add_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<AddFishReq>) 
     if let Ok(fish_data) = res {
         let desc = req.desc.as_ref().map(|x| x.as_str());
         let tags = req.tags.as_ref().map(|x| x.into_iter().map(|y| y.as_str()).collect::<Vec<&str>>());
-        let extra_info = req.extra_info.as_ref().map(|x| x.as_str());
         return fish_api.add_fish(
             req.fish_type, fish_data, desc, tags.as_ref(),
-            req.is_marked, req.is_locked, extra_info,
+            req.is_marked, req.is_locked, &req.extra_info,
         ).await.to_resp()
     }
     return res.upgrade(

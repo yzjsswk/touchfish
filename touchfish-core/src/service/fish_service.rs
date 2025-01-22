@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use image::GenericImageView;
 use yfunc_rust::{prelude::*, Page, Unique, YBytes};
 
@@ -15,55 +17,16 @@ impl<S> FishService<S> where S: FishStorage {
 
     pub async fn add_fish(
         &self, fish_type: FishType, fish_data: YBytes, desc: Option<&str>, tags: Option<&Vec<&str>>,
-        is_marked: Option<bool>, is_locked: Option<bool>, extra_info: Option<&str>,
+        is_marked: Option<bool>, is_locked: Option<bool>, extra_info: &HashMap<String, String>,
     ) -> YRes<String> {
         let identity = fish_data.md5();
         let existed_fish = self.storage.pick_fish_by_identity(&identity).await.trace(
             ctx!("add fish -> check data exists: self.storage.pick_fish_by_identity failed", identity)
         )?;
         if let Some(existed_fish) = existed_fish {
-            if fish_type != existed_fish.fish_type {
-                return Err(err!("DATA_EXIST": "data already exists and the type of fish is inconsistent"))
-            }
-            if let Some(desc) = desc {
-                if *desc != existed_fish.desc {
-                    return Err(err!("DATA_EXIST": "data already exists and the description of fish is inconsistent"))
-                }
-            }
-            if let Some(tags) = tags {
-                let mut input_tags: Vec<String> = tags.unique().into_iter()
-                    .map(|tag| tag.trim().to_string())
-                    .filter(|tag| tag.len() > 0)
-                    .collect();
-                let mut existed_fish_tags = existed_fish.tags;
-                input_tags.sort();
-                existed_fish_tags.sort();
-                if input_tags != existed_fish_tags {
-                    return Err(err!("DATA_EXIST": "data already exists and the tags of fish is inconsistent"))
-                }
-            }
-            if let Some(is_marked) = is_marked {
-                if is_marked != existed_fish.is_marked {
-                    return Err(err!("DATA_EXIST": "data already exists and the mark status of fish is inconsistent"))
-                }
-            }
-            if let Some(is_locked) = is_locked {
-                if is_locked != existed_fish.is_locked {
-                    return Err(err!("DATA_EXIST": "data already exists and the lock status of fish is inconsistent"))
-                }
-            }
-            if let Some(extra_info) = extra_info {
-                if *extra_info != existed_fish.extra_info {
-                    return Err(err!("DATA_EXIST": "data already exists and the extra info of fish is inconsistent"))
-                }
-            }
-            self.storage.increase_count(&vec![&existed_fish.uid]).await.trace(
-                ctx!("add fish -> data exists and the fish is consistent -> increase fish.count: self.storage.increase_count failed", existed_fish.uid, identity)
-            )?;
-            return Ok(existed_fish.uid)
+            return Err(err!("DATA_EXIST": "data conflicts with the fish with uid {}", existed_fish.uid))
         }
         let desc = desc.unwrap_or("");
-        let extra_info = extra_info.unwrap_or("");
         let tags = match tags {
             Some(tags) => tags.unique().into_iter()
                 .map(|tag| tag.trim())
@@ -107,7 +70,7 @@ impl<S> FishService<S> where S: FishStorage {
             _ => {},
         };
         self.storage.add_fish(
-            &identity, 1, fish_type, fish_data, &data_info, desc, &tags, is_marked, is_locked, extra_info,
+            &identity, fish_type, fish_data, &data_info, desc, &tags, is_marked, is_locked, extra_info,
         ).await.trace(
             ctx!("add fish: self.storage.add_fish failed", fish_type, identity)
         )
@@ -280,7 +243,7 @@ impl<S> FishService<S> where S: FishStorage {
     }
 
     pub async fn pick_fish(&self, uid: &str) -> YRes<Option<Fish>> {
-        self.storage.pick_fish(uid).await.trace(
+        self.storage.pick_fish(uid).await.upgrade_if("UID_INVALID", err!("FISH_NOT_EXIST": "fish {} not exist", uid)).trace(
             ctx!("pick fish: self.storage.pick_fish failed")
         )
     }

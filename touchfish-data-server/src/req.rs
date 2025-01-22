@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use touchfish_core::{FishType, MessageExtraInfo, MessageLevel, TopicExtraInfo, TopicType};
 use serde::{Deserialize, Serialize};
 
@@ -41,7 +43,7 @@ pub struct AddFishReq {
     pub tags: Option<Vec<String>>,
     pub is_marked: Option<bool>,
     pub is_locked: Option<bool>,
-    pub extra_info: Option<String>,
+    pub extra_info: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

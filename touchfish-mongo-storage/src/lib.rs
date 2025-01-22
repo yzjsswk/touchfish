@@ -9,6 +9,8 @@ pub use storage::MongoStorage;
 #[cfg(test)]
 mod tests {
 
+    use std::collections::HashMap;
+
     use touchfish_core::{DataInfo, FishStorage};
     use yfunc_rust::{prelude::*, YBytes};
 
@@ -19,7 +21,7 @@ mod tests {
         let db = MongoStorage::new("mongodb://mongodb:mongodb@localhost:27017").await?;
         let data = "hello world!".as_bytes().to_vec();
         let uid = db.add_fish(
-            "asdsads", 1, touchfish_core::FishType::Text, YBytes::new(data), 
+            "asdsads", touchfish_core::FishType::Text, YBytes::new(data), 
             &DataInfo {
                 byte_count: Some(10),
                 char_count: Some(1),
@@ -27,7 +29,7 @@ mod tests {
                 row_count: Some(1),
                 width: None,
                 height: None,
-            }, "test", &vec![], true, false, "axxsd",
+            }, "test", &vec![], true, false, &HashMap::new(),
         ).await?;
         dbg!(uid);
         Ok(())
@@ -44,13 +46,6 @@ mod tests {
     async fn modify_fish_works() -> YRes<()> {
         let db = MongoStorage::new("mongodb://mongodb:mongodb@localhost:27017").await?;
         db.modify_fish("6735fc93f614343f295f395a", None, Some(&vec!["modified", "test"]), Some("modified")).await?;
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn inc_fish_works() -> YRes<()> {
-        let db = MongoStorage::new("mongodb://mongodb:mongodb@localhost:27017").await?;
-        db.increase_count(&vec!["6735fc93f614343f295f395a"]).await?;
         Ok(())
     }
 

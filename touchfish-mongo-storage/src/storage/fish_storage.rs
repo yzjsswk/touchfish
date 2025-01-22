@@ -11,11 +11,11 @@ use super::MongoStorage;
 impl FishStorage for MongoStorage {
 
     async fn add_fish(
-        &self, identity: &str, count: i32, fish_type: FishType, fish_data: YBytes, data_info: &DataInfo,
-        desc: &str, tags: &Vec<&str>, is_marked: bool, is_locked: bool, extra_info: &str,
+        &self, identity: &str, fish_type: FishType, fish_data: YBytes, data_info: &DataInfo,
+        desc: &str, tags: &Vec<&str>, is_marked: bool, is_locked: bool, extra_info: &HashMap<String, String>,
     ) -> YRes<String> {
         let model = FishModel::new(
-            identity, count, fish_type, fish_data, data_info, desc, tags, is_marked, is_locked, extra_info,
+            identity, fish_type, fish_data, data_info, desc, tags, is_marked, is_locked, extra_info,
         ).trace(ctx!("add fish -> build fish model: FishModel::new failed"))?;
         let result = self.collection__fish().insert_one(model).await.map_err(|e| {
             err!("add fish failed").trace(ctx!("add fish: self.collection__fish().insert_one() failed", e))
@@ -54,7 +54,7 @@ impl FishStorage for MongoStorage {
         &self, uid: &str, desc: Option<&str>, tags: Option<&Vec<&str>>, extra_info: Option<&str>,
     ) -> YRes<()> {
         let uid = ObjectId::parse_str(uid).map_err(|e| {
-            err!("modify fish failed").trace(ctx!("modify fish -> parse uid to ObjectId: ObjectId::parse_str failed", uid, e))
+            err!("UID_INVALID": "modify fish failed").trace(ctx!("modify fish -> parse uid to ObjectId: ObjectId::parse_str failed", uid, e))
         })?;
         let filter = doc! {
             "_id": uid,
@@ -192,32 +192,9 @@ impl FishStorage for MongoStorage {
         Ok(())
     }
 
-    async fn increase_count(&self, uids: &Vec<&str>) -> YRes<()> {
-        let uids = uids.iter().fold(Vec::new(), |mut acc, it| {
-            match ObjectId::parse_str(it) {
-                Ok(uid) => acc.push(uid),
-                Err(e) => warn!("increase fish count by uids - skip a uid: parse to ObjectId failed, uid={it}, err={e}")
-            };
-            acc
-        });
-        let filter = doc! {
-            "_id": { "$in":  &uids}
-        };
-        let updater = doc! {
-            "$inc": { "count": 1 },
-            "$set": {
-                "update_time": DateTime::now(),
-            }
-        };
-        let _ = self.collection__fish().update_many(filter, updater).await.map_err(|e| {
-            err!("increase fish count failed").trace(ctx!("increase fish count: self.collection__fish().update_many failed", uids, e))
-        })?;
-        Ok(())
-    }
-
     async fn pick_fish(&self, uid: &str) -> YRes<Option<Fish>> {
         let uid = ObjectId::parse_str(uid).map_err(|e| {
-            err!("pick fish failed").trace(ctx!("pick fish -> parse uid to ObjectId: ObjectId::parse_str failed", uid, e))
+            err!("UID_INVALID": "pick fish failed").trace(ctx!("pick fish -> parse uid to ObjectId: ObjectId::parse_str failed", uid, e))
         })?;
         let filter = doc! {
             "_id": uid,

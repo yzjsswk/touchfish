@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::Serialize;
 use yfunc_rust::prelude::*;
 
@@ -7,7 +9,6 @@ use crate::{DataInfo, Fish, FishType};
 #[derive(Serialize, Debug)]
 pub struct FishPreview {
     pub identity: String,
-    pub count: i32,
     pub fish_type: FishType,
     pub data_preview: Option<String>,
     pub data_info: DataInfo,
@@ -15,7 +16,7 @@ pub struct FishPreview {
     pub tags: Vec<String>,
     pub is_marked: bool,
     pub is_locked: bool,
-    pub extra_info: String,
+    pub extra_info: HashMap<String, String>,
     pub create_time: String,
     pub update_time: String,
 }
@@ -39,7 +40,7 @@ impl FishPreview {
             ctx!("build FishPreview by Fish -> get east8 time string of update_time: fish.update_time.east8() failed", fish.identity)
         )?;
         Ok(FishPreview { 
-            identity: fish.identity.clone(), count: fish.count, fish_type: fish.fish_type,
+            identity: fish.identity.clone(), fish_type: fish.fish_type,
             data_preview, data_info: fish.data_info.clone(), desc: fish.desc.clone(), tags: fish.tags.clone(),
             is_marked: fish.is_marked, is_locked: fish.is_locked, extra_info: fish.extra_info.clone(),
             create_time, update_time,

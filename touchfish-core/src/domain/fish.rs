@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use strum_macros::{Display, EnumString};
@@ -10,7 +12,6 @@ use crate::FishPreview;
 pub struct Fish {
     pub uid: String,
     pub identity: String,
-    pub count: i32,
     pub fish_type: FishType,
     pub fish_data: YBytes,
     pub data_info: DataInfo,
@@ -18,7 +19,7 @@ pub struct Fish {
     pub tags: Vec<String>,
     pub is_marked: bool,
     pub is_locked: bool,
-    pub extra_info: String,
+    pub extra_info: HashMap<String, String>,
     pub create_time: YTime,
     pub update_time: YTime,
 }

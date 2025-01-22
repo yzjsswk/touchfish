@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use mongodb::bson::{oid::ObjectId, spec::BinarySubtype, Binary, DateTime};
 use serde::{Serialize, Deserialize};
 use touchfish_core::{FishType, DataInfo, Fish};
@@ -8,7 +10,6 @@ pub struct FishModel {
     #[serde(rename = "_id")]
     pub uid: ObjectId,
     pub identity: String,
-    pub count: i32,
     pub fish_type: FishType,
     pub fish_data: Binary,
     pub fish_data_for_search: Option<String>,
@@ -17,7 +18,7 @@ pub struct FishModel {
     pub tags: Vec<String>,
     pub is_marked: bool,
     pub is_locked: bool,
-    pub extra_info: String,
+    pub extra_info: HashMap<String, String>,
     pub create_time: DateTime,
     pub update_time: DateTime,
     pub expire_time: Option<DateTime>,
@@ -26,8 +27,8 @@ pub struct FishModel {
 impl FishModel {
 
     pub fn new(
-        identity: &str, count: i32, fish_type: FishType, fish_data: YBytes, data_info: &DataInfo,
-        desc: &str, tags: &Vec<&str>, is_marked: bool, is_locked: bool, extra_info: &str,
+        identity: &str, fish_type: FishType, fish_data: YBytes, data_info: &DataInfo, desc: &str, tags: &Vec<&str>,
+        is_marked: bool, is_locked: bool, extra_info: &HashMap<String, String>,
     ) -> YRes<FishModel> {
         let fish_data_for_search = if fish_type == FishType::Text {
             Some(fish_data.to_str().map_err(|e| {
@@ -44,9 +45,9 @@ impl FishModel {
         };
         let tags = tags.iter().map(|tag| tag.to_string()).collect();
         Ok(FishModel {
-            uid: ObjectId::new(), identity: identity.to_string(), count, 
+            uid: ObjectId::new(), identity: identity.to_string(), 
             fish_type, fish_data, fish_data_for_search, data_info: data_info.clone(),
-            desc: desc.to_string(), tags, is_marked, is_locked, extra_info: extra_info.to_string(),
+            desc: desc.to_string(), tags, is_marked, is_locked, extra_info: extra_info.clone(),
             create_time: DateTime::now(), update_time: DateTime::now(), expire_time: None,
         })
     }
@@ -74,7 +75,7 @@ impl TryFrom<FishModel> for Fish {
             ctx!("parse FishModel to Fish -> parse update_time: YTime::from_str failed", model.update_time, model.uid)
         )?;
         Ok(Fish {
-            uid: model.uid.to_hex(), identity: model.identity, count: model.count, fish_type: model.fish_type, fish_data,
+            uid: model.uid.to_hex(), identity: model.identity, fish_type: model.fish_type, fish_data,
             data_info: model.data_info, desc: model.desc, tags: model.tags, is_marked: model.is_marked,
             is_locked: model.is_locked, extra_info: model.extra_info, create_time, update_time,
         })

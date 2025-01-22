@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use yfunc_rust::{Page, YBytes, prelude::*};
 
 use crate::{FishService, Fish, FishStorage, FishType, Statistics};
@@ -16,7 +18,7 @@ impl<S> FishApi<S> where S: FishStorage {
 
     pub async fn add_fish(
         &self, fish_type: FishType, fish_data: YBytes, desc: Option<&str>,
-        tags: Option<&Vec<&str>>, is_marked: Option<bool>, is_locked: Option<bool>, extra_info: Option<&str>,
+        tags: Option<&Vec<&str>>, is_marked: Option<bool>, is_locked: Option<bool>, extra_info: &HashMap<String, String>,
     ) -> YRes<String> {
         self.fish_service.add_fish(fish_type, fish_data, desc, tags, is_marked, is_locked, extra_info).await.trace(
             ctx!("add fish: self.fish_service.add_fish failed")
