@@ -272,13 +272,8 @@ struct Storage {
         tags: [String]? = nil,
         isMarked: Bool? = nil,
         isLocked: Bool? = nil,
-        extraInfo: Fish.ExtraInfo? = nil
+        extraInfo: [String:String]? = nil
     ) async -> String? {
-        let extraInfo = extraInfo ?? Fish.ExtraInfo()
-        guard let extraInfo = extraInfo.to_json_string() else {
-            Log.error("Storage.addFish - failed: parse extraInfo to string failed, extraInfo=\(extraInfo)")
-            return nil
-        }
         let result = await DataService.addFish(
             fishType: fishType, fishData: fishData, description: description, tags: tags,
             isMarked: isMarked, isLocked: isLocked, extraInfo: extraInfo
@@ -305,18 +300,10 @@ struct Storage {
     }
     
     static func modifyFish(
-        _ uid: String, description: String? = nil, tags: [String]? = nil, extraInfo: Fish.ExtraInfo? = nil
+        _ uid: String, description: String? = nil, tags: [String]? = nil, extraInfo: [String:String]? = nil
     ) async -> Bool {
-        var extraInfoStr: String? = nil
-        if let extraInfo = extraInfo {
-            guard let extraInfo = extraInfo.to_json_string() else {
-                Log.error("Storage.modifyFish - failed: parse extraInfo to string failed, extraInfo=\(extraInfo)")
-                return false
-            }
-            extraInfoStr = extraInfo
-        }
         let result = await DataService.modifyFish(
-            uid: uid, description: description, tags: tags, extraInfo: extraInfoStr
+            uid: uid, description: description, tags: tags, extraInfo: extraInfo
         )
         switch result {
         case .success(let resp):

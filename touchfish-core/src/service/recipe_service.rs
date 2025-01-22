@@ -36,7 +36,7 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
                 return Ok(acc);
             };
             let Ok(recipe) = self.load_recipe_from_file(dir.path()).inspect_err(|e|
-                warn!("list recipe - ignore a `Recipe.toml` file: self.load_recipe_from_file returned Err, path={:?}, err={:?}", dir.path(), e)
+                warn!("list recipe - ignore a `Recipe.toml` file: self.load_recipe_from_file returned Err, path={:?}, err={:#?}", dir.path(), e)
             ) else {
                 return Ok(acc);
             };
@@ -74,7 +74,7 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
                         return Ok(acc);
                     };
                     let Ok(recipe) = self.load_recipe_from_file(dir.path()).inspect_err(|e| {
-                        warn!("execute recipe -> bundle_id not exists in recipe cache -> rebuild recipe cache -> deserialize a `Recipe.toml` file - ignore the `Recipe.toml` file: self.load_recipe_from_file returned Err, path={:?}, err={:?}", dir.path(), e);
+                        warn!("execute recipe -> bundle_id not exists in recipe cache -> rebuild recipe cache -> deserialize a `Recipe.toml` file - ignore the `Recipe.toml` file: self.load_recipe_from_file returned Err, path={:?}, err={:#?}", dir.path(), e);
                     }) else {
                         return Ok(acc);
                     };
@@ -246,7 +246,7 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
             match timeout(Duration::from_secs(300), task).await {
                 Ok(Ok(_)) => {}
                 Ok(Err(e)) => {
-                    error!("execute recipe failed: recipe_path={:?}, bundle_id={bundle_id}, command={command}, args={:?}, err={:?}", recipe_path, args, e);
+                    error!("execute recipe failed: recipe_path={:?}, bundle_id={bundle_id}, command={command}, args={:?}, err={:#?}", recipe_path, args, e);
                 }
                 Err(_) => {
                     if let Err(e) = child.kill().await {

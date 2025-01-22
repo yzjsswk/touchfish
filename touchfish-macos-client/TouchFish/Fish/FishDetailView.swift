@@ -185,8 +185,10 @@ struct DetailExtraInfoView: View {
             VStack(alignment: .leading) {
                 Spacer()
                 DetailItemView(itemName: "Type", itemValue: fish.fishType.rawValue)
-                DetailItemView(itemName: "Repeats Number", itemValue: fish.count)
-                DetailItemView(itemName: "Source Application", itemValue: fish.extraInfo.sourceAppName)
+                DetailItemView(itemName: "Source", itemValue: fish.extraInfo["source"])
+                if let byteCount = fish.dataInfo.byteCount {
+                    DetailItemView(itemName: "Size", itemValue: Functions.descByteCount(byteCount))
+                }
                 switch fish.fishType {
                 case .Text:
                     DetailItemView(itemName: "Char Count", itemValue: fish.dataInfo.charCount)
@@ -198,9 +200,7 @@ struct DetailExtraInfoView: View {
                 default:
                     EmptyView()
                 }
-                if let byteCount = fish.dataInfo.byteCount {
-                    DetailItemView(itemName: "Size", itemValue: Functions.descByteCount(byteCount))
-                }
+
                 DetailItemView(itemName: "Create Time", itemValue: fish.createTime)
                 DetailItemView(itemName: "Update Time", itemValue: fish.updateTime)
                 Spacer()

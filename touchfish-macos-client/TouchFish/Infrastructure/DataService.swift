@@ -60,7 +60,6 @@ struct FishResp: Codable {
     
     let uid: String
     let identity: String
-    let count: Int
     let fishType: String
     let fishData: String
     let dataInfo: DataInfo
@@ -68,14 +67,13 @@ struct FishResp: Codable {
     let tags: [String]
     let isMarked: Bool
     let isLocked: Bool
-    let extraInfo: String
+    let extraInfo: [String:String]
     let createTime: String
     let updateTime: String
     
     enum CodingKeys: String, CodingKey {
         case uid = "uid"
         case identity = "identity"
-        case count = "count"
         case fishType = "fish_type"
         case fishData = "fish_data"
         case dataInfo = "data_info"
@@ -97,14 +95,10 @@ struct FishResp: Codable {
             Log.warning("FishResp.toEntity - return nil: decode fish data failed, fishResp.uid=\(self.uid)")
             return nil
         }
-        guard let extraInfo = Fish.ExtraInfo.from_json_string(json_str: extraInfo) else {
-            Log.warning("FishResp.toEntity - return nil: parse extra info failed, fishResp.extraInfo=\(self.extraInfo), fishResp.uid=\(self.uid)")
-            return nil
-        }
         let createTime = Functions.convertIsoDateToE8(self.createTime) ?? self.createTime
         let updateTime = Functions.convertIsoDateToE8(self.updateTime) ?? self.updateTime
         return Fish(
-            uid: self.uid, identity: self.identity, count: self.count, fishType: fishType, fishData: fishData,
+            uid: self.uid, identity: self.identity, fishType: fishType, fishData: fishData,
             dataInfo: self.dataInfo.toDataInfo(), description: self.description, tags: self.tags,
             isMarked: self.isMarked, isLocked: self.isLocked, extraInfo: extraInfo,
             createTime: createTime, updateTime: updateTime
@@ -346,7 +340,7 @@ struct DataService {
     
     static func addFish(
         fishType: Fish.FishType, fishData: Data, description: String?, tags: [String]?,
-        isMarked: Bool?, isLocked: Bool?, extraInfo: String?
+        isMarked: Bool?, isLocked: Bool?, extraInfo: [String:String]?
     ) async -> Result<DataServiceResponse<String>, AFError> {
         let url = DataService.urlPrefix + "/fish/add"
         let data = fishData.base64EncodedString()
@@ -365,7 +359,7 @@ struct DataService {
     }
     
     static func modifyFish(
-        uid: String, description: String? = nil, tags: [String]? = nil, extraInfo: String? = nil
+        uid: String, description: String? = nil, tags: [String]? = nil, extraInfo: [String:String]? = nil
     ) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
         let url = DataService.urlPrefix + "/fish/modify"
         let para: [String:Any?] = [

@@ -37,7 +37,7 @@ struct FishAddView: View {
                                         let uid = await Storage.addFish(
                                             type, data, description: info.description,
                                             tags: info.tags.filter({ $0.value }).map({$0.key}),
-                                            isMarked: true, extraInfo: Fish.ExtraInfo(sourceAppName: "TouchFish")
+                                            isMarked: true, extraInfo: ["source": "Add By TouchFish"]
                                         )
                                         if uid != nil {
                                             await Storage.sendMessage(topicSubject: subject, level: .Info, title: "Add Success", body: "successfully add one fish from file \(url.path)")
