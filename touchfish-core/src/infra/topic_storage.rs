@@ -1,22 +1,24 @@
-use crate::{MessageExtraInfo, MessageLevel, Topic, TopicExtraInfo, TopicType};
+use std::collections::HashMap;
+
+use crate::{MessageLevel, Topic};
 use yfunc_rust::prelude::*;
 
 pub trait TopicStorage {
 
-    async fn add_topic(&self, topic_type: TopicType, subject: &str, source: &str, title: &str, extra_info: &TopicExtraInfo) -> YRes<String>;
+    async fn add_topic(&self, subject: &str, source: &str, title: &str, extra_info: &HashMap<String, String>) -> YRes<String>;
 
     async fn remove_topic(&self, uid: &str) -> YRes<()>;
 
-    async fn append_message(&self, uid: &str, level: MessageLevel, title: &str, body: &str, has_read: bool, extra_info: &MessageExtraInfo) -> YRes<()>;
+    async fn append_message(&self, uid: &str, level: MessageLevel, title: &str, body: &str, has_read: bool, extra_info: &HashMap<String, String>) -> YRes<()>;
 
     async fn read_message(&self, topic_uid: &str, message_uid: &str) -> YRes<()>;
 
-    async fn set_topic_info(&self, uid: &str, extra_info: &TopicExtraInfo) -> YRes<()>;
+    async fn set_topic_info(&self, uid: &str, extra_info: &HashMap<String, String>) -> YRes<()>;
 
     async fn pick_topic(&self, uid: &str) -> YRes<Option<Topic>>;
     
     async fn pick_topic_by_subject(&self, subject: &str) -> YRes<Option<Topic>>;
 
-    async fn list_topic_by_conditions(&self, uids: Option<&Vec<&str>>, topic_types: Option<&Vec<TopicType>>, subject: Option<&str>, title: Option<&str>) -> YRes<Vec<Topic>>;
+    async fn list_topic_by_conditions(&self, uids: Option<&Vec<&str>>, subject: Option<&str>, title: Option<&str>) -> YRes<Vec<Topic>>;
 
 }

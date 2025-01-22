@@ -1,6 +1,8 @@
+use std::collections::HashMap;
+
 use mongodb::bson::{oid::ObjectId, DateTime};
 use serde::{Serialize, Deserialize};
-use touchfish_core::{Message, MessageExtraInfo, MessageLevel};
+use touchfish_core::{Message, MessageLevel};
 use yfunc_rust::{prelude::*, YTime};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -11,7 +13,7 @@ pub struct MessageModel {
     pub title: String,
     pub body: String,
     pub has_read: bool,
-    pub extra_info: MessageExtraInfo,
+    pub extra_info: HashMap<String, String>,
     pub create_time: DateTime,
     pub update_time: DateTime,
 }
@@ -19,7 +21,7 @@ pub struct MessageModel {
 impl MessageModel {
 
     pub fn new(
-        level: MessageLevel, title: &str, body: &str, has_read: bool, extra_info: &MessageExtraInfo,
+        level: MessageLevel, title: &str, body: &str, has_read: bool, extra_info: &HashMap<String, String>,
     ) -> MessageModel {
         MessageModel { 
             uid: ObjectId::new(), level, title: title.to_string(), body: body.to_string(),

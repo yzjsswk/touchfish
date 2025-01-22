@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use touchfish_core::{FishType, MessageExtraInfo, MessageLevel, TopicExtraInfo, TopicType};
+use touchfish_core::{FishType, MessageLevel};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -96,21 +96,26 @@ pub struct PinFishReq {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreateTopicReq {
-    pub topic_type: TopicType,
     pub subject: String,
     pub source: String,
     pub title: String,
-    pub extra_info: TopicExtraInfo,
+    pub extra_info: Option<HashMap<String, String>>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ModifyTopicReq {
+    pub subject: String,
+    pub extra_info: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SendMessageReq {
-    pub topic_subject: String,
+    pub subject: String,
     pub level: MessageLevel,
     pub title: String,
     pub body: String,
     pub has_read: bool,
-    pub extra_info: MessageExtraInfo,
+    pub extra_info: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

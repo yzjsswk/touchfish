@@ -1,4 +1,6 @@
-use crate::{infra::TopicStorage, service::TopicService, MessageExtraInfo, MessageLevel, Topic, TopicExtraInfo, TopicType};
+use std::collections::HashMap;
+
+use crate::{infra::TopicStorage, service::TopicService, MessageLevel, Topic};
 use yfunc_rust::prelude::*;
 
 pub struct TopicApi<S> where S: TopicStorage {
@@ -14,18 +16,18 @@ impl<S> TopicApi<S> where S: TopicStorage {
     }
 
     pub async fn create_topic(
-        &self, topic_type: TopicType, subject: &str, source: &str, title: &str, extra_info: &TopicExtraInfo
+        &self, subject: &str, source: &str, title: &str, extra_info: &Option<HashMap<String, String>>,
     ) -> YRes<String> {
-        self.topic_service.create_topic(topic_type, subject, source, title, extra_info).await.trace(
+        self.topic_service.create_topic(subject, source, title, extra_info).await.trace(
             ctx!("create topic: self.topic_service.create_topic failed")
         )
     }
 
-    pub async fn append_message(
-        &self, topic_subject: &str, level: MessageLevel, title: &str, body: &str,
-        has_read: bool, extra_info: &MessageExtraInfo,
+    pub async fn send_message(
+        &self, subject: &str, level: MessageLevel, title: &str, body: &str,
+        has_read: bool, extra_info: &Option<HashMap<String, String>>,
     ) -> YRes<()> {
-        self.topic_service.append_message(topic_subject, level, title, body, has_read, extra_info).await.trace(
+        self.topic_service.append_message(subject, level, title, body, has_read, extra_info).await.trace(
             ctx!("append message: self.topic_service.append_message failed")
         )
     }
@@ -39,6 +41,12 @@ impl<S> TopicApi<S> where S: TopicStorage {
     pub async fn remove_topic(&self, subject: &str) -> YRes<()> {
         self.topic_service.remove_topic(subject).await.trace(
             ctx!("remove topic: self.topic_service.remove_topic failed")
+        )
+    }
+
+    pub async fn modify_topic(&self, subject: &str, extra_info: &HashMap<String, String>) -> YRes<()> {
+        self.topic_service.modify_topic(subject, extra_info).await.trace(
+            ctx!("modify topic: self.topic_service.modify_topic failed")
         )
     }
 

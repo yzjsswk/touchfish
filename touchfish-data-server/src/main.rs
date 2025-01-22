@@ -1,5 +1,5 @@
 use actix_web::{get, middleware::Logger, post, web::{Data, Json, Path}, App, HttpServer, Responder};
-use req::{AddFishReq, CreateTopicReq, DelectFishReq, ExpireFishReq, LockFishReq, MarkFishReq, ModifyFishReq, PinFishReq, ReadMessageReq, SearchFishReq, SendMessageReq, UnlockFishReq, UnmarkFishReq};
+use req::{AddFishReq, CreateTopicReq, DelectFishReq, ExpireFishReq, LockFishReq, MarkFishReq, ModifyFishReq, ModifyTopicReq, PinFishReq, ReadMessageReq, SearchFishReq, SendMessageReq, UnlockFishReq, UnmarkFishReq};
 use resp::ToResp;
 use touchfish_core::{FishApi, TopicApi};
 use touchfish_mongo_storage::MongoStorage;
@@ -118,12 +118,17 @@ async fn pin_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<PinFishReq>) 
 
 #[post("/topic/create")]
 async fn create_topic(topic_api: Data<TopicApi<MongoStorage>>, req: Json<CreateTopicReq>) -> impl Responder {
-    topic_api.create_topic(req.topic_type, &req.subject, &req.source, &req.title, &req.extra_info).await.to_resp()
+    topic_api.create_topic(&req.subject, &req.source, &req.title, &req.extra_info).await.to_resp()
 }
 
 #[post("/topic/remove/{subject}")]
 async fn remove_topic(topic_api: Data<TopicApi<MongoStorage>>, subject: Path<String>) -> impl Responder {
     topic_api.remove_topic(&subject).await.to_resp()
+}
+
+#[post("/topic/modify")]
+async fn modify_topic(topic_api: Data<TopicApi<MongoStorage>>, req: Json<ModifyTopicReq>) -> impl Responder {
+    topic_api.modify_topic(&req.subject, &req.extra_info).await.to_resp()
 }
 
 #[get("/topic/list")]
@@ -133,9 +138,7 @@ async fn list_topic(topic_api: Data<TopicApi<MongoStorage>>) -> impl Responder {
 
 #[post("/message/send")]
 async fn send_message(topic_api: Data<TopicApi<MongoStorage>>, req: Json<SendMessageReq>) -> impl Responder {
-    topic_api.append_message(
-        &req.topic_subject, req.level, &req.title, &req.body, req.has_read, &req.extra_info,
-    ).await.to_resp()
+    topic_api.send_message(&req.subject, req.level, &req.title, &req.body, req.has_read, &req.extra_info).await.to_resp()
 }
 
 #[post("/message/read")]
@@ -179,6 +182,7 @@ async fn main() -> std::io::Result<()> {
             .service(pin_fish)
             .service(create_topic)
             .service(remove_topic)
+            .service(modify_topic)
             .service(list_topic)
             .service(send_message)
             .service(read_message)

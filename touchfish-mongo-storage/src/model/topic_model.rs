@@ -1,6 +1,8 @@
+use std::collections::HashMap;
+
 use mongodb::bson::{oid::ObjectId, DateTime};
 use serde::{Serialize, Deserialize};
-use touchfish_core::{Message, Topic, TopicExtraInfo, TopicType};
+use touchfish_core::{Message, Topic};
 use yfunc_rust::{prelude::*, YTime};
 
 use super::MessageModel;
@@ -9,12 +11,11 @@ use super::MessageModel;
 pub struct TopicModel {
     #[serde(rename = "_id")]
     pub uid: ObjectId,
-    pub topic_type: TopicType,
     pub subject: String,
     pub source: String,
     pub title: String,
     pub messages: Vec<MessageModel>,
-    pub extra_info: TopicExtraInfo,
+    pub extra_info: HashMap<String, String>,
     pub create_time: DateTime,
     pub update_time: DateTime,
     pub expire_time: Option<DateTime>,
@@ -22,9 +23,9 @@ pub struct TopicModel {
 
 impl TopicModel {
 
-    pub fn new(topic_type: TopicType, subject: &str, source: &str, title: &str, extra_info: &TopicExtraInfo) -> TopicModel {
+    pub fn new(subject: &str, source: &str, title: &str, extra_info: &HashMap<String, String>) -> TopicModel {
         TopicModel {
-            uid: ObjectId::new(), topic_type, subject: subject.to_string(), source: source.to_string(),
+            uid: ObjectId::new(), subject: subject.to_string(), source: source.to_string(),
             title: title.to_string(), messages: Vec::new(), extra_info: extra_info.clone(),
             create_time: DateTime::now(), update_time: DateTime::now(), expire_time: None,
         }
@@ -60,7 +61,7 @@ impl TryFrom<TopicModel> for Topic {
             ctx!("parse TopicModel to Topic -> parse update_time: YTime::from_str failed", model.update_time, model.uid)
         )?;
         Ok(Topic {
-            uid: model.uid.to_hex(), topic_type: model.topic_type, subject: model.subject, source: model.source,
+            uid: model.uid.to_hex(), subject: model.subject, source: model.source,
             title: model.title, messages, extra_info: model.extra_info, create_time, update_time,
         })
     }

@@ -1,4 +1,5 @@
-use strum_macros::{Display, EnumString};
+use std::collections::HashMap;
+
 use yfunc_rust::{YTime, prelude::*};
 use serde::{Deserialize, Serialize};
 
@@ -6,26 +7,13 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Debug)]
 pub struct Topic {
     pub uid: String,
-    pub topic_type: TopicType,
     pub subject: String,
     pub source: String,
     pub title: String,
     pub messages: Vec<Message>,
-    pub extra_info: TopicExtraInfo,
+    pub extra_info: HashMap<String, String>,
     pub create_time: YTime,
     pub update_time: YTime,
-}
-
-#[yfunc]
-#[derive(Serialize, Deserialize, Debug, EnumString, Display, Clone, Copy)]
-pub enum TopicType {
-    Info, Warning, Error,
-}
-
-#[yfunc]
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TopicExtraInfo {
-
 }
 
 #[yfunc]
@@ -36,7 +24,7 @@ pub struct Message {
     pub title: String,
     pub body: String,
     pub has_read: bool,
-    pub extra_info: MessageExtraInfo,
+    pub extra_info: HashMap<String, String>,
     pub create_time: YTime,
     pub update_time: YTime,
 }
@@ -45,10 +33,4 @@ pub struct Message {
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum MessageLevel {
     Info, Warning, Error,
-}
-
-#[yfunc]
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct MessageExtraInfo {
-
 }

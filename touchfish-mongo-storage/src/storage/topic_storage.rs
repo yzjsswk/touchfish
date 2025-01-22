@@ -1,5 +1,7 @@
-use mongodb::bson::{self, doc, oid::ObjectId, Bson, DateTime};
-use touchfish_core::{MessageExtraInfo, MessageLevel, Topic, TopicExtraInfo, TopicStorage, TopicType};
+use std::collections::HashMap;
+
+use mongodb::bson::{to_bson, doc, oid::ObjectId, Bson, DateTime};
+use touchfish_core::{MessageLevel, Topic, TopicStorage};
 use yfunc_rust::prelude::*;
 
 use crate::model::{MessageModel, TopicModel};
@@ -9,9 +11,9 @@ use super::MongoStorage;
 impl TopicStorage for MongoStorage {
 
     async fn add_topic(
-        &self, topic_type: TopicType, subject: &str, source: &str, title: &str, extra_info: &TopicExtraInfo,
+        &self, subject: &str, source: &str, title: &str, extra_info: &HashMap<String, String>,
     ) -> YRes<String> {
-        let model = TopicModel::new(topic_type, subject, source, title, extra_info);
+        let model = TopicModel::new(subject, source, title, extra_info);
         let result = self.collection__topic().insert_one(model).await.map_err(|e| {
             err!("add topic failed").trace(ctx!("add topic: self.collection__topic().insert_one() failed", e))
         })?;
@@ -42,12 +44,12 @@ impl TopicStorage for MongoStorage {
     }
 
     async fn append_message(
-        &self, uid: &str, level: MessageLevel, title: &str, body: &str, has_read: bool, extra_info: &MessageExtraInfo,
+        &self, uid: &str, level: MessageLevel, title: &str, body: &str, has_read: bool, extra_info: &HashMap<String, String>,
     ) -> YRes<()> {
         let uid = ObjectId::parse_str(uid).map_err(|e| {
             err!("append message failed").trace(ctx!("append message -> parse uid to ObjectId: ObjectId::parse_str failed", uid, e))
         })?;
-        let message = bson::to_bson(&MessageModel::new(level, title, body, has_read, extra_info)).map_err(|e| {
+        let message = to_bson(&MessageModel::new(level, title, body, has_read, extra_info)).map_err(|e| {
             err!("append message failed").trace(ctx!("append message -> parse message to bson: bson::to_bson failed", uid, e))
         })?;
         let filter = doc! {
@@ -90,11 +92,11 @@ impl TopicStorage for MongoStorage {
         Ok(())
     }
 
-    async fn set_topic_info(&self, uid: &str, extra_info: &TopicExtraInfo) -> YRes<()> {
+    async fn set_topic_info(&self, uid: &str, extra_info: &HashMap<String, String>) -> YRes<()> {
         let uid = ObjectId::parse_str(uid).map_err(|e| {
             err!("set topic info failed").trace(ctx!("set topic info -> parse uid to ObjectId: ObjectId::parse_str failed", uid, e))
         })?;
-        let extra_info = bson::to_bson(&extra_info).map_err(|e| {
+        let extra_info = to_bson(&extra_info).map_err(|e| {
             err!("set topic info failed").trace(ctx!("set topic info -> parse extra_info to bson: bson::to_bson failed", uid, extra_info, e))
         })?;
         let filter = doc! {
@@ -149,9 +151,7 @@ impl TopicStorage for MongoStorage {
         Ok(topic)
     }
 
-    async fn list_topic_by_conditions(
-        &self, uids: Option<&Vec<&str>>, topic_types: Option<&Vec<TopicType>>, subject: Option<&str>, title: Option<&str>,
-    ) -> YRes<Vec<Topic>> {
+    async fn list_topic_by_conditions(&self, uids: Option<&Vec<&str>>, subject: Option<&str>, title: Option<&str>) -> YRes<Vec<Topic>> {
         let mut filter = doc! { "expire_time": Bson::Null };
         if let Some(uids) = uids {
             let uids = uids.iter().fold(Vec::new(), |mut acc, it| {
@@ -162,10 +162,6 @@ impl TopicStorage for MongoStorage {
                 acc
             });
             filter.insert("uid", doc! { "$in": uids });
-        }
-        if let Some(topic_types) = topic_types {
-            let topic_types: Vec<String> = topic_types.into_iter().map(|x| x.to_string()).collect();
-            filter.insert("topic_type", doc! { "$in": topic_types });
         }
         if let Some(subject) = subject {
             filter.insert("subject", doc! { "subject": subject });
