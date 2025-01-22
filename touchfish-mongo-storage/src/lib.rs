@@ -45,7 +45,9 @@ mod tests {
     #[tokio::test]
     async fn modify_fish_works() -> YRes<()> {
         let db = MongoStorage::new("mongodb://mongodb:mongodb@localhost:27017").await?;
-        db.modify_fish("6735fc93f614343f295f395a", None, Some(&vec!["modified", "test"]), Some("modified")).await?;
+        let mut extra_info = HashMap::new();
+        extra_info.insert("a".to_string(), "b".to_string());
+        db.modify_fish("6790b897fe51cd65c6ae65e2", None, Some(&vec!["modified", "test"]), &Some(extra_info)).await?;
         Ok(())
     }
 

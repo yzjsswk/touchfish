@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use mongodb::bson::{doc, oid::ObjectId, Bson, DateTime};
+use mongodb::bson::{to_bson, doc, oid::ObjectId, Bson, DateTime};
 use touchfish_core::{DataInfo, Fish, FishStorage, FishType, Statistics};
 use yfunc_rust::{prelude::*, Page, YBytes};
 
@@ -51,7 +51,7 @@ impl FishStorage for MongoStorage {
     }
 
     async fn modify_fish(
-        &self, uid: &str, desc: Option<&str>, tags: Option<&Vec<&str>>, extra_info: Option<&str>,
+        &self, uid: &str, desc: Option<&str>, tags: Option<&Vec<&str>>, extra_info: &Option<HashMap<String, String>>,
     ) -> YRes<()> {
         let uid = ObjectId::parse_str(uid).map_err(|e| {
             err!("UID_INVALID": "modify fish failed").trace(ctx!("modify fish -> parse uid to ObjectId: ObjectId::parse_str failed", uid, e))
@@ -69,6 +69,11 @@ impl FishStorage for MongoStorage {
             setter.insert("tags", tags);
         }
         if let Some(extra_info) = extra_info {
+            let extra_info = to_bson(extra_info).map_err(|e| {
+                err!("EXTRA_INFO_INVALID": "modify fish failed").trace(
+                    ctx!("modify fish -> parse extra info to bson: bson::to_bson failed", extra_info, e)
+                )
+            })?;
             setter.insert("extra_info", extra_info);
         }
         let updater = doc! { "$set": setter };

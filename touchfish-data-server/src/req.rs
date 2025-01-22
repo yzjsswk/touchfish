@@ -43,7 +43,7 @@ pub struct AddFishReq {
     pub tags: Option<Vec<String>>,
     pub is_marked: Option<bool>,
     pub is_locked: Option<bool>,
-    pub extra_info: HashMap<String, String>,
+    pub extra_info: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -51,7 +51,7 @@ pub struct ModifyFishReq {
     pub uid: String,
     pub desc: Option<String>,
     pub tags: Option<Vec<String>>,
-    pub extra_info: Option<String>,
+    pub extra_info: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

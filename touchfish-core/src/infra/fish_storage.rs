@@ -13,7 +13,7 @@ pub trait FishStorage {
 
     async fn expire_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 
-    async fn modify_fish(&self, uid: &str, desc: Option<&str>, tags: Option<&Vec<&str>>, extra_info: Option<&str>) -> YRes<()>;
+    async fn modify_fish(&self, uid: &str, desc: Option<&str>, tags: Option<&Vec<&str>>, extra_info: &Option<HashMap<String, String>>) -> YRes<()>;
 
     async fn mark_fish(&self, uids: &Vec<&str>) -> YRes<()>;
 

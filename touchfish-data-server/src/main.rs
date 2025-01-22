@@ -77,8 +77,7 @@ async fn add_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<AddFishReq>) 
 async fn modify_fish(fish_api: Data<FishApi<MongoStorage>>, req: Json<ModifyFishReq>) -> impl Responder {
     let desc = req.desc.as_ref().map(|x| x.as_str());
     let tags = req.tags.as_ref().map(|x| x.into_iter().map(|y| y.as_str()).collect::<Vec<&str>>());
-    let extra_info = req.extra_info.as_ref().map(|x| x.as_str());
-    fish_api.modify_fish(&req.uid, desc, tags.as_ref(), extra_info).await.to_resp()
+    fish_api.modify_fish(&req.uid, desc, tags.as_ref(), &req.extra_info).await.to_resp()
 }
 
 #[post("/fish/expire")]

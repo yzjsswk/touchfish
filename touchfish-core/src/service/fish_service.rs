@@ -17,7 +17,7 @@ impl<S> FishService<S> where S: FishStorage {
 
     pub async fn add_fish(
         &self, fish_type: FishType, fish_data: YBytes, desc: Option<&str>, tags: Option<&Vec<&str>>,
-        is_marked: Option<bool>, is_locked: Option<bool>, extra_info: &HashMap<String, String>,
+        is_marked: Option<bool>, is_locked: Option<bool>, extra_info: &Option<HashMap<String, String>>,
     ) -> YRes<String> {
         let identity = fish_data.md5();
         let existed_fish = self.storage.pick_fish_by_identity(&identity).await.trace(
@@ -38,6 +38,7 @@ impl<S> FishService<S> where S: FishStorage {
         let is_locked = is_locked.unwrap_or(false);
         let mut data_info = DataInfo::new();
         data_info.byte_count = Some(fish_data.length());
+        let extra_info = extra_info.clone().unwrap_or_default();
         match fish_type {
             FishType::Text => {
                 let data_length_limit = 1048576;
@@ -70,7 +71,7 @@ impl<S> FishService<S> where S: FishStorage {
             _ => {},
         };
         self.storage.add_fish(
-            &identity, fish_type, fish_data, &data_info, desc, &tags, is_marked, is_locked, extra_info,
+            &identity, fish_type, fish_data, &data_info, desc, &tags, is_marked, is_locked, &extra_info,
         ).await.trace(
             ctx!("add fish: self.storage.add_fish failed", fish_type, identity)
         )
@@ -102,7 +103,7 @@ impl<S> FishService<S> where S: FishStorage {
     }
 
     pub async fn modify_fish(
-        &self, uid: &str, desc: Option<&str>, tags: Option<&Vec<&str>>, extra_info: Option<&str>,
+        &self, uid: &str, desc: Option<&str>, tags: Option<&Vec<&str>>, extra_info: &Option<HashMap<String, String>>,
     ) -> YRes<()>  {
         let fish = self.storage.pick_fish(uid).await.trace(
             ctx!("modify fish -> check fish if exists & if locked -> get fish by uid: self.storage.pick_fish failed", uid)
