@@ -12,6 +12,7 @@ struct Storage {
             defer {
                 lock.unlock()
             }
+            Log.debug("get \(uid)")
             return cache[uid]
         }
         
@@ -20,6 +21,7 @@ struct Storage {
             defer {
                 lock.unlock()
             }
+            Log.debug("set \(fish.uid)")
             cache[fish.uid] = fish
         }
         
@@ -29,6 +31,7 @@ struct Storage {
                 lock.unlock()
             }
             for fish in fishList {
+                Log.debug("batch set \(fish.uid)")
                 cache[fish.uid] = fish
             }
         }
@@ -38,6 +41,7 @@ struct Storage {
             defer {
                 lock.unlock()
             }
+            Log.debug("remove \(uid)")
             cache.removeValue(forKey: uid)
         }
         
@@ -47,6 +51,7 @@ struct Storage {
                 lock.unlock()
             }
             for uid in uids {
+                Log.debug("batch remove \(uid)")
                 cache.removeValue(forKey: uid)
             }
         }
@@ -56,6 +61,7 @@ struct Storage {
             defer {
                 lock.unlock()
             }
+            Log.debug("clear")
             cache.removeAll()
         }
         
@@ -89,7 +95,8 @@ struct Storage {
     private static let incrementalUpdateQueue = DispatchQueue(label: "incremental_update_fish_cache")
     
     static func incrementalUpdate() {
-        incrementalUpdateQueue.async {
+        Log.debug("incremental update start")
+        incrementalUpdateQueue.sync {
             let semaphore = DispatchSemaphore(value: 0)
             Task {
                 let result: Result<DataServiceResponse<[String]>, AFError>
@@ -141,6 +148,7 @@ struct Storage {
             }
             semaphore.wait()
         }
+        Log.debug("incremental update end")
     }
     
     static func getFishFromCache(_ uid: String) -> Fish? {

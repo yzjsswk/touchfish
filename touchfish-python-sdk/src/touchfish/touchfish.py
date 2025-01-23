@@ -20,11 +20,11 @@ class DataService:
         return f'http://{host}:{port}'
 
     @staticmethod
-    def heart_beat() -> dict:
+    def heart_beat():
         url = DataService.get_url_prefix() + '/heartbeat'
         resp = requests.get(url=url)
         resp.raise_for_status()
-        return ystr(resp.text).json().to_dic()
+        return resp
 
     @staticmethod
     def search_fish(
@@ -41,7 +41,7 @@ class DataService:
         update_before: int = None,
         page_num: int = None,
         page_size: int = None,
-    ) -> dict:
+    ):
         url = DataService.get_url_prefix() + '/fish/search'
         resp = requests.post(url=url, json={
             'fuzzy': fuzzy,
@@ -59,7 +59,7 @@ class DataService:
             'page_size': page_size,
         })
         resp.raise_for_status()
-        return ystr(resp.text).json().to_dic()
+        return resp
         
     @staticmethod
     def delect_fish(
@@ -74,7 +74,7 @@ class DataService:
         create_before: int = None,
         update_after: int = None,
         update_before: int = None,
-    ) -> dict:
+    ):
         url = DataService.get_url_prefix() + '/fish/delect'
         resp = requests.post(url=url, json={
             'fuzzy': fuzzy,
@@ -90,28 +90,28 @@ class DataService:
             'update_before': update_before,
         })
         resp.raise_for_status()
-        return ystr(resp.text).json().to_dic()
+        return resp
     
     @staticmethod
-    def pick_fish(uid: str) -> dict:
+    def pick_fish(uid: str):
         url = DataService.get_url_prefix() + f'/fish/pick/{uid}'
         resp = requests.get(url=url)
         resp.raise_for_status()
-        return ystr(resp.text).json().to_dic()
+        return resp
         
     @staticmethod
-    def pick_fish_by_identity(identity: str) -> dict:
+    def pick_fish_by_identity(identity: str):
         url = DataService.get_url_prefix() + f'/fish/pick_by_identity/{identity}'
         resp = requests.get(url=url)
         resp.raise_for_status()
-        return ystr(resp.text).json().to_dic()
+        return resp
     
     @staticmethod
-    def count_fish() -> dict:
+    def count_fish():
         url = DataService.get_url_prefix() + '/fish/count'
         resp = requests.get(url=url)
         resp.raise_for_status()
-        return ystr(resp.text).json().to_dic()
+        return resp
     
     @staticmethod
     def add_fish(
@@ -122,7 +122,7 @@ class DataService:
         is_marked: bool = None,
         is_locked: bool = None,
         extra_info: dict = None,
-    ) -> dict:
+    ):
         url = DataService.get_url_prefix() + '/fish/add'
         import base64
         fish_data = base64.b64encode(fish_data).decode('utf-8')
@@ -136,7 +136,7 @@ class DataService:
             'extra_info': extra_info,
         })
         resp.raise_for_status()
-        return ystr(resp.text).json().to_dic()
+        return resp
 
     @staticmethod
     def modify_fish(
@@ -144,7 +144,7 @@ class DataService:
         desc: str = None,
         tags: list[str] = None,
         extra_info: dict = None,
-    ) -> dict:
+    ):
         url = DataService.get_url_prefix() + '/fish/modify'
         resp = requests.post(url=url, json={
             'uid': uid,
@@ -152,7 +152,8 @@ class DataService:
             'tags': tags, 
             'extra_info': ystr().json().from_object(extra_info) if extra_info != None else None,
         })
-        return ystr(resp.text).json().to_dic()
+        resp.raise_for_status()
+        return resp
     
     @staticmethod
     def expire_fish(
@@ -166,7 +167,8 @@ class DataService:
             'skip_if_not_exists': skip_if_not_exists,
             'skip_if_locked': skip_if_locked,
         })
-        return ystr(resp.text).json().to_dic()
+        resp.raise_for_status()
+        return resp
     
     @staticmethod
     def mark_fish(
@@ -180,7 +182,8 @@ class DataService:
             'skip_if_not_exists': skip_if_not_exists,
             'skip_if_locked': skip_if_locked,
         })
-        return ystr(resp.text).json().to_dic()
+        resp.raise_for_status()
+        return resp
     
     @staticmethod
     def unmark_fish(
@@ -194,7 +197,8 @@ class DataService:
             'skip_if_not_exists': skip_if_not_exists,
             'skip_if_locked': skip_if_locked,
         })
-        return ystr(resp.text).json().to_dic()
+        resp.raise_for_status()
+        return resp
     
     @staticmethod
     def lock_fish(
@@ -206,7 +210,8 @@ class DataService:
             'uids': uids,
             'skip_if_not_exists': skip_if_not_exists,
         })
-        return ystr(resp.text).json().to_dic()
+        resp.raise_for_status()
+        return resp
     
     @staticmethod
     def unlock_fish(
@@ -218,7 +223,8 @@ class DataService:
             'uids': uids,
             'skip_if_not_exists': skip_if_not_exists,
         })
-        return ystr(resp.text).json().to_dic()
+        resp.raise_for_status()
+        return resp
     
     @staticmethod
     def pin_fish(
@@ -232,7 +238,8 @@ class DataService:
             'skip_if_not_exists': skip_if_not_exists,
             'skip_if_locked': skip_if_locked,
         })
-        return ystr(resp.text).json().to_dic()
+        resp.raise_for_status()
+        return resp
     
     @staticmethod
     def create_topic(
@@ -248,7 +255,8 @@ class DataService:
             'title': title,
             'extra_info': extra_info,
         })
-        return ystr(resp.text).json().to_dic()
+        resp.raise_for_status()
+        return resp
 
     @staticmethod
     def send_message(
@@ -268,7 +276,8 @@ class DataService:
             'has_read': has_read,
             'extra_info': extra_info,
         })
-        return ystr(resp.text).json().to_dic()
+        resp.raise_for_status()
+        return resp
 
 class FishType(Enum):
     Text = 'Text'
@@ -505,7 +514,7 @@ class ViewItemActionType(Enum):
 class Action:
 
     @staticmethod
-    def run_shell_command(command: str, arguments: list[str]=[], refresh_view=True) -> dict:
+    def run_shell_command(command: str, arguments: list[str]=[], refresh_view=True):
         return {
             'type': 'run',
             'cmd': command,
@@ -514,40 +523,40 @@ class Action:
         }
     
     @staticmethod
-    def copy_to_clipboard(content: str) -> dict:
+    def copy_to_clipboard(content: str):
         return {
             'type': 'run',
             'content': content,
         }
 
     @staticmethod
-    def back_to_menu() -> dict:
+    def back_to_menu():
         return {
             'type': 'back',
         }
     
     @staticmethod
-    def hide_touchfish() -> dict:
+    def hide_touchfish():
         return {
             'type': 'hide',
         }
     
     @staticmethod
-    def open_url(url: str) -> dict:
+    def open_url(url: str):
         return {
             'type': 'open_url',
             'url': url,
         }
     
     @staticmethod
-    def active_external_app(bundle_id: str) -> dict:
+    def active_external_app(bundle_id: str):
         return {
             'type': 'active_app',
             'bundle_id': bundle_id,
         }
     
     @staticmethod
-    def set_parameter(name: str, value: str) -> dict:
+    def set_parameter(name: str, value: str):
         return {
             'type': 'set_para',
             'name': name,
@@ -590,6 +599,24 @@ class View:
         self.data = [base64.b64encode(s).decode('utf-8') for s in data]
         self.items = items
 
+    @staticmethod
+    def empty() -> 'View':
+        return View(type=ViewType.Empty)
+    
+    @staticmethod
+    def text(title: str, description: str = '') -> 'View':
+        return View(
+            type=ViewType.Text,
+            items=[ViewItem(title=title, description=description)],
+        )
+
+    @staticmethod
+    def error(title: str, description: str = '') -> 'View':
+        return View(
+            type=ViewType.Error,
+            items=[ViewItem(title=title, description=description)]
+        )
+
     def update(self):
         import sys
         sys.stdout.reconfigure(line_buffering=True)
@@ -611,29 +638,40 @@ class Para:
 
 class Handler:
 
-    def __init__(self, resp: dict):
+    def __init__(self, resp: requests.Response):
         self.resp = resp
+        self.data = ystr(resp.text).json().to_dic()
 
     def as_fish_list(self) -> list[Fish]:
-        return [Fish.from_arg(f) for f in self.resp['data']['data']]
+        return [Fish.from_arg(f) for f in self.data['data']['data']]
     
     def as_fish(self) -> Fish | None:
-        return None if (t:=self.resp['data']) == None else Fish(t)
+        return None if (t:=self.data['data']) == None else Fish(t)
 
     def as_uids(self) -> list[str]:
-        return self.resp['data']
+        return self.data['data']
     
     def as_stats(self) -> dict:
-        return self.resp['data']
+        return self.data['data']
     
-    def update_view_if_not_ok(self, note) -> 'Handler':
-        pass
+    def update_view_if_not_ok(self, note: str = '') -> 'Handler':
+        if self.data['code'] != 'Ok':
+            View.error(
+                title='Request Server Error', 
+                description=f'got response not ok when requesting data server in recipe, note={note}, url={self.resp.url}, code={self.data['code']}, msg={self.data['msg']}',
+            ).update()
+        return self
 
-    def send_message_if_not_ok(self, topic, level, note) -> 'Handler':
-        pass
+    def send_err_msg_if_not_ok(self, subject: str, note: str = '') -> 'Handler':
+        if self.data['code'] != 'Ok':
+            Topic.send_message(
+                subject=subject, level=MessageLevel.Error, title='Request Server Error',
+                body=f'got response not ok when requesting data server in recipe, note={note}, url={self.resp.url}, code={self.data['code']}, msg={self.data['msg']}',
+            )
+        return self
 
     def exit_if_not_ok(self) -> 'Handler':
-        if self.resp['code'] != 'Ok':
+        if self.data['code'] != 'Ok':
             exit(0)
         return self
     

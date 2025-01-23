@@ -116,8 +116,8 @@ struct DynamicRecipeViewInfoJsonText: Codable {
             return DynamicRecipeViewInfo(
                 type: .Error,
                 items: [DynamicRecipeViewInfo.ViewItem(
-                        title: "Recipe output parsing failed, please make sure the output format is correct.",
-                        description: String(jsonText.prefix(2000))
+                        title: "Decode View Failed",
+                        description: "Failed to decode view, please make sure the format is correct. \n raw=\(String(jsonText.prefix(2000)))"
                 )]
             )
         }
@@ -125,8 +125,8 @@ struct DynamicRecipeViewInfoJsonText: Codable {
             return DynamicRecipeViewInfo(
                 type: .Error,
                 items: [DynamicRecipeViewInfo.ViewItem(
-                        title: "Recipe output parsing failed, please make sure the output format is correct.",
-                        description: String(jsonText.prefix(2000))
+                        title: "Decode View Failed",
+                        description: "Failed to decode view, please make sure the format is correct. \n raw=\(String(jsonText.prefix(2000)))"
                 )]
             )
         }
@@ -136,8 +136,8 @@ struct DynamicRecipeViewInfoJsonText: Codable {
                 return DynamicRecipeViewInfo(
                     type: .Error,
                     items: [DynamicRecipeViewInfo.ViewItem(
-                            title: "Failed to parse data in result, please make sure the data is a base64 encoded string.",
-                            description: "pos=\(i), data=\(d.prefix(2000))"
+                            title: "Decode View Failed",
+                            description: "Failed to decode data in view, please make sure the data is a base64 encoded string, index=\(i) \n data=\(d.prefix(2000))"
                     )]
                 )
             }

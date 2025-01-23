@@ -178,8 +178,8 @@ enum RecipeAction: Codable {
                         info = DynamicRecipeViewInfo(
                             type: .Error,
                             items: [DynamicRecipeViewInfo.ViewItem(
-                                title: "Failed to start executing recipe task.",
-                                description: String(resp.msg.prefix(2000))
+                                title: "Commit Recipe Failed",
+                                description: "response from server is not ok, host=\(host), port=\(port), resp.code=\(resp.code) \n resp.msg=\(resp.msg)"
                             )]
                         )
                     } else {
@@ -190,7 +190,7 @@ enum RecipeAction: Codable {
                             info = DynamicRecipeViewInfo(
                                 type: .Error,
                                 items: [DynamicRecipeViewInfo.ViewItem(
-                                    title: "Lose task.",
+                                    title: "Lose Recipe Task",
                                     description: "server did not return a recipe execute uid"
                                 )]
                             )
@@ -201,8 +201,8 @@ enum RecipeAction: Codable {
                     info = DynamicRecipeViewInfo(
                         type: .Error,
                         items: [DynamicRecipeViewInfo.ViewItem(
-                            title: "Request server failed.",
-                            description: "host=\(host), port=\(port) \n err=\(err)"
+                            title: "Network Error",
+                            description: "failed to request recipe server when commiting recipe task, host=\(host), port=\(port) \n err=\(err)"
                         )]
                     )
                 }
@@ -252,8 +252,8 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
             info = DynamicRecipeViewInfo(
                 type: .Error,
                 items: [DynamicRecipeViewInfo.ViewItem(
-                        title: "Fetch execute result failed.",
-                        description: "host=\(host), port=\(port), executeUid=\(executeUid) \n err=\(resp.msg)"
+                        title: "Fetch Result Failed",
+                        description: "response from server is not ok, host=\(host), port=\(port), executeUid=\(executeUid), resp.code=\(resp.code) \n resp.msg=\(resp.msg)"
                 )]
             )
         } else {
@@ -263,8 +263,8 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
                     info = DynamicRecipeViewInfo(
                         type: .Error,
                         items: [DynamicRecipeViewInfo.ViewItem(
-                                title: "Recipe execute failed.",
-                                description: "host=\(host), port=\(port), executeUid=\(executeUid) \n err=\(data.stderr.prefix(2000))"
+                                title: "Execute Failed",
+                                description: "recipe executing failed, host=\(host), port=\(port), executeUid=\(executeUid) \n stderr=\(data.stderr.prefix(3000))"
                         )]
                     )
                 } else {
@@ -301,8 +301,8 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
                     info = DynamicRecipeViewInfo(
                         type: .Error,
                         items: [DynamicRecipeViewInfo.ViewItem(
-                                title: "Fetch execute result failed.",
-                                description: "host=\(host), port=\(port), executeUid=\(executeUid) \n err=no data in resp"
+                                title: "Fetch Result Failed",
+                                description: "there is still no data in response after trying 300 times, host=\(host), port=\(port), executeUid=\(executeUid) \n resp.msg=\(resp.msg)"
                         )]
                     )
                 }
@@ -313,8 +313,8 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
         info = DynamicRecipeViewInfo(
             type: .Error,
             items: [DynamicRecipeViewInfo.ViewItem(
-                    title: "Fetch execute result failed.",
-                    description: "host=\(host), port=\(port), executeUid=\(executeUid) \n err=\(err)"
+                title: "Network Error",
+                description: "failed to request recipe server whening fetch execute result, host=\(host), port=\(port) executeUid=\(executeUid) \n err=\(err)"
             )]
         )
     }
