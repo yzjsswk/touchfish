@@ -29,8 +29,8 @@ struct FishAddView: View {
                     .frame(width: 150, height: 40)
                     .onTapGesture {
                         Task {
-                            let subject = "add_fish_\(Date().timeIntervalSince1970)"
-                            let _ = await Storage.createTopic(topicType: .Info, subject: subject, source: "com.touchfish.AddFish", title: "Add Fish From File")
+                            let subject = "Add Fish"
+                            let _ = await Storage.createTopic(subject: subject, source: "com.touchfish.AddFish", title: "Add Fish From File")
                             for (url, info) in toAddFiles {
                                 if let data = FileManager.default.contents(atPath: url.path) {
                                     if let type = Fish.FishType(rawValue: info.selectedType) {
@@ -40,17 +40,17 @@ struct FishAddView: View {
                                             isMarked: true, extraInfo: ["source": "Add By TouchFish"]
                                         )
                                         if uid != nil {
-                                            await Storage.sendMessage(topicSubject: subject, level: .Info, title: "Add Success", body: "successfully add one fish from file \(url.path)")
+                                            await Storage.sendMessage(subject: subject, level: .Info, title: "Add Success", body: "successfully add one fish from file \(url.path)")
                                         } else {
-                                            await Storage.sendMessage(topicSubject: subject, level: .Error, title: "Add Failed", body: "failed to add one fish from file \(url.path), check if there had been one same fish")
+                                            await Storage.sendMessage(subject: subject, level: .Error, title: "Add Failed", body: "failed to add one fish from file \(url.path), check if there had been one same fish")
                                             Log.error("click button to add fish - one fish add failed: storage.addFish returns nil, url=\(url.path)")
                                         }
                                     } else {
-                                        await Storage.sendMessage(topicSubject: subject, level: .Error, title: "Add Failed", body: "failed to add one fish from file \(url.path): type \(info.selectedType) invalid")
+                                        await Storage.sendMessage(subject: subject, level: .Error, title: "Add Failed", body: "failed to add one fish from file \(url.path): type \(info.selectedType) invalid")
                                         Log.error("click button to add fish - skip a fish: parse type=nil, url=\(url.path), type=\(info.selectedType)")
                                     }
                                 } else {
-                                    await Storage.sendMessage(topicSubject: subject, level: .Error, title: "Add Failed", body: "failed to add one fish from file \(url.path): read data from file failed")
+                                    await Storage.sendMessage(subject: subject, level: .Error, title: "Add Failed", body: "failed to add one fish from file \(url.path): read data from file failed")
                                     Log.error("click button to add fish - skip a fish: got file data=nil, url=\(url.path)")
                                 }
                             }
@@ -226,7 +226,8 @@ class AddInfo: ObservableObject {
     }
     
     func withExists() -> AddInfo {
-        var ret = AddInfo(fileSize: self.fileSize)
+        // todo: why here can be let
+        let ret = AddInfo(fileSize: self.fileSize)
         ret.description = self.description
         ret.tags = self.tags
         ret.selectedType = self.selectedType

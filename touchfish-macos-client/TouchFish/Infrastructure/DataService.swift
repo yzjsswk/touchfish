@@ -135,27 +135,17 @@ struct CountFishResp: Codable {
 
 struct TopicResp: Codable {
     
-    struct ExtraInfo: Codable {
-        
-        func toEntity() -> Topic.ExtraInfo {
-            return Topic.ExtraInfo()
-        }
-        
-    }
-    
     let uid: String
-    let topicType: String
     let subject: String
     let source: String
     let title: String
     let messages: [MessageResp]
-    let extraInfo: TopicResp.ExtraInfo
+    let extraInfo: [String:String]
     let createTime: String
     let updateTime: String
     
     enum CodingKeys: String, CodingKey {
         case uid = "uid"
-        case topicType = "topic_type"
         case subject = "subject"
         case source = "source"
         case title = "title"
@@ -166,10 +156,6 @@ struct TopicResp: Codable {
     }
     
     func toEntity() -> Topic? {
-        guard let topicType = Topic.TopicType(rawValue: self.topicType) else {
-            Log.warning("TopicResp.toEntity - return nil: no such topicType, topicResp.topicType=\(self.topicType), topicResp.uid=\(self.uid)")
-            return nil
-        }
         let messages = self.messages.compactMap { messageResp in
             if let message = messageResp.toEntity() {
                 return message
@@ -180,8 +166,8 @@ struct TopicResp: Codable {
         let createTime = Functions.convertIsoDateToE8(self.createTime) ?? self.createTime
         let updateTime = Functions.convertIsoDateToE8(self.updateTime) ?? self.updateTime
         return Topic(
-            uid: self.uid, topicType: topicType, subject: self.subject, source: self.source, title: self.title,
-            messages: messages, extraInfo: self.extraInfo.toEntity(), createTime: createTime, updateTime: updateTime
+            uid: self.uid, subject: self.subject, source: self.source, title: self.title,
+            messages: messages, extraInfo: self.extraInfo, createTime: createTime, updateTime: updateTime
         )
     }
     
@@ -189,20 +175,12 @@ struct TopicResp: Codable {
 
 struct MessageResp: Codable {
     
-    struct ExtraInfo: Codable {
-        
-        func toEntity() -> Message.ExtraInfo {
-            return Message.ExtraInfo()
-        }
-        
-    }
-    
     let uid: String
     let level: String
     let title: String
     let body: String
     let hasRead: Bool
-    let extraInfo: MessageResp.ExtraInfo
+    let extraInfo: [String:String]
     let createTime: String
     let updateTime: String
     
@@ -226,7 +204,7 @@ struct MessageResp: Codable {
         let updateTime = Functions.convertIsoDateToE8(self.updateTime) ?? self.updateTime
         return Message(
             uid: self.uid, level: level, title: self.title, body: self.body,
-            hasRead: self.hasRead, extraInfo: self.extraInfo.toEntity(),
+            hasRead: self.hasRead, extraInfo: self.extraInfo,
             createTime: createTime, updateTime: updateTime
         )
     }
@@ -461,15 +439,14 @@ struct DataService {
     }
     
     static func createTopic(
-        topicType: Topic.TopicType, subject: String, source: String, title: String, extraInfo: Topic.ExtraInfo
+        subject: String, source: String, title: String, extraInfo: [String:String]?
     ) async -> Result<DataServiceResponse<String>, AFError> {
         let url = DataService.urlPrefix + "/topic/create"
         let para: [String:Any?] = [
-            "topic_type": topicType.rawValue,
             "subject": subject,
             "source": source,
             "title": title,
-            "extra_info": [:],
+            "extra_info": extraInfo,
         ]
         return await AF.request(
             url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default
@@ -487,16 +464,16 @@ struct DataService {
     }
     
     static func sendMessage(
-        topicSubject: String, level: Message.Level, title: String, body: String, hasRead: Bool, extraInfo: Message.ExtraInfo
+        subject: String, level: Message.Level, title: String, body: String, hasRead: Bool, extraInfo: [String:String]?
     ) async -> Result<DataServiceResponse<NoDataResp>, AFError> {
         let url = DataService.urlPrefix + "/message/send"
         let para: [String:Any?] = [
-            "topic_subject": topicSubject,
+            "subject": subject,
             "level": level.rawValue,
             "title": title,
             "body": body,
             "has_read": hasRead,
-            "extra_info": [:],
+            "extra_info": extraInfo,
         ]
         return await AF.request(
             url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default

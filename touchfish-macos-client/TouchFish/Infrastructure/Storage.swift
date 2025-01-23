@@ -437,10 +437,10 @@ struct Storage {
     }
     
     static func createTopic(
-        topicType: Topic.TopicType, subject: String, source: String, title: String, extraInfo: Topic.ExtraInfo? = nil
+        subject: String, source: String, title: String, extraInfo: [String:String]? = nil
     ) async -> String? {
         let result = await DataService.createTopic(
-            topicType: topicType, subject: subject, source: source, title: title, extraInfo: extraInfo ?? Topic.ExtraInfo()
+            subject: subject, source: source, title: title, extraInfo: extraInfo
         )
         switch result {
         case .success(let resp):
@@ -496,12 +496,12 @@ struct Storage {
     }
     
     static func sendMessage(
-        topicSubject: String, level: Message.Level, title: String,
-        body: String, extraInfo: Message.ExtraInfo? = nil
+        subject: String, level: Message.Level, title: String,
+        body: String, extraInfo: [String:String]? = nil
     ) async {
         let result = await DataService.sendMessage(
-            topicSubject: topicSubject, level: level, title: title,
-            body: body, hasRead: false, extraInfo: extraInfo ?? Message.ExtraInfo()
+            subject: subject, level: level, title: title,
+            body: body, hasRead: false, extraInfo: extraInfo
         )
         switch result {
         case .success(let resp):
