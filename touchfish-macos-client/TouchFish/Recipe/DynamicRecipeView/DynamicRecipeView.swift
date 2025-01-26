@@ -31,36 +31,44 @@ struct DynamicRecipeView: View {
                     Spacer(minLength: 0)
                 }
                 if let info = dynamicRecipeViewInfo {
-                    switch info.type {
-                    case .Empty:
-                        EmptyView()
-                    case .Error:
-                        DynamicRecipeErrorView(info: info)
-                    case.Text:
-                        VStack {
-                            ForEach(info.items, id: \.title) { item in
-                                Text(item.title)
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 5) {
+                            ForEach(info.items) { item in
+                                DynamicRecipeItemView(item: item, info: .constant(info))
                             }
                         }
-                    case .List:
-                        ScrollView(showsIndicators: false) {
-                            VStack(spacing: 5) {
-                                ForEach(info.items, id: \.title) { item in
-                                    DynamicRecipeListView(data: info.data, item: item)
-                                }
-                            }
-                            .padding(.vertical)
-                        }
-                    case .Card:
-                        ScrollView(showsIndicators: false) {
-                            VStack {
-                                ForEach(info.items, id: \.title) { item in
-                                    DynamicRecipeCardView(data: info.data, item: item)
-                                }
-                            }
-                            .padding(.vertical)
-                        }
+                        .padding(.vertical)
                     }
+//                    switch info.type {
+//                    case .Empty:
+//                        EmptyView()
+//                    case .Error:
+//                        DynamicRecipeErrorView(info: info)
+//                    case.Text:
+//                        VStack {
+//                            ForEach(info.items, id: \.title) { item in
+//                                Text(item.title)
+//                            }
+//                        }
+//                    case .List:
+//                        ScrollView(showsIndicators: false) {
+//                            VStack(spacing: 5) {
+//                                ForEach(info.items, id: \.title) { item in
+//                                    DynamicRecipeListView(data: info.data, item: item)
+//                                }
+//                            }
+//                            .padding(.vertical)
+//                        }
+//                    case .Card:
+//                        ScrollView(showsIndicators: false) {
+//                            VStack {
+//                                ForEach(info.items, id: \.title) { item in
+//                                    DynamicRecipeCardView(data: info.data, item: item)
+//                                }
+//                            }
+//                            .padding(.vertical)
+//                        }
+//                    }
                 } else {
                     EmptyView()
                 }
@@ -75,7 +83,7 @@ struct DynamicRecipeView: View {
             HStack {
                 HStack(spacing: 10) {
                     DynamicRecipeViewShowFishSideButtonView(fishSideEnable: $fishSideEnable)
-                    if let info = self.dynamicRecipeViewInfo, info.type != .Empty && info.items.count > 0 {
+                    if let info = self.dynamicRecipeViewInfo, info.items.count > 0 && info.items.count > 0 {
                         DynamicRecipeViewShowParaFieldButtonView(withAnima: true, paraFieldEnable: $paraFieldEnbale)
                     } else {
                         DynamicRecipeViewShowParaFieldButtonView(withAnima: false, paraFieldEnable: $paraFieldEnbale)

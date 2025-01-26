@@ -175,38 +175,29 @@ enum RecipeAction: Codable {
                 case .success(let resp):
                     if !resp.isOk() {
                         Log.error("request recipe server to execute shell recipe action - fail: resp is not ok, resp.code=\(resp.code), host=\(host), port=\(port), bundleId=\(bundleId), command=\(command)")
-                        info = DynamicRecipeViewInfo(
-                            type: .Error,
-                            items: [DynamicRecipeViewInfo.ViewItem(
-                                title: "Commit Recipe Failed",
-                                description: "response from server is not ok, host=\(host), port=\(port), resp.code=\(resp.code) \n resp.msg=\(resp.msg)"
-                            )]
+                        info = DynamicRecipeViewInfo.error(
+                            title: "Commit Recipe Failed",
+                            detail: "response from server is not ok, host=\(host), port=\(port), resp.code=\(resp.code) \n resp.msg=\(resp.msg)"
                         )
                     } else {
                         executeUid = resp.data
                         if executeUid != nil {
-                            info = DynamicRecipeViewInfo(type: .Empty)
+                            info = DynamicRecipeViewInfo.empty()
                         } else {
-                            info = DynamicRecipeViewInfo(
-                                type: .Error,
-                                items: [DynamicRecipeViewInfo.ViewItem(
-                                    title: "Lose Recipe Task",
-                                    description: "server did not return a recipe execute uid"
-                                )]
+                            info = DynamicRecipeViewInfo.error(
+                                title: "Lose Recipe Task",
+                                detail: "server did not return a recipe execute uid"
                             )
                         }
                     }
                 case .failure(let err):
                     Log.error("request recipe server to execute shell recipe action - fail: request recipe server failed, host=\(host), port=\(port), err=\(err), bundleId=\(bundleId), command=\(command)")
-                    info = DynamicRecipeViewInfo(
-                        type: .Error,
-                        items: [DynamicRecipeViewInfo.ViewItem(
-                            title: "Network Error",
-                            description: "failed to request recipe server when commiting recipe task, host=\(host), port=\(port) \n err=\(err)"
-                        )]
+                    info = DynamicRecipeViewInfo.error(
+                        title: "Network Error",
+                        detail: "failed to request recipe server when commiting recipe task, host=\(host), port=\(port) \n err=\(err)"
                     )
                 }
-                if info.type != .Empty {
+                if info.items.count > 0 {
                     DispatchQueue.main.async {
                         NotificationCenter.default.post(
                             name: .DynamicRecipeViewChanged, object: nil, userInfo: ["info":info, "executeTime":executeTime]
@@ -249,23 +240,17 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
     switch result {
     case .success(let resp):
         if !resp.isOk() {
-            info = DynamicRecipeViewInfo(
-                type: .Error,
-                items: [DynamicRecipeViewInfo.ViewItem(
-                        title: "Fetch Result Failed",
-                        description: "response from server is not ok, host=\(host), port=\(port), executeUid=\(executeUid), resp.code=\(resp.code) \n resp.msg=\(resp.msg)"
-                )]
+            info = DynamicRecipeViewInfo.error(
+                    title: "Fetch Result Failed",
+                    detail: "response from server is not ok, host=\(host), port=\(port), executeUid=\(executeUid), resp.code=\(resp.code) \n resp.msg=\(resp.msg)"
             )
         } else {
             if let data = resp.data {
                 timeCost = data.timeCost
                 if data.status == .Fail {
-                    info = DynamicRecipeViewInfo(
-                        type: .Error,
-                        items: [DynamicRecipeViewInfo.ViewItem(
-                                title: "Execute Failed",
-                                description: "recipe executing failed, host=\(host), port=\(port), executeUid=\(executeUid) \n stderr=\(data.stderr.prefix(3000))"
-                        )]
+                    info = DynamicRecipeViewInfo.error(
+                            title: "Execute Failed",
+                            detail: "recipe executing failed, host=\(host), port=\(port), executeUid=\(executeUid) \n stderr=\(data.stderr.prefix(3000))"
                     )
                 } else {
                     info = DynamicRecipeViewInfoJsonText.parse(from: data.stdout)
@@ -290,7 +275,7 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
                 }
             } else {
                 if fetchCount < 300 {
-                    info = DynamicRecipeViewInfo(type: .Empty)
+                    info = DynamicRecipeViewInfo.empty()
                     refresh = false
                     DispatchQueue.main.asyncAfter(deadline: .now() + getRefreshInterval(fetchCount: fetchCount)) {
                         Task {
@@ -298,24 +283,18 @@ func fetchExecuteResult(host: String, port: String, executeUid: String, executeT
                         }
                     }
                 } else {
-                    info = DynamicRecipeViewInfo(
-                        type: .Error,
-                        items: [DynamicRecipeViewInfo.ViewItem(
-                                title: "Fetch Result Failed",
-                                description: "there is still no data in response after trying 300 times, host=\(host), port=\(port), executeUid=\(executeUid) \n resp.msg=\(resp.msg)"
-                        )]
+                    info = DynamicRecipeViewInfo.error(
+                        title: "Fetch Result Failed",
+                        detail: "there is still no data in response after trying 300 times, host=\(host), port=\(port), executeUid=\(executeUid) \n resp.msg=\(resp.msg)"
                     )
                 }
             }
         }
     case .failure(let err):
         Log.error("request recipe server to fetch execute result - fail: request recipe server failed, host=\(host), port=\(port), err=\(err), executeUid=\(executeUid)")
-        info = DynamicRecipeViewInfo(
-            type: .Error,
-            items: [DynamicRecipeViewInfo.ViewItem(
-                title: "Network Error",
-                description: "failed to request recipe server whening fetch execute result, host=\(host), port=\(port) executeUid=\(executeUid) \n err=\(err)"
-            )]
+        info = DynamicRecipeViewInfo.error(
+            title: "Network Error",
+            detail: "failed to request recipe server whening fetch execute result, host=\(host), port=\(port) executeUid=\(executeUid) \n err=\(err)"
         )
     }
     if !refresh || !refreshView {

@@ -2,157 +2,360 @@ import SwiftUI
 
 struct DynamicRecipeViewInfo: Codable {
     
-    var type: ViewType
-    var data: [Data] = []
-    var items: [ViewItem] = []
-
-    enum ViewType: String, Codable {
-        case Empty
-        case Error
-        case Text
-        case List
-        case Card
+    struct Operation: Codable {
+        var name: String
+        var actions: [RecipeAction]
     }
     
-    struct ViewItem: Codable {
+    var items: [ViewItem]
+    var data: [Data] = []
+    var operations: [Operation] = []
+    var enableSelect = false
+    
+    enum ViewItem: Codable, Identifiable {
+        
+        enum Size: String, Codable {
+            case Small
+            case Medium
+            case Large
+        }
         
         struct Property: Codable {
             var name: String
             var value: String
         }
         
-        struct Operation: Codable {
-            var name: String
-            var actions: [RecipeAction]
-        }
-        
-        var data: [Data] = []
-        var title: String
-        var description: String?
-        var iconPattern: String?
-        var tags: [String] = []
-        var images: [String] = []
-        var properties: [Property] = []
-        var operations: [Operation] = []
+        case Info(
+            title: String,
+            body: String?,
+            value: String? = nil,
+            selectable: Bool = false
+        )
+        case Warn(
+            title: String,
+            body: String?,
+            value: String? = nil,
+            selectable: Bool = false
+        )
+        case Error(
+            title: String,
+            body: String?,
+            value: String? = nil,
+            selectable: Bool = false
+        )
+        case Strip(
+            size: Size = .Medium,
+            title: String,
+            description: String?,
+            iconPattern: String?,
+            tags: [String] = [],
+            operation: Operation? = nil,
+            value: String? = nil,
+            selectable: Bool = true
+        )
+        case TextCard(
+            size: Size = .Medium,
+            title: String,
+            description: String?,
+            iconPattern: String?,
+            tags: [String] = [],
+            body: String = "",
+            properties: [Property] = [],
+            showProperties: Bool = true,
+            operations: [Operation] = [],
+            value: String? = nil,
+            selectable: Bool = true
+        )
+        case ImageCard(
+            size: Size = .Medium,
+            title: String,
+            description: String?,
+            iconPattern: String?,
+            tags: [String] = [],
+            imagePatterns: [String] = [],
+            properties: [Property] = [],
+            showProperties: Bool = true,
+            operations: [Operation] = [],
+            value: String? = nil,
+            selectable: Bool = true
+        )
         
         enum CodingKeys: String, CodingKey {
-            case title = "title"
-            case description = "description"
+            case type
+            case size
+            case title
+            case body
+            case description
             case iconPattern = "icon"
-            case tags = "tags"
-            case images = "images"
-            case properties = "properties"
-            case operations = "operations"
+            case tags
+            case properties
+            case showProperties = "show_properties"
+            case operation
+            case operations
+            case imagePatterns = "images"
+            case value
+            case selectable
         }
         
-        var icon: Image? {
-            guard let pattern = iconPattern else {
-                return nil
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            switch self {
+            case .Info(let title, let body, let value, let selectable):
+                try container.encode("info", forKey: .type)
+                try container.encode(title, forKey: .title)
+                try container.encode(body, forKey: .body)
+                try container.encode(value, forKey: .value)
+                try container.encode(selectable, forKey: .selectable)
+            case .Warn(let title, let body, let value, let selectable):
+                try container.encode("warn", forKey: .type)
+                try container.encode(title, forKey: .title)
+                try container.encode(body, forKey: .body)
+                try container.encode(value, forKey: .value)
+                try container.encode(selectable, forKey: .selectable)
+            case .Error(let title, let body, let value, let selectable):
+                try container.encode("error", forKey: .type)
+                try container.encode(title, forKey: .title)
+                try container.encode(body, forKey: .body)
+                try container.encode(value, forKey: .value)
+                try container.encode(selectable, forKey: .selectable)
+            case .Strip(
+                let size, let title, let description, let iconPattern, let tags,
+                let operation, let value, let selectable
+            ):
+                try container.encode("strip", forKey: .type)
+                try container.encode(size, forKey: .size)
+                try container.encode(title, forKey: .title)
+                try container.encode(description, forKey: .description)
+                try container.encode(iconPattern, forKey: .iconPattern)
+                try container.encode(tags, forKey: .tags)
+                try container.encode(operation, forKey: .operation)
+                try container.encode(value, forKey: .value)
+                try container.encode(selectable, forKey: .selectable)
+            case .TextCard(
+                let size, let title, let description, let iconPattern, let tags,
+                let body, let properties, let showProperties, let operations,
+                let value, let selectable
+            ):
+                try container.encode("text_card", forKey: .type)
+                try container.encode(size, forKey: .size)
+                try container.encode(title, forKey: .title)
+                try container.encode(description, forKey: .description)
+                try container.encode(iconPattern, forKey: .iconPattern)
+                try container.encode(tags, forKey: .tags)
+                try container.encode(body, forKey: .body)
+                try container.encode(properties, forKey: .properties)
+                try container.encode(showProperties, forKey: .showProperties)
+                try container.encode(operations, forKey: .operations)
+                try container.encode(value, forKey: .value)
+                try container.encode(selectable, forKey: .selectable)
+            case .ImageCard(
+                let size, let title, let description, let iconPattern, let tags,
+                let imagePatterns, let properties, let showProperties, let operations,
+                let value, let selectable
+            ):
+                try container.encode("image_card", forKey: .type)
+                try container.encode(size, forKey: .size)
+                try container.encode(title, forKey: .title)
+                try container.encode(description, forKey: .description)
+                try container.encode(iconPattern, forKey: .iconPattern)
+                try container.encode(tags, forKey: .tags)
+                try container.encode(imagePatterns, forKey: .imagePatterns)
+                try container.encode(properties, forKey: .properties)
+                try container.encode(showProperties, forKey: .showProperties)
+                try container.encode(operations, forKey: .operations)
+                try container.encode(value, forKey: .value)
+                try container.encode(selectable, forKey: .selectable)
             }
-            guard let image = patternToImage(pattern: pattern) else {
-                return Image(systemName: "doc.plaintext")
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let type = try container.decode(String.self, forKey: .type)
+            switch type {
+            case "info":
+                let title = try container.decode(String.self, forKey: .title)
+                let body = try container.decode(String?.self, forKey: .body)
+                let value = try container.decode(String?.self, forKey: .value)
+                let selectable = try container.decode(Bool.self, forKey: .selectable)
+                self = .Info(title: title, body: body, value: value, selectable: selectable)
+            case "warn":
+                let title = try container.decode(String.self, forKey: .title)
+                let body = try container.decode(String?.self, forKey: .body)
+                let value = try container.decode(String?.self, forKey: .value)
+                let selectable = try container.decode(Bool.self, forKey: .selectable)
+                self = .Warn(title: title, body: body, value: value, selectable: selectable)
+            case "error":
+                let title = try container.decode(String.self, forKey: .title)
+                let body = try container.decode(String?.self, forKey: .body)
+                let value = try container.decode(String?.self, forKey: .value)
+                let selectable = try container.decode(Bool.self, forKey: .selectable)
+                self = .Error(title: title, body: body, value: value, selectable: selectable)
+            case "strip":
+                let size = try container.decode(Size.self, forKey: .size)
+                let title = try container.decode(String.self, forKey: .title)
+                let description = try container.decode(String?.self, forKey: .description)
+                let iconPattern = try container.decode(String?.self, forKey: .iconPattern)
+                let tags = try container.decode([String].self, forKey: .tags)
+                let operation = try container.decode(Operation?.self, forKey: .operation)
+                let value = try container.decode(String?.self, forKey: .value)
+                let selectable = try container.decode(Bool.self, forKey: .selectable)
+                self = .Strip(
+                    size: size, title: title, description: description,
+                    iconPattern: iconPattern, tags: tags, operation: operation,
+                    value: value, selectable: selectable
+                )
+            case "text_card":
+                let size = try container.decode(Size.self, forKey: .size)
+                let title = try container.decode(String.self, forKey: .title)
+                let description = try container.decode(String?.self, forKey: .description)
+                let iconPattern = try container.decode(String?.self, forKey: .iconPattern)
+                let tags = try container.decode([String].self, forKey: .tags)
+                let body = try container.decode(String.self, forKey: .body)
+                let properties = try container.decode([Property].self, forKey: .properties)
+                let showProperties = try container.decode(Bool.self, forKey: .showProperties)
+                let operations = try container.decode([Operation].self, forKey: .operations)
+                let value = try container.decode(String?.self, forKey: .value)
+                let selectable = try container.decode(Bool.self, forKey: .selectable)
+                self = .TextCard(
+                    size: size, title: title, description: description, iconPattern: iconPattern,
+                    tags: tags, body: body, properties: properties, showProperties: showProperties,
+                    operations: operations, value: value, selectable: selectable
+                )
+            case "image_card":
+                let size = try container.decode(Size.self, forKey: .size)
+                let title = try container.decode(String.self, forKey: .title)
+                let description = try container.decode(String?.self, forKey: .description)
+                let iconPattern = try container.decode(String?.self, forKey: .iconPattern)
+                let tags = try container.decode([String].self, forKey: .tags)
+                let imagePatterns = try container.decode([String].self, forKey: .imagePatterns)
+                let properties = try container.decode([Property].self, forKey: .properties)
+                let showProperties = try container.decode(Bool.self, forKey: .showProperties)
+                let operations = try container.decode([Operation].self, forKey: .operations)
+                let value = try container.decode(String?.self, forKey: .value)
+                let selectable = try container.decode(Bool.self, forKey: .selectable)
+                self = .ImageCard(
+                    size: size, title: title, description: description, iconPattern: iconPattern,
+                    tags: tags, imagePatterns: imagePatterns, properties: properties, showProperties: showProperties,
+                    operations: operations, value: value, selectable: selectable
+                )
+            default:
+                throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "invalid view item type: \(type)")
             }
-            return image
         }
         
-        func patternToImage(pattern: String) -> Image? {
-            let words = pattern.components(separatedBy: "??").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            if let icon = words[0].icon {
-                return icon
+        var id: String {
+            switch self {
+            case .Info(let title, let body, let value, let selectable):
+                return "info\(title)"
+            case .Warn(let title, let body, let value, let selectable):
+                return "warn\(title)"
+            case .Error(let title, let body, let value, let selectable):
+                return "error\(title)"
+            case .Strip(
+                let size, let title, let description, let iconPattern, let tags,
+                let operation, let value, let selectable
+            ):
+                return "strip\(title)"
+            case .TextCard(
+                let size, let title, let description, let iconPattern, let tags,
+                let body, let properties, let showProperties, let operations,
+                let value, let selectable
+            ):
+                return "text_card\(title)"
+            case .ImageCard(
+                let size, let title, let description, let iconPattern, let tags,
+                let imagePatterns, let properties, let showProperties, let operations,
+                let value, let selectable
+            ):
+                return "image_card\(title)"
             }
-            if words[0].hasPrefix("data:") {
-                guard let idx = Int(String(words[0].dropFirst(5))) else {
-                    return nil
-                }
-                if data.count > idx {
-                    guard let nsImage = NSImage(data: data[idx]) else {
-                        return nil
-                    }
-                    return Image(nsImage: nsImage)
-                }
-            }
-            if words.count < 2 {
-                return nil
-            }
-            if let icon = words[1].icon {
-                return icon
-            }
-            if words[1].hasPrefix("data:") {
-                guard let idx = Int(String(words[1].dropFirst(5))) else {
-                    return nil
-                }
-                if data.count > idx {
-                    guard let nsImage = NSImage(data: data[idx]) else {
-                        return nil
-                    }
-                    return Image(nsImage: nsImage)
-                }
-            }
-            return nil
         }
-        
+
     }
     
-}
+    static func empty() -> DynamicRecipeViewInfo {
+        return DynamicRecipeViewInfo(items: [])
+    }
+    
+    static func error(title: String, detail: String) -> DynamicRecipeViewInfo {
+        return DynamicRecipeViewInfo(items: [.Error(title: title, body: detail)])
+    }
+    
+    func patternToImage(pattern: String) -> Image? {
+        let words = pattern.components(separatedBy: "??").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        if let icon = words[0].icon {
+            return icon
+        }
+        if words[0].hasPrefix("data:") {
+            guard let idx = Int(String(words[0].dropFirst(5))) else {
+                return nil
+            }
+            if data.count > idx {
+                guard let nsImage = NSImage(data: data[idx]) else {
+                    return nil
+                }
+                return Image(nsImage: nsImage)
+            }
+        }
+        if words.count < 2 {
+            return nil
+        }
+        if let icon = words[1].icon {
+            return icon
+        }
+        if words[1].hasPrefix("data:") {
+            guard let idx = Int(String(words[1].dropFirst(5))) else {
+                return nil
+            }
+            if data.count > idx {
+                guard let nsImage = NSImage(data: data[idx]) else {
+                    return nil
+                }
+                return Image(nsImage: nsImage)
+            }
+        }
+        return nil
+    }
 
+}
 
 struct DynamicRecipeViewInfoJsonText: Codable {
     
-    var type: DynamicRecipeViewInfo.ViewType
     var data: [String] = []
     var items: [DynamicRecipeViewInfo.ViewItem] = []
     
     enum CodingKeys: String, CodingKey {
-        case type = "type"
         case data = "data"
         case items = "items"
     }
     
     static func parse(from jsonText: String) -> DynamicRecipeViewInfo {
         if jsonText.count == 0 {
-            return DynamicRecipeViewInfo(type: .Empty)
+            return DynamicRecipeViewInfo(items: [])
         }
         guard let data = jsonText.data(using: .utf8) else {
-            return DynamicRecipeViewInfo(
-                type: .Error,
-                items: [DynamicRecipeViewInfo.ViewItem(
-                        title: "Decode View Failed",
-                        description: "Failed to decode view, please make sure the format is correct. \n raw=\(String(jsonText.prefix(2000)))"
-                )]
+            return DynamicRecipeViewInfo.error(
+                title: "Decode View Failed",
+                detail: "Failed to decode view, please make sure the format is correct. \n raw=\(String(jsonText.prefix(2000)))"
             )
         }
         guard let result = try? JSONDecoder().decode(DynamicRecipeViewInfoJsonText.self, from: data) else {
-            return DynamicRecipeViewInfo(
-                type: .Error,
-                items: [DynamicRecipeViewInfo.ViewItem(
-                        title: "Decode View Failed",
-                        description: "Failed to decode view, please make sure the format is correct. \n raw=\(String(jsonText.prefix(2000)))"
-                )]
+            return DynamicRecipeViewInfo.error(
+                    title: "Decode View Failed",
+                    detail: "Failed to decode view, please make sure the format is correct. \n raw=\(String(jsonText.prefix(2000)))"
             )
         }
         var decodedData: [Data] = []
         for (i, d) in result.data.enumerated() {
             guard let cur = Data(base64Encoded: d) else {
-                return DynamicRecipeViewInfo(
-                    type: .Error,
-                    items: [DynamicRecipeViewInfo.ViewItem(
-                            title: "Decode View Failed",
-                            description: "Failed to decode data in view, please make sure the data is a base64 encoded string, index=\(i) \n data=\(d.prefix(2000))"
-                    )]
+                return DynamicRecipeViewInfo.error(
+                        title: "Decode View Failed",
+                        detail: "Failed to decode data in view, please make sure the data is a base64 encoded string, index=\(i) \n data=\(d.prefix(2000))"
                 )
             }
             decodedData.append(cur)
         }
-        var items: [DynamicRecipeViewInfo.ViewItem] = []
-        for var item in result.items {
-            item.data = decodedData
-            items.append(item)
-        }
-        return DynamicRecipeViewInfo(
-            type: result.type,
-            data: decodedData,
-            items: items
-        )
+        return DynamicRecipeViewInfo(items: result.items, data: decodedData)
     }
     
 }

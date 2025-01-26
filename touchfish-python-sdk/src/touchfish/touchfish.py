@@ -22,9 +22,7 @@ class DataService:
     @staticmethod
     def heart_beat():
         url = DataService.get_url_prefix() + '/heartbeat'
-        resp = requests.get(url=url)
-        resp.raise_for_status()
-        return resp
+        return requests.get(url=url)
 
     @staticmethod
     def search_fish(
@@ -43,7 +41,7 @@ class DataService:
         page_size: int = None,
     ):
         url = DataService.get_url_prefix() + '/fish/search'
-        resp = requests.post(url=url, json={
+        return requests.post(url=url, json={
             'fuzzy': fuzzy,
             'identitys': identitys,
             'fish_types': fish_types,
@@ -58,8 +56,6 @@ class DataService:
             'page_num': page_num,
             'page_size': page_size,
         })
-        resp.raise_for_status()
-        return resp
         
     @staticmethod
     def delect_fish(
@@ -76,7 +72,7 @@ class DataService:
         update_before: int = None,
     ):
         url = DataService.get_url_prefix() + '/fish/delect'
-        resp = requests.post(url=url, json={
+        return requests.post(url=url, json={
             'fuzzy': fuzzy,
             'identitys': identitys,
             'fish_types': fish_types,
@@ -89,29 +85,21 @@ class DataService:
             'update_after': update_after,
             'update_before': update_before,
         })
-        resp.raise_for_status()
-        return resp
     
     @staticmethod
     def pick_fish(uid: str):
         url = DataService.get_url_prefix() + f'/fish/pick/{uid}'
-        resp = requests.get(url=url)
-        resp.raise_for_status()
-        return resp
+        return requests.get(url=url)
         
     @staticmethod
     def pick_fish_by_identity(identity: str):
         url = DataService.get_url_prefix() + f'/fish/pick_by_identity/{identity}'
-        resp = requests.get(url=url)
-        resp.raise_for_status()
-        return resp
+        return requests.get(url=url)
     
     @staticmethod
     def count_fish():
         url = DataService.get_url_prefix() + '/fish/count'
-        resp = requests.get(url=url)
-        resp.raise_for_status()
-        return resp
+        return requests.get(url=url)
     
     @staticmethod
     def add_fish(
@@ -126,7 +114,7 @@ class DataService:
         url = DataService.get_url_prefix() + '/fish/add'
         import base64
         fish_data = base64.b64encode(fish_data).decode('utf-8')
-        resp = requests.post(url=url, json={
+        return requests.post(url=url, json={
             'fish_type': fish_type.name,
             'fish_data': fish_data,
             'desc': desc, 
@@ -135,25 +123,18 @@ class DataService:
             'is_locked': is_locked,
             'extra_info': extra_info,
         })
-        resp.raise_for_status()
-        return resp
 
     @staticmethod
     def modify_fish(
-        uid: str,
-        desc: str = None,
-        tags: list[str] = None,
-        extra_info: dict = None,
+        uid: str, desc: str = None, tags: list[str] = None, extra_info: dict = None,
     ):
         url = DataService.get_url_prefix() + '/fish/modify'
-        resp = requests.post(url=url, json={
+        return requests.post(url=url, json={
             'uid': uid,
             'desc': desc, 
             'tags': tags, 
             'extra_info': ystr().json().from_object(extra_info) if extra_info != None else None,
         })
-        resp.raise_for_status()
-        return resp
     
     @staticmethod
     def expire_fish(
@@ -162,13 +143,11 @@ class DataService:
             skip_if_locked: bool = True,
         ):
         url = DataService.get_url_prefix() + '/fish/expire'
-        resp = requests.post(url=url, json={
+        return requests.post(url=url, json={
             'uids': uids,
             'skip_if_not_exists': skip_if_not_exists,
             'skip_if_locked': skip_if_locked,
         })
-        resp.raise_for_status()
-        return resp
     
     @staticmethod
     def mark_fish(
@@ -177,13 +156,11 @@ class DataService:
             skip_if_locked: bool = True,
         ):
         url = DataService.get_url_prefix() + '/fish/mark'
-        resp = requests.post(url=url, json={
+        return requests.post(url=url, json={
             'uids': uids,
             'skip_if_not_exists': skip_if_not_exists,
             'skip_if_locked': skip_if_locked,
         })
-        resp.raise_for_status()
-        return resp
     
     @staticmethod
     def unmark_fish(
@@ -192,13 +169,11 @@ class DataService:
             skip_if_locked: bool = True,
         ):
         url = DataService.get_url_prefix() + '/fish/unmark'
-        resp = requests.post(url=url, json={
+        return requests.post(url=url, json={
             'uids': uids,
             'skip_if_not_exists': skip_if_not_exists,
             'skip_if_locked': skip_if_locked,
         })
-        resp.raise_for_status()
-        return resp
     
     @staticmethod
     def lock_fish(
@@ -206,12 +181,10 @@ class DataService:
             skip_if_not_exists: bool = True,
         ):
         url = DataService.get_url_prefix() + '/fish/lock'
-        resp = requests.post(url=url, json={
+        return requests.post(url=url, json={
             'uids': uids,
             'skip_if_not_exists': skip_if_not_exists,
         })
-        resp.raise_for_status()
-        return resp
     
     @staticmethod
     def unlock_fish(
@@ -219,12 +192,10 @@ class DataService:
             skip_if_not_exists: bool = True,
         ):
         url = DataService.get_url_prefix() + '/fish/unlock'
-        resp = requests.post(url=url, json={
+        return requests.post(url=url, json={
             'uids': uids,
             'skip_if_not_exists': skip_if_not_exists,
         })
-        resp.raise_for_status()
-        return resp
     
     @staticmethod
     def pin_fish(
@@ -233,13 +204,11 @@ class DataService:
             skip_if_locked: bool = True,
         ):
         url = DataService.get_url_prefix() + '/fish/pin'
-        resp = requests.post(url=url, json={
+        return requests.post(url=url, json={
             'uids': uids,
             'skip_if_not_exists': skip_if_not_exists,
             'skip_if_locked': skip_if_locked,
         })
-        resp.raise_for_status()
-        return resp
     
     @staticmethod
     def create_topic(
@@ -249,14 +218,12 @@ class DataService:
             extra_info: dict = None,
         ):
         url = DataService.get_url_prefix() + '/topic/create'
-        resp = requests.post(url=url, json={
+        return requests.post(url=url, json={
             'subject': subject,
             'source': source,
             'title': title,
             'extra_info': extra_info,
         })
-        resp.raise_for_status()
-        return resp
 
     @staticmethod
     def send_message(
@@ -268,7 +235,7 @@ class DataService:
             extra_info: dict = None,
         ):
         url = DataService.get_url_prefix() + '/message/send'
-        resp = requests.post(url=url, json={
+        return requests.post(url=url, json={
             'subject': subject,
             'level': level.name,
             'title': title,
@@ -276,8 +243,6 @@ class DataService:
             'has_read': has_read,
             'extra_info': extra_info,
         })
-        resp.raise_for_status()
-        return resp
 
 class FishType(Enum):
     Text = 'Text'
