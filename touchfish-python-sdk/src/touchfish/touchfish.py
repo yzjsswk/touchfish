@@ -672,19 +672,17 @@ class View:
     def empty() -> 'View':
         return View(items=[])
     
-    # @staticmethod
-    # def text(title: str, description: str = '') -> 'View':
-    #     return View(
-    #         type=ViewType.Text,
-    #         items=[ViewItem(title=title, description=description)],
-    #     )
+    @staticmethod
+    def info(title: str, body: str = '') -> 'View':
+        return View(items=[ViewItem.info(title=title, body=body)])
 
-    # @staticmethod
-    # def error(title: str, description: str = '') -> 'View':
-    #     return View(
-    #         type=ViewType.Error,
-    #         items=[ViewItem(title=title, description=description)]
-    #     )
+    @staticmethod
+    def warn(title: str, body: str = '') -> 'View':
+        return View(items=[ViewItem.warn(title=title, body=body)])
+    
+    @staticmethod
+    def error(title: str, body: str = '') -> 'View':
+        return View(items=[ViewItem.error(title=title, body=body)])
 
     def update(self):
         import sys
