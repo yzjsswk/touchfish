@@ -60,20 +60,18 @@ struct DynamicRecipeView: View {
                 }
                 .frame(height: 16)
                 Spacer()
-//                if let info = dynamicRecipeViewInfo {
-//                    HStack(spacing: 20) {
-//                        if info.type == .List || info.type == .Card {
-//                            Text("\(info.items.count) items")
-//                                .font(.callout)
-//                                .foregroundStyle(.gray)
-//                        }
-//                        if let timeCost = timeCost {
-//                            Text(Functions.descTimeInterval(timeCost))
-//                                .font(.callout)
-//                                .foregroundStyle(.gray)
-//                        }
-//                    }
-//                }
+                if let info = dynamicRecipeViewInfo {
+                    HStack(spacing: 20) {
+                        Text("\(info.items.count) items")
+                            .font(.callout)
+                            .foregroundStyle(.gray)
+                        if let timeCost = timeCost {
+                            Text(Functions.descTimeInterval(timeCost))
+                                .font(.callout)
+                                .foregroundStyle(.gray)
+                        }
+                    }
+                }
             }
             .padding(.horizontal)
         }

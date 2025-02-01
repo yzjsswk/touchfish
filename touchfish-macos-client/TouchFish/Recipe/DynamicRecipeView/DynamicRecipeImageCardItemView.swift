@@ -29,16 +29,18 @@ struct DynamicRecipeImageCardItemView: View {
                 VStack {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            if let pattern = iconPattern, let image = info.patternToImage(pattern: pattern) {
-                                image
-                                .resizable()
-                                .scaledToFit()
-                                .foregroundStyle("27295F".color)
-                            } else {
-                                Image(systemName: "questionmark.square")
-                                .resizable()
-                                .scaledToFit()
-                                .foregroundStyle("27295F".color)
+                            if let pattern = iconPattern {
+                                if let image = info.patternToImage(pattern: pattern) {
+                                    image
+                                    .resizable()
+                                    .scaledToFit()
+                                    .foregroundStyle("27295F".color)
+                                } else {
+                                    Image(systemName: "questionmark.square")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .foregroundStyle("27295F".color)
+                                }
                             }
                             Text(title)
                             .font(.title2)

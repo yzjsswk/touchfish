@@ -54,7 +54,7 @@ struct DynamicRecipeStripItemView: View {
             Spacer()
         }
         .frame(height: (size == .Small ? 42 : (size == .Large ? 60 : 51))*(hoverEffects.contains(.Expand) ? (isHovered ? 1 : 0.8) : 0.9))
-        .background(hoverEffects.contains(.BackGround) ? (isHovered ? "C6C7F4".color : Color.clear) : "C6C7F4".color)
+        .background(hoverEffects.contains(.Background) ? (isHovered ? "C6C7F4".color : Color.clear) : "C6C7F4".color)
         .cornerRadius(5)
         .padding(.horizontal, paraFieldEnable ? 5 : 12)
         .onHover { isHovered in

@@ -29,7 +29,7 @@ struct DynamicRecipeViewInfo: Codable {
         }
         
         enum HoverEffect: String, Codable {
-            case BackGround
+            case Background
             case Description
             case Expand
         }

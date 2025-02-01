@@ -528,7 +528,7 @@ class ViewItemSize(Enum):
     Large = "Large"
 
 class HoverEffect(Enum):
-    BackGround = "BackGround"
+    Background = "Background"
     Description = "Description"
     Expand = "Expand"
 
@@ -580,7 +580,7 @@ class ViewItem:
     
     @staticmethod
     def strip(
-        size: ViewItemSize = ViewItemSize.Medium, title: str = '', description: str = None, icon: str = None, tags: list[str] = [],
+        size: ViewItemSize = ViewItemSize.Adaptive, title: str = '', description: str = None, icon: str = None, tags: list[str] = [],
         hover_effects: list[HoverEffect] = [], operation: Operation = None, value: str = None, selectable: bool = True,
     ) -> dict:
         return {
@@ -598,7 +598,7 @@ class ViewItem:
     
     @staticmethod
     def text_card(
-        size: ViewItemSize = ViewItemSize.Medium,
+        size: ViewItemSize = ViewItemSize.Adaptive,
         title: str = '',
         description: str = None,
         icon: str = None,
@@ -627,7 +627,7 @@ class ViewItem:
 
     @staticmethod
     def image_card(
-        size: ViewItemSize = ViewItemSize.Medium,
+        size: ViewItemSize = ViewItemSize.Adaptive,
         title: str = '',
         description: str = None,
         icon: str = None,
@@ -715,6 +715,9 @@ class Handler:
     def as_fish(self) -> Fish | None:
         return None if (t:=self.data['data']) == None else Fish(t)
 
+    def as_uid(self) -> str | None:
+        return self.data['data']
+    
     def as_uids(self) -> list[str]:
         return self.data['data']
     
@@ -722,15 +725,15 @@ class Handler:
         return self.data['data']
     
     def update_view_if_not_ok(self, note: str = '') -> 'Handler':
-        if self.data['code'] != 'Ok':
+        if self.data['code'] != 'OK':
             View.error(
                 title='Request Server Error', 
-                description=f'got response not ok when requesting data server in recipe, note={note}, url={self.resp.url}, code={self.data['code']}, msg={self.data['msg']}',
+                body=f'got response not ok when requesting data server in recipe, note={note}, url={self.resp.url}, code={self.data['code']}, msg={self.data['msg']}',
             ).update()
         return self
 
     def send_err_msg_if_not_ok(self, subject: str, note: str = '') -> 'Handler':
-        if self.data['code'] != 'Ok':
+        if self.data['code'] != 'OK':
             Topic.send_message(
                 subject=subject, level=MessageLevel.Error, title='Request Server Error',
                 body=f'got response not ok when requesting data server in recipe, note={note}, url={self.resp.url}, code={self.data['code']}, msg={self.data['msg']}',
@@ -738,7 +741,7 @@ class Handler:
         return self
 
     def exit_if_not_ok(self) -> 'Handler':
-        if self.data['code'] != 'Ok':
+        if self.data['code'] != 'OK':
             exit(0)
         return self
     
