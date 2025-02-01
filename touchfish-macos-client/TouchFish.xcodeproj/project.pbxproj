@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		990EAC092D4E53D50050E145 /* DynamicRecipeTextCardItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990EAC082D4E53C80050E145 /* DynamicRecipeTextCardItemView.swift */; };
+		990EAC0B2D4E5D1E0050E145 /* DynamicRecipeImageCardItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990EAC0A2D4E5D160050E145 /* DynamicRecipeImageCardItemView.swift */; };
 		995E082A2C17242C00659F85 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995E08292C17242C00659F85 /* SettingView.swift */; };
 		995E082C2C18345C00659F85 /* DataServiceSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995E082B2C18345C00659F85 /* DataServiceSettingView.swift */; };
 		996FEE492BC3E2E50047EB82 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996FEE482BC3E2E50047EB82 /* DataService.swift */; };
@@ -67,6 +69,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		990EAC082D4E53C80050E145 /* DynamicRecipeTextCardItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicRecipeTextCardItemView.swift; sourceTree = "<group>"; };
+		990EAC0A2D4E5D160050E145 /* DynamicRecipeImageCardItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicRecipeImageCardItemView.swift; sourceTree = "<group>"; };
 		995E08292C17242C00659F85 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		995E082B2C18345C00659F85 /* DataServiceSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataServiceSettingView.swift; sourceTree = "<group>"; };
 		996FEE482BC3E2E50047EB82 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
@@ -191,6 +195,8 @@
 				99AC05DB2BB2BD720046E8C5 /* DynamicRecipeView.swift */,
 				998EB1422D46556B00A4844A /* DynamicRecipeItemView.swift */,
 				998EB14A2D465B7700A4844A /* DynamicRecipeStripItemView.swift */,
+				990EAC082D4E53C80050E145 /* DynamicRecipeTextCardItemView.swift */,
+				990EAC0A2D4E5D160050E145 /* DynamicRecipeImageCardItemView.swift */,
 				997920372D33B662007C187A /* DynamicRecipeParaFieldView.swift */,
 				998EB13A2D36967400A4844A /* DynamicRecipeFishSideView.swift */,
 				998EB13E2D36972700A4844A /* DynamicRecipeTopicSideView.swift */,
@@ -386,9 +392,11 @@
 				99EDC33C2CC69FD90023CDF0 /* Metrics.swift in Sources */,
 				99AC05F52BB2BD720046E8C5 /* Log.swift in Sources */,
 				99AC06022BB2BD720046E8C5 /* StatusBar.swift in Sources */,
+				990EAC0B2D4E5D1E0050E145 /* DynamicRecipeImageCardItemView.swift in Sources */,
 				99C614FC2C43F56500A99567 /* FishRepositorySettingView.swift in Sources */,
 				998EB13B2D36967C00A4844A /* DynamicRecipeFishSideView.swift in Sources */,
 				995E082A2C17242C00659F85 /* SettingView.swift in Sources */,
+				990EAC092D4E53D50050E145 /* DynamicRecipeTextCardItemView.swift in Sources */,
 				99AC05EA2BB2BD720046E8C5 /* MainView.swift in Sources */,
 				99AC06002BB2BD720046E8C5 /* DynamicRecipeView.swift in Sources */,
 				99AC05E52BB2BD720046E8C5 /* FishEditView.swift in Sources */,

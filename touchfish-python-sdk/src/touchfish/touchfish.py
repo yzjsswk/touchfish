@@ -461,13 +461,6 @@ class Topic:
             subject=subject, level=level, title=title, body=body, has_read=False, extra_info=extra_info,
         ))
 
-class ViewType(Enum):
-    Empty = 1
-    Error = 2
-    Text = 3
-    List = 4
-    Card = 5
-
 class ViewItemActionType(Enum):
     Back = 1
     Hide = 2
@@ -528,6 +521,17 @@ class Action:
             'value': value,
         }
 
+class ViewItemSize(Enum):
+    Adaptive = "Adaptive"
+    Small = "Small"
+    Medium = "Medium"
+    Large = "Large"
+
+class HoverEffect(Enum):
+    BackGround = "BackGround"
+    Description = "Description"
+    Expand = "Expand"
+
 class Property:
 
     name: str
@@ -542,45 +546,145 @@ class Operation:
     name: str = field(default="")
     actions: list[dict] = field(default_factory=list)
 
-@dataclass
 class ViewItem:
-    title: str
-    description: str
-    icon: str = field(default=None)
-    tags: list[str] = field(default_factory=list)
-    images: list[str] = field(default_factory=list)
-    properties: list[Property] = field(default_factory=list)
-    operations: list[Operation] = field(default_factory=list)
+
+    @staticmethod
+    def info(title: str, body: str = None, value: str = None, selectable: bool = False) -> dict:
+        return {
+            'type': 'info',
+            'title': title,
+            'body': body,
+            'value': value,
+            'selectable': selectable,
+        }
+    
+    @staticmethod
+    def warn(title: str, body: str = None, value: str = None, selectable: bool = False) -> dict:
+        return {
+            'type': 'warn',
+            'title': title,
+            'body': body,
+            'value': value,
+            'selectable': selectable,
+        }
+    
+    @staticmethod
+    def error(title: str, body: str = None, value: str = None, selectable: bool = False) -> dict:
+        return {
+            'type': 'error',
+            'title': title,
+            'body': body,
+            'value': value,
+            'selectable': selectable,
+        }
+    
+    @staticmethod
+    def strip(
+        size: ViewItemSize = ViewItemSize.Medium, title: str = '', description: str = None, icon: str = None, tags: list[str] = [],
+        hover_effects: list[HoverEffect] = [], operation: Operation = None, value: str = None, selectable: bool = True,
+    ) -> dict:
+        return {
+            'type': 'strip',
+            'size': size.name,
+            'title': title,
+            'description': description,
+            'icon': icon,
+            'tags': tags,
+            'hover_effects': hover_effects,
+            'operation': operation,
+            'value': value,
+            'selectable': selectable,
+        }
+    
+    @staticmethod
+    def text_card(
+        size: ViewItemSize = ViewItemSize.Medium,
+        title: str = '',
+        description: str = None,
+        icon: str = None,
+        tags: list[str] = [],
+        body: str = '',
+        properties: list[Property] = [],
+        show_properties: bool = True,
+        operations: list[Operation] = [],
+        value: str = None,
+        selectable: bool = True,
+    ) -> dict:
+        return {
+            'type': 'text_card',
+            'size': size.name,
+            'title': title,
+            'description': description,
+            'icon': icon,
+            'tags': tags,
+            'body': body,
+            'properties': properties,
+            'show_properties': show_properties,
+            'operations': operations,
+            'value': value,
+            'selectable': selectable,
+        }
+
+    @staticmethod
+    def image_card(
+        size: ViewItemSize = ViewItemSize.Medium,
+        title: str = '',
+        description: str = None,
+        icon: str = None,
+        tags: list[str] = [],
+        images: list[str] = [],
+        properties: list[Property] = [],
+        show_properties: bool = True,
+        operations: list[Operation] = [],
+        value: str = None,
+        selectable: bool = True,
+    ) -> dict:
+        return {
+            'type': 'image_card',
+            'size': size.name,
+            'title': title,
+            'description': description,
+            'icon': icon,
+            'tags': tags,
+            'images': images,
+            'properties': properties,
+            'show_properties': show_properties,
+            'operations': operations,
+            'value': value,
+            'selectable': selectable,
+        }
 
 class View:
 
-    type: ViewType
+    items: list[dict]
     data: list[str]
-    items: list[ViewItem]
+    operations: list[Operation]
+    enable_select: bool
     
-    def __init__(self, type: ViewType, data: list[bytes] = [], items: list[ViewItem] = []) -> None:
-        import base64
-        self.type = type
-        self.data = [base64.b64encode(s).decode('utf-8') for s in data]
+    def __init__(self, items: list[dict], data: list[bytes] = [], operations: list[Operation] = [], enable_select: bool = False) -> None:
         self.items = items
+        import base64
+        self.data = [base64.b64encode(s).decode('utf-8') for s in data]
+        self.operations = operations
+        self.enable_select = enable_select
 
     @staticmethod
     def empty() -> 'View':
-        return View(type=ViewType.Empty)
+        return View(items=[])
     
-    @staticmethod
-    def text(title: str, description: str = '') -> 'View':
-        return View(
-            type=ViewType.Text,
-            items=[ViewItem(title=title, description=description)],
-        )
+    # @staticmethod
+    # def text(title: str, description: str = '') -> 'View':
+    #     return View(
+    #         type=ViewType.Text,
+    #         items=[ViewItem(title=title, description=description)],
+    #     )
 
-    @staticmethod
-    def error(title: str, description: str = '') -> 'View':
-        return View(
-            type=ViewType.Error,
-            items=[ViewItem(title=title, description=description)]
-        )
+    # @staticmethod
+    # def error(title: str, description: str = '') -> 'View':
+    #     return View(
+    #         type=ViewType.Error,
+    #         items=[ViewItem(title=title, description=description)]
+    #     )
 
     def update(self):
         import sys

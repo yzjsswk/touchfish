@@ -12,12 +12,26 @@ struct DynamicRecipeViewInfo: Codable {
     var operations: [Operation] = []
     var enableSelect = false
     
-    enum ViewItem: Codable, Identifiable {
+    enum CodingKeys: String, CodingKey {
+        case items
+        case data
+        case operations
+        case enableSelect = "enable_select"
+    }
+    
+    enum ViewItem: Codable {
         
         enum Size: String, Codable {
+            case Adaptive
             case Small
             case Medium
             case Large
+        }
+        
+        enum HoverEffect: String, Codable {
+            case BackGround
+            case Description
+            case Expand
         }
         
         struct Property: Codable {
@@ -44,17 +58,18 @@ struct DynamicRecipeViewInfo: Codable {
             selectable: Bool = false
         )
         case Strip(
-            size: Size = .Medium,
+            size: Size = .Adaptive,
             title: String,
             description: String?,
             iconPattern: String?,
             tags: [String] = [],
+            hoverEffects: [HoverEffect] = [],
             operation: Operation? = nil,
             value: String? = nil,
             selectable: Bool = true
         )
         case TextCard(
-            size: Size = .Medium,
+            size: Size = .Adaptive,
             title: String,
             description: String?,
             iconPattern: String?,
@@ -67,7 +82,7 @@ struct DynamicRecipeViewInfo: Codable {
             selectable: Bool = true
         )
         case ImageCard(
-            size: Size = .Medium,
+            size: Size = .Adaptive,
             title: String,
             description: String?,
             iconPattern: String?,
@@ -88,6 +103,7 @@ struct DynamicRecipeViewInfo: Codable {
             case description
             case iconPattern = "icon"
             case tags
+            case hoverEffects = "hover_effects"
             case properties
             case showProperties = "show_properties"
             case operation
@@ -120,7 +136,7 @@ struct DynamicRecipeViewInfo: Codable {
                 try container.encode(selectable, forKey: .selectable)
             case .Strip(
                 let size, let title, let description, let iconPattern, let tags,
-                let operation, let value, let selectable
+                let hoverEffects, let operation, let value, let selectable
             ):
                 try container.encode("strip", forKey: .type)
                 try container.encode(size, forKey: .size)
@@ -128,6 +144,7 @@ struct DynamicRecipeViewInfo: Codable {
                 try container.encode(description, forKey: .description)
                 try container.encode(iconPattern, forKey: .iconPattern)
                 try container.encode(tags, forKey: .tags)
+                try container.encode(hoverEffects, forKey: .hoverEffects)
                 try container.encode(operation, forKey: .operation)
                 try container.encode(value, forKey: .value)
                 try container.encode(selectable, forKey: .selectable)
@@ -196,13 +213,14 @@ struct DynamicRecipeViewInfo: Codable {
                 let description = try container.decode(String?.self, forKey: .description)
                 let iconPattern = try container.decode(String?.self, forKey: .iconPattern)
                 let tags = try container.decode([String].self, forKey: .tags)
+                let hoverEffects = try container.decode([HoverEffect].self, forKey: .hoverEffects)
                 let operation = try container.decode(Operation?.self, forKey: .operation)
                 let value = try container.decode(String?.self, forKey: .value)
                 let selectable = try container.decode(Bool.self, forKey: .selectable)
                 self = .Strip(
                     size: size, title: title, description: description,
-                    iconPattern: iconPattern, tags: tags, operation: operation,
-                    value: value, selectable: selectable
+                    iconPattern: iconPattern, tags: tags, hoverEffects: hoverEffects,
+                    operation: operation, value: value, selectable: selectable
                 )
             case "text_card":
                 let size = try container.decode(Size.self, forKey: .size)
@@ -243,33 +261,33 @@ struct DynamicRecipeViewInfo: Codable {
             }
         }
         
-        var id: String {
-            switch self {
-            case .Info(let title, let body, let value, let selectable):
-                return "info\(title)"
-            case .Warn(let title, let body, let value, let selectable):
-                return "warn\(title)"
-            case .Error(let title, let body, let value, let selectable):
-                return "error\(title)"
-            case .Strip(
-                let size, let title, let description, let iconPattern, let tags,
-                let operation, let value, let selectable
-            ):
-                return "strip\(title)"
-            case .TextCard(
-                let size, let title, let description, let iconPattern, let tags,
-                let body, let properties, let showProperties, let operations,
-                let value, let selectable
-            ):
-                return "text_card\(title)"
-            case .ImageCard(
-                let size, let title, let description, let iconPattern, let tags,
-                let imagePatterns, let properties, let showProperties, let operations,
-                let value, let selectable
-            ):
-                return "image_card\(title)"
-            }
-        }
+//        var id: String {
+//            switch self {
+//            case .Info(let title, let body, let value, let selectable):
+//                return "info\(title)"
+//            case .Warn(let title, let body, let value, let selectable):
+//                return "warn\(title)"
+//            case .Error(let title, let body, let value, let selectable):
+//                return "error\(title)"
+//            case .Strip(
+//                let size, let title, let description, let iconPattern, let tags,
+//                let operation, let value, let selectable
+//            ):
+//                return "strip\(title)"
+//            case .TextCard(
+//                let size, let title, let description, let iconPattern, let tags,
+//                let body, let properties, let showProperties, let operations,
+//                let value, let selectable
+//            ):
+//                return "text_card\(title)"
+//            case .ImageCard(
+//                let size, let title, let description, let iconPattern, let tags,
+//                let imagePatterns, let properties, let showProperties, let operations,
+//                let value, let selectable
+//            ):
+//                return "image_card\(title)"
+//            }
+//        }
 
     }
     
@@ -297,6 +315,9 @@ struct DynamicRecipeViewInfo: Codable {
                 return Image(nsImage: nsImage)
             }
         }
+        if let image = words[0].icon {
+            return image
+        }
         if words.count < 2 {
             return nil
         }
@@ -313,6 +334,9 @@ struct DynamicRecipeViewInfo: Codable {
                 }
                 return Image(nsImage: nsImage)
             }
+        }
+        if let image = words[1].icon {
+            return image
         }
         return nil
     }

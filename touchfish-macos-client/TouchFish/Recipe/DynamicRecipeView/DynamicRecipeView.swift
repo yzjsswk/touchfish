@@ -6,7 +6,7 @@ struct DynamicRecipeView: View {
 
     @State var dynamicRecipeViewInfo: DynamicRecipeViewInfo?
     
-    @State var paraFieldEnbale: Bool = Config.paraFieldEnable
+    @State var paraFieldEnable: Bool = Config.paraFieldEnable
     @State var fishSideEnable: Bool = Config.fishSideEnable
     @State var topicSideEnable: Bool = Config.topicSideEnable
     
@@ -21,59 +21,27 @@ struct DynamicRecipeView: View {
                     .frame(width: Constant.sideWidth)
                     Divider()
                 }
-                if paraFieldEnbale {
+                if paraFieldEnable {
                     DynamicRecipeParaFieldView()
                     .frame(width: Constant.mainWidth * 0.3)
                     .padding(5)
                     Divider()
                 }
-                if fishSideEnable || paraFieldEnbale {
-                    Spacer(minLength: 0)
-                }
+                Spacer()
                 if let info = dynamicRecipeViewInfo {
                     ScrollView(showsIndicators: false) {
-                        VStack(spacing: 5) {
-                            ForEach(info.items) { item in
-                                DynamicRecipeItemView(item: item, info: .constant(info))
+                        VStack {
+                            ForEach(Array(info.items.enumerated()), id: \.0) { idx, item in
+                                DynamicRecipeItemView(item: item, info: .constant(info), paraFieldEnable: paraFieldEnable)
                             }
                         }
-                        .padding(.vertical)
+                        .padding(.vertical, 10)
                     }
-//                    switch info.type {
-//                    case .Empty:
-//                        EmptyView()
-//                    case .Error:
-//                        DynamicRecipeErrorView(info: info)
-//                    case.Text:
-//                        VStack {
-//                            ForEach(info.items, id: \.title) { item in
-//                                Text(item.title)
-//                            }
-//                        }
-//                    case .List:
-//                        ScrollView(showsIndicators: false) {
-//                            VStack(spacing: 5) {
-//                                ForEach(info.items, id: \.title) { item in
-//                                    DynamicRecipeListView(data: info.data, item: item)
-//                                }
-//                            }
-//                            .padding(.vertical)
-//                        }
-//                    case .Card:
-//                        ScrollView(showsIndicators: false) {
-//                            VStack {
-//                                ForEach(info.items, id: \.title) { item in
-//                                    DynamicRecipeCardView(data: info.data, item: item)
-//                                }
-//                            }
-//                            .padding(.vertical)
-//                        }
-//                    }
                 } else {
                     EmptyView()
                 }
+                Spacer()
                 if topicSideEnable {
-                    Spacer()
                     Divider()
                     DynamicRecipeTopicSideView()
                     .frame(width: Constant.sideWidth)
@@ -84,28 +52,28 @@ struct DynamicRecipeView: View {
                 HStack(spacing: 10) {
                     DynamicRecipeViewShowFishSideButtonView(fishSideEnable: $fishSideEnable)
                     if let info = self.dynamicRecipeViewInfo, info.items.count > 0 && info.items.count > 0 {
-                        DynamicRecipeViewShowParaFieldButtonView(withAnima: true, paraFieldEnable: $paraFieldEnbale)
+                        DynamicRecipeViewShowParaFieldButtonView(withAnima: true, paraFieldEnable: $paraFieldEnable)
                     } else {
-                        DynamicRecipeViewShowParaFieldButtonView(withAnima: false, paraFieldEnable: $paraFieldEnbale)
+                        DynamicRecipeViewShowParaFieldButtonView(withAnima: false, paraFieldEnable: $paraFieldEnable)
                     }
                     DynamicRecipeViewShowTopicSideButtonView(topicSideEnable: $topicSideEnable)
                 }
                 .frame(height: 16)
                 Spacer()
-                if let info = dynamicRecipeViewInfo {
-                    HStack(spacing: 20) {
-                        if info.type == .List || info.type == .Card {
-                            Text("\(info.items.count) items")
-                                .font(.callout)
-                                .foregroundStyle(.gray)
-                        }
-                        if let timeCost = timeCost {
-                            Text(Functions.descTimeInterval(timeCost))
-                                .font(.callout)
-                                .foregroundStyle(.gray)
-                        }
-                    }
-                }
+//                if let info = dynamicRecipeViewInfo {
+//                    HStack(spacing: 20) {
+//                        if info.type == .List || info.type == .Card {
+//                            Text("\(info.items.count) items")
+//                                .font(.callout)
+//                                .foregroundStyle(.gray)
+//                        }
+//                        if let timeCost = timeCost {
+//                            Text(Functions.descTimeInterval(timeCost))
+//                                .font(.callout)
+//                                .foregroundStyle(.gray)
+//                        }
+//                    }
+//                }
             }
             .padding(.horizontal)
         }
