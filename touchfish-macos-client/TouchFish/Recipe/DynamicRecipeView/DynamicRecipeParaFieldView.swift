@@ -12,22 +12,10 @@ struct DynamicRecipeParaFieldView: View {
                 RoundedRectangle(cornerRadius: 10)
                     .fill("C6C7F4".color)
                 HStack(spacing: 3) {
-                    HStack {
-                        Image(systemName: "delete.left")
-                        .resizable()
-                        .scaledToFit()
-                        .foregroundStyle("27295F".color)
-                    }
-                    .frame(width: 25, height: 20)
+                    DynamicRecipeParaFieldClearParaButtonView()
                     Spacer()
                     if let recipe = RecipeManager.activeRecipe, !recipe.autoExecute {
-                        HStack {
-                            Image(systemName: "play.square")
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundStyle("27295F".color)
-                        }
-                        .frame(width: 25, height: 20)
+                        DynamicRecipeParaFieldExecuteRecipeButtonView()
                     }
                 }
                 .padding(.horizontal, 5)
@@ -644,6 +632,59 @@ struct DynamicRecipeListCheckParaView: View {
             self.values = newValues
             self.isHovered = newIsHovered
         }
+    }
+    
+}
+
+struct DynamicRecipeParaFieldClearParaButtonView: View {
+    
+    @State var isHovered = false
+    
+    var body: some View {
+        HStack {
+            Image(systemName: isHovered ? "delete.left.fill" : "delete.left")
+            .resizable()
+            .scaledToFit()
+            .foregroundStyle("27295F".color)
+            .frame(width: isHovered ? 27 : 25, height: isHovered ? 22 : 20)
+        }
+        .frame(width: 27, height: 22)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
+        .onTapGesture {
+            NotificationCenter.default.post(name: .CommandTextChanged, object: nil, userInfo: ["commandText":""])
+            RecipeManager.clearArg()
+        }
+
+    }
+    
+}
+
+struct DynamicRecipeParaFieldExecuteRecipeButtonView: View {
+    
+    @State var isHovered = false
+    
+    var body: some View {
+        HStack {
+            Image(systemName: isHovered ? "play.square.fill" : "play.square")
+            .resizable()
+            .scaledToFit()
+            .foregroundStyle("27295F".color)
+            .frame(width: isHovered ? 27 : 25, height: isHovered ? 22 : 20)
+        }
+        .frame(width: 27, height: 22)
+        .onHover { isHovered in
+            withAnimation(.spring(duration: 0.1)) {
+                self.isHovered = isHovered
+            }
+        }
+        .onTapGesture {
+            NotificationCenter.default.post(name: .RecipeCommited, object: nil)
+        }
+
     }
     
 }

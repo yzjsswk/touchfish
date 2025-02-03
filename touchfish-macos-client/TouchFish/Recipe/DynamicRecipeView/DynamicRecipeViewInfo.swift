@@ -315,9 +315,6 @@ struct DynamicRecipeViewInfo: Codable {
                 return Image(nsImage: nsImage)
             }
         }
-        if let image = words[0].icon {
-            return image
-        }
         if words.count < 2 {
             return nil
         }
@@ -334,9 +331,6 @@ struct DynamicRecipeViewInfo: Codable {
                 }
                 return Image(nsImage: nsImage)
             }
-        }
-        if let image = words[1].icon {
-            return image
         }
         return nil
     }
@@ -360,13 +354,24 @@ struct DynamicRecipeViewInfoJsonText: Codable {
         guard let data = jsonText.data(using: .utf8) else {
             return DynamicRecipeViewInfo.error(
                 title: "Decode View Failed",
-                detail: "Failed to decode view, please make sure the format is correct. \n raw=\(String(jsonText.prefix(2000)))"
+                detail: "Failed to decode view, please make sure the format is correct.\nraw=\(String(jsonText.prefix(2000)))"
             )
+        }
+        let prettyJsonText: String?
+        do {
+            if let jsonObject = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                let prettyJsonData = try JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted)
+                    prettyJsonText = String(data: prettyJsonData, encoding: .utf8)
+            } else {
+                prettyJsonText = nil
+            }
+        } catch {
+            prettyJsonText = nil
         }
         guard let result = try? JSONDecoder().decode(DynamicRecipeViewInfoJsonText.self, from: data) else {
             return DynamicRecipeViewInfo.error(
                     title: "Decode View Failed",
-                    detail: "Failed to decode view, please make sure the format is correct. \n raw=\(String(jsonText.prefix(2000)))"
+                    detail: "Failed to decode view, please make sure the format is correct.\n\(String((prettyJsonText ?? jsonText).prefix(2000)))"
             )
         }
         var decodedData: [Data] = []
@@ -374,7 +379,7 @@ struct DynamicRecipeViewInfoJsonText: Codable {
             guard let cur = Data(base64Encoded: d) else {
                 return DynamicRecipeViewInfo.error(
                         title: "Decode View Failed",
-                        detail: "Failed to decode data in view, please make sure the data is a base64 encoded string, index=\(i) \n data=\(d.prefix(2000))"
+                        detail: "Failed to decode data in view, please make sure the data is a base64 encoded string, index=\(i)\ndata=\(d.prefix(2000))"
                 )
             }
             decodedData.append(cur)

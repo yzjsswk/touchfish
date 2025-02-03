@@ -55,7 +55,6 @@ struct DynamicRecipeFishSideView: View {
         .onReceive(NotificationCenter.default.publisher(for: .ShouldRefreshFish)) { _ in
             Storage.incrementalUpdate()
             Task {
-                let fish = await Storage.searchFish().values.sorted(by: { $0.updateTime == $1.updateTime ? $0.uid > $1.uid : $0.updateTime > $1.updateTime })
                 var newTags: [String:Bool] = [:]
                 if let stats = await Storage.countFish() {
                     let tags = stats.tagCount.keys.filter { !$0.isEmpty }
@@ -68,9 +67,9 @@ struct DynamicRecipeFishSideView: View {
                     }
                 }
                 withAnimation(.easeInOut(duration: 0.4)) {
-                    self.fishList = fish
                     self.tags = newTags
                 }
+                updateFishList()
             }
         }
         .onChange(of: searchText) {
@@ -366,7 +365,7 @@ struct DynamicRecipeFishSideItemView: View {
             }
         }
         .onDrag {
-            let provider = NSItemProvider(object: NSString(string: fish.identity))
+            let provider = NSItemProvider(object: NSString(string: fish.uid))
             return provider
         }
     }

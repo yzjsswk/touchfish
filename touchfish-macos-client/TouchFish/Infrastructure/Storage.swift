@@ -12,7 +12,7 @@ struct Storage {
             defer {
                 lock.unlock()
             }
-            Log.debug("get \(uid)")
+//            Log.debug("get \(uid)")
             return cache[uid]
         }
         
@@ -21,7 +21,7 @@ struct Storage {
             defer {
                 lock.unlock()
             }
-            Log.debug("set \(fish.uid)")
+//            Log.debug("set \(fish.uid)")
             cache[fish.uid] = fish
         }
         
@@ -31,7 +31,7 @@ struct Storage {
                 lock.unlock()
             }
             for fish in fishList {
-                Log.debug("batch set \(fish.uid)")
+//                Log.debug("batch set \(fish.uid)")
                 cache[fish.uid] = fish
             }
         }
@@ -41,7 +41,7 @@ struct Storage {
             defer {
                 lock.unlock()
             }
-            Log.debug("remove \(uid)")
+//            Log.debug("remove \(uid)")
             cache.removeValue(forKey: uid)
         }
         
@@ -51,7 +51,7 @@ struct Storage {
                 lock.unlock()
             }
             for uid in uids {
-                Log.debug("batch remove \(uid)")
+//                Log.debug("batch remove \(uid)")
                 cache.removeValue(forKey: uid)
             }
         }
@@ -61,7 +61,7 @@ struct Storage {
             defer {
                 lock.unlock()
             }
-            Log.debug("clear")
+//            Log.debug("clear")
             cache.removeAll()
         }
         
@@ -95,7 +95,7 @@ struct Storage {
     private static let incrementalUpdateQueue = DispatchQueue(label: "incremental_update_fish_cache")
     
     static func incrementalUpdate() {
-        Log.debug("incremental update start")
+//        Log.debug("incremental update start")
         incrementalUpdateQueue.sync {
             let semaphore = DispatchSemaphore(value: 0)
             Task {
@@ -148,7 +148,7 @@ struct Storage {
             }
             semaphore.wait()
         }
-        Log.debug("incremental update end")
+//        Log.debug("incremental update end")
     }
     
     static func getFishFromCache(_ uid: String) -> Fish? {

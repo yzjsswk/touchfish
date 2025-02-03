@@ -700,8 +700,14 @@ class Para:
 
     command_bar_text: str = context.get('command_bar_text', '')
 
-    def get(name: str) -> Any | None:
-        return Para.context.get(name)
+    def get(name: str, default: Any = None) -> Any | None:
+        return Para.context.get(name, default)
+    
+    def get_sys(index: int, default: Any = None) -> str | None:
+        import sys
+        if len(sys.argv) > index:
+            return sys.argv[index] if sys.argv[index] != None else default
+        return default
 
 class Handler:
 
@@ -713,7 +719,7 @@ class Handler:
         return [Fish.from_arg(f) for f in self.data['data']['data']]
     
     def as_fish(self) -> Fish | None:
-        return None if (t:=self.data['data']) == None else Fish(t)
+        return None if (t:=self.data['data']) == None else Fish.from_arg(t)
 
     def as_uid(self) -> str | None:
         return self.data['data']

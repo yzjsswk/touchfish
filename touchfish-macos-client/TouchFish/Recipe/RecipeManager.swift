@@ -293,4 +293,12 @@ struct RecipeManager {
         }
     }
     
+    static func clearArg() {
+        if activeRecipeArguments.count > 0 {
+            activeRecipeArguments.removeAll()
+            activeRecipeArgumentsAddOrder.removeAll()
+            NotificationCenter.default.post(name: .RecipeStatusChanged, object: nil)
+        }
+    }
+    
 }

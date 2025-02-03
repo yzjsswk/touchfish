@@ -33,15 +33,17 @@ struct DynamicRecipeStripItemView: View {
                     .foregroundStyle("27295F".color)
                 }
             }
-            .frame(height: (size == .Small ? 40 : (size == .Large ? 60 : 50))*(hoverEffects.contains(.Expand) ? (isHovered ? 0.5 : 0.4) : 0.4))
+            .frame(height: (size == .Small ? 45 : (size == .Large ? 65 : 55))*(hoverEffects.contains(.Expand) ? (isHovered ? 0.5 : 0.4) : 0.4))
             .padding(.leading, 5)
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(title)
-                        .font(.system(size: size == .Small ? 11 : (size == .Large ? 15 : 13)))
-                        .fontWeight(.bold)
-                        .foregroundStyle("27295F".color)
+                    .lineLimit(1)
+                    .font(.system(size: size == .Small ? 11 : (size == .Large ? 15 : 13)))
+                    .fontWeight(.bold)
+                    .foregroundStyle("27295F".color)
                     DynamicRecipeStripItemTagView(tags: tags, size: size)
+                    .frame(maxWidth: 150, alignment: .leading)
                 }
                 if let desc = description, !hoverEffects.contains(.Description) || isHovered {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -100,17 +102,18 @@ struct DynamicRecipeStripItemTagView: View {
     var size: DynamicRecipeViewInfo.ViewItem.Size
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack {
-                ForEach(Array(tags.enumerated()), id: \.0) { (_, tg) in
-                    TagView(label: tg, size: size)
+        if tags.count > 0 {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(Array(tags.enumerated()), id: \.0) { (_, tg) in
+                        TagView(label: tg, size: size)
+                    }
+                    Spacer()
                 }
-                Spacer()
+                .frame(height: (size == .Small ? 10 : (size == .Large ? 16 : 13)))
+                .padding(3)
             }
-            .frame(height: (size == .Small ? 10 : (size == .Large ? 16 : 13)))
-            .padding(3)
         }
-
     }
 
 }

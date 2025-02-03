@@ -109,36 +109,25 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
             }
             for para in &recipe.parameters {
                 if para.name == *name {
-                    let origin_values: Vec<&str> = match &para.separator {
-                        Some(sep) => value.split(sep).collect(),
-                        None => vec![value],
+                    match &para.separator {
+                        Some(sep) => {
+                            let origin_values: Vec<&str> = value.split(sep).collect();
+                            let parsed_values = origin_values.into_iter().try_fold::<_, _, YRes<_>>(Vec::new(), |mut acc, it| {
+                                let parsed_value = self.parse_str_para(it, para.para_type).trace(
+                                    ctx!("execute recipe -> parse str para: self.parse_str_para failed", para.name, it, para.para_type, bundle_id, recipe_path)
+                                )?;
+                                acc.push(parsed_value);
+                                Ok(acc)
+                            })?;
+                            acc.insert(name, Value::Array(parsed_values));
+                        },
+                        None => {
+                            let parsed_value = self.parse_str_para(&value, para.para_type).trace(
+                                ctx!("execute recipe -> parse str para: self.parse_str_para failed", para.name, value, para.para_type, bundle_id, recipe_path)
+                            )?;
+                            acc.insert(name, parsed_value);
+                        },
                     };
-                    let parsed_values = origin_values.into_iter().try_fold::<_, _, YRes<_>>(Vec::new(), |mut acc, it| {
-                        let parsed_value = match para.para_type {
-                            RecipeParaType::Text => Value::String(it.to_string()),
-                            RecipeParaType::Number => {
-                                let number = it.parse::<i64>().map_err(|e| {
-                                    err!("execute recipe failed").trace(
-                                        ctx!("execute recipe -> parse number parameter: it.parse::<i64>() failed", it, para.name, bundle_id, e)
-                                    )
-                                })?;
-                                Value::Number(number.into())
-                            },
-                            RecipeParaType::Bool => {
-                                let bool =  match it.to_lowercase().as_str() {
-                                    "true" | "1" | "yes" => Ok(true),
-                                    "false" | "0" | "no" => Ok(false),
-                                    _ => Err(err!("execute recipe failed").trace(
-                                            ctx!("execute recipe -> parse bool parameter: invalid value", it, para.name, bundle_id)
-                                         )),
-                                }?;
-                                Value::Bool(bool)
-                            },
-                        };
-                        acc.push(parsed_value);
-                        Ok(acc)
-                    })?;
-                    acc.insert(name, Value::Array(parsed_values));
                     break;
                 }
             }
@@ -278,6 +267,31 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
             )
         })?;
         Ok(recipe)
+    }
+
+    fn parse_str_para(&self, str_value: &str, para_type: RecipeParaType) -> YRes<Value> {
+        let parsed_value = match para_type {
+            RecipeParaType::Text => Value::String(str_value.to_string()),
+            RecipeParaType::Number => {
+                let number = str_value.parse::<i64>().map_err(|e| {
+                    err!("parse str para failed").trace(
+                        ctx!("parse number parameter: it.parse::<i64>() failed", str_value, para_type, e)
+                    )
+                })?;
+                Value::Number(number.into())
+            },
+            RecipeParaType::Bool => {
+                let bool =  match str_value.to_lowercase().as_str() {
+                    "true" | "1" | "yes" => Ok(true),
+                    "false" | "0" | "no" => Ok(false),
+                    _ => Err(err!("para str para failed").trace(
+                            ctx!("parse bool parameter: invalid value", str_value, para_type)
+                         )),
+                }?;
+                Value::Bool(bool)
+            },
+        };
+        Ok(parsed_value)
     }
 
 }
