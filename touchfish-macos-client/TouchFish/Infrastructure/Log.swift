@@ -1,28 +1,34 @@
 import SwiftyBeaver
 import AppKit
 
-let Log = TFLogger.logger
+let Log = SwiftyBeaverLogger.logger
 
-struct TFLogger {
+struct SwiftyBeaverLogger {
     
     static let logger = SwiftyBeaver.self
-    static let consoleDst = ConsoleDestination()
-    static let fileDst = FileDestination()
+    static private let consoleDst = ConsoleDestination()
+    static private let fileDst = FileDestination()
     
-    static func prepare() {
-        consoleDst.minLevel = .verbose
-        fileDst.minLevel = .verbose
-        updateLogFile()
+    static func startConsoleLogging(minLevel: SwiftyBeaver.Level) {
+        consoleDst.minLevel = minLevel
         SwiftyBeaver.addDestination(consoleDst)
+    }
+    
+    static func startFileLogging(minLevel: SwiftyBeaver.Level, logFileUrl: URL) {
+        fileDst.minLevel = minLevel
+        fileDst.logFileURL = logFileUrl
+        fileDst.logFileMaxSize = 10
+        fileDst.format = "$Dyyyy-MM-dd HH:mm:ss.SSS$d $C$L$c $N.$F:$l - $M"
+        fileDst.colored = true
         SwiftyBeaver.addDestination(fileDst)
     }
     
-    static func updateLogFile() {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        let currentDate = Date()
-        let logFileName = dateFormatter.string(from: currentDate) + ".log"
-        fileDst.logFileURL = TouchFishApp.logPath.appendingPathComponent(logFileName)
+    static func stopConsoleLogging() {
+        SwiftyBeaver.removeDestination(consoleDst)
+    }
+    
+    static func stopFileLogging() {
+        SwiftyBeaver.removeDestination(fileDst)
     }
     
 }

@@ -17,8 +17,13 @@ struct DynamicRecipeItemView: View {
                 .bold()
                 .padding(.bottom, 5)
                 if let body = body {
-                    Text(body)
-                    .font(.body)
+                    if let bodyMd = try? AttributedString(markdown: body) {
+                        Text(bodyMd)
+                        .font(.body)
+                    } else {
+                        Text(body)
+                        .font(.body)
+                    }
                 }
             }
             .padding(.vertical, 5)
@@ -39,8 +44,13 @@ struct DynamicRecipeItemView: View {
                 }
                 .padding(.bottom, 5)
                 if let body = body {
-                    Text(body)
-                    .font(.body)
+                    if let bodyMd = try? AttributedString(markdown: body) {
+                        Text(bodyMd)
+                        .font(.body)
+                    } else {
+                        Text(body)
+                        .font(.body)
+                    }
                 }
             }
             .padding(.vertical, 5)
@@ -61,8 +71,13 @@ struct DynamicRecipeItemView: View {
                 }
                 .padding(.bottom, 5)
                 if let body = body {
-                    Text(body)
-                    .font(.body)
+                    if let bodyMd = try? AttributedString(markdown: body) {
+                        Text(bodyMd)
+                        .font(.body)
+                    } else {
+                        Text(body)
+                        .font(.body)
+                    }
                 }
             }
             .padding(.vertical, 5)

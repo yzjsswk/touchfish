@@ -24,6 +24,7 @@ struct RecipeResp: Codable {
     var icon: String? // system:xxx fish:xxx
     var command: String?
     var autoExecute: Bool
+    var settings: [Recipe.Parameter]?
     var parameters: [Recipe.Parameter]?
     var actions: [RecipeAction]?
     var color: String?
@@ -37,6 +38,7 @@ struct RecipeResp: Codable {
         case icon = "icon"
         case command = "command"
         case autoExecute = "auto_execute"
+        case settings
         case parameters = "parameters"
         case actions = "actions"
         case color = "color"
@@ -52,6 +54,7 @@ struct RecipeResp: Codable {
             icon: self.icon?.icon ?? Image(systemName: "questionmark"),
             command: self.command,
             autoExecute: self.autoExecute,
+            settings: self.settings ?? [],
             parameters: self.parameters ?? [],
             actions: self.actions ?? [],
             color: self.color?.linearGradient ?? Constant.userDefinedRecipeDefaultIemColor,
@@ -89,6 +92,12 @@ struct RecipeExecuteResult: Codable {
     
 }
 
+struct RecipeExecuteContext: Codable {
+    var query: String
+    var parameters: [String:String]
+    var settings: [String:String]
+}
+
 struct RecipeService {
     
     let host: String
@@ -123,7 +132,7 @@ struct RecipeService {
     }
     
     func executeRecipe(
-        bundleId: String, command: String, arguments: [String], context: [String:String]
+        bundleId: String, command: String, arguments: [String], context: RecipeExecuteContext
     ) async -> Result<RecipeServiceResponse<String>, AFError> {
         let url = urlPrefix + "/recipe/execute"
         let para: [String:Any?] = [

@@ -76,7 +76,7 @@ struct DynamicRecipeViewInfo: Codable {
             tags: [String] = [],
             body: String = "",
             properties: [Property] = [],
-            showProperties: Bool = true,
+            showProperties: Bool = false,
             operations: [Operation] = [],
             value: String? = nil,
             selectable: Bool = true
@@ -89,7 +89,7 @@ struct DynamicRecipeViewInfo: Codable {
             tags: [String] = [],
             imagePatterns: [String] = [],
             properties: [Property] = [],
-            showProperties: Bool = true,
+            showProperties: Bool = false,
             operations: [Operation] = [],
             value: String? = nil,
             selectable: Bool = true

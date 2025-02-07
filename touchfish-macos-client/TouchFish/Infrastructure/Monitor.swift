@@ -32,7 +32,7 @@ struct MonitorManager {
         switch type {
         case .hideMainWindowWhenClickOutside:
             MonitorManager.hideMainWindowWhenClickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [] event in
-                if Config.hideMainWindowWhenClickOutSideEnable && TouchFishApp.mainWindow.isVisible {
+                if Config.hideMainWindowWhenClickOutSideEnable && TouchFishApp.quickExecutionWindow.isVisible {
                     TouchFishApp.deactivate()
                 }
             }
@@ -45,7 +45,7 @@ struct MonitorManager {
             }
         case .showOrHideMainWindowWhenKeyShortCutPressed:
             GlobalKeyboardEventListener().startListening(keyboardShortcut: Config.appActiveKeyShortcut) { [] _ in
-                if TouchFishApp.mainWindow.isVisible {
+                if TouchFishApp.quickExecutionWindow.isVisible {
                     TouchFishApp.deactivate()
                 } else {
                     TouchFishApp.activate()
@@ -53,7 +53,7 @@ struct MonitorManager {
             }
         case .openFishRepositoryWhenKeyShortCutPressed:
             GlobalKeyboardEventListener().startListening(keyboardShortcut: Config.fishRepositoryActiveKeyShortcut) { [] _ in
-                if !TouchFishApp.mainWindow.isVisible {
+                if !TouchFishApp.quickExecutionWindow.isVisible {
                     RecipeManager.goToRecipe(recipeId: "com.touchfish.FishRepository")
                     TouchFishApp.activate()
                 }

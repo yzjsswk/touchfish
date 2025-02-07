@@ -58,7 +58,13 @@ struct DynamicRecipeTextCardItemView: View {
                     Spacer()
                     ZStack {
                         ScrollView(showsIndicators: false) {
-                            Text(content)
+                            if let contentMd = try? AttributedString(markdown: content) {
+                                Text(contentMd)
+                                .font(.body)
+                            } else {
+                                Text(content)
+                                .font(.body)
+                            }
                         }
                         if isHovered {
                             HStack {
@@ -114,7 +120,7 @@ struct DynamicRecipeTextCardItemView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 10)
-        .frame(height: ((size == .Small || (size == .Adaptive && content.count < (showProperties ? 80 : 115))) ? 180 : ((size == .Large || (size == .Adaptive && content.count > (showProperties ? 200 : 275))) ? 480 : 300)))
+        .frame(height: ((size == .Small || (size == .Adaptive && content.count < (showProperties ? 80*4 : 115*4))) ? 180 : ((size == .Large || (size == .Adaptive && content.count > (showProperties ? 200*4 : 275*4))) ? 480 : 300)))
     }
 
 }

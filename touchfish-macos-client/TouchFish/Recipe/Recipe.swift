@@ -12,6 +12,7 @@ struct Recipe {
     var icon: Image
     var command: String?
     var autoExecute: Bool
+    var settings: [Parameter] = []
     var parameters: [Parameter] = []
     var actions: [RecipeAction] = []
     var color: LinearGradient
@@ -164,8 +165,11 @@ enum RecipeAction: Codable {
                 Log.warning("run recipe action: skip shell action: port=nil, bundleId=\(bundleId)")
                 return
             }
-            var context: [String:String] = RecipeManager.activeRecipeOriginalArg
-            context["command_bar_text"] = CommandManager.commandText
+            let context = RecipeExecuteContext(
+                query: CommandManager.commandText,
+                parameters: RecipeManager.activeRecipeOriginalArg,
+                settings: [:]
+            )
             Task {
                 let executeTime = Date()
                 let result = await RecipeService(host: host, port: port).executeRecipe(bundleId: bundleId, command: command, arguments: arguments, context: context)

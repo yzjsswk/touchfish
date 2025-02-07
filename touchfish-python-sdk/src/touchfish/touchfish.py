@@ -483,7 +483,7 @@ class Action:
     @staticmethod
     def copy_to_clipboard(content: str):
         return {
-            'type': 'run',
+            'type': 'copy',
             'content': content,
         }
 
@@ -605,7 +605,7 @@ class ViewItem:
         tags: list[str] = [],
         body: str = '',
         properties: list[Property] = [],
-        show_properties: bool = True,
+        show_properties: bool = False,
         operations: list[Operation] = [],
         value: str = None,
         selectable: bool = True,
@@ -634,7 +634,7 @@ class ViewItem:
         tags: list[str] = [],
         images: list[str] = [],
         properties: list[Property] = [],
-        show_properties: bool = True,
+        show_properties: bool = False,
         operations: list[Operation] = [],
         value: str = None,
         selectable: bool = True,
