@@ -350,7 +350,7 @@ struct DynamicRecipeFishSideItemView: View {
         .frame(height: 19)
         .onHover { isHovered in
             self.isHovered = isHovered
-            TouchFishApp.quickExecutionWindow.isMovableByWindowBackground = !isHovered
+//            TouchFishApp.quickExecutionWindow.isMovableByWindowBackground = !isHovered
             if isHovered {
                 hoveredFish = fish
             } else {

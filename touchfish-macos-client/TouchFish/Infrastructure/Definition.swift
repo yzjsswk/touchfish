@@ -5,6 +5,9 @@ import Cocoa
 
 struct Constant {
     
+    static let mainWindowTabBarHeight: CGFloat = 45
+    static let mainWindowWindowButtonAreaWidth: CGFloat = 80
+    
     static let mainWidth: CGFloat = 800
     static let mainHeight: CGFloat = 600
     static let sideWidth: CGFloat = 250
@@ -304,6 +307,12 @@ extension String {
 }
 
 extension Notification.Name {
+    
+    static let MainWindowEnterFullScreen = Notification.Name("MainWindowEnterFullScreen")
+    static let MainWindowExitFullScreen = Notification.Name("MainWindowExitFullScreen")
+    static let HoverInMainWindowTabBar = Notification.Name("HoverInMainWindowTabBar")
+    static let ClickInMainWindowTabBar = Notification.Name("ClickInMainWindowTabBar")
+    
     static let ReturnKeyWasPressed = Notification.Name("ReturnKeyWasPressed")
     static let UpArrowKeyWasPressed = Notification.Name("UpArrowKeyWasPressed")
     static let DownArrowKeyWasPressed = Notification.Name("DownArrowKeyWasPressed")

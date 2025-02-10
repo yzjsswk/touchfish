@@ -2,8 +2,7 @@ import SwiftUI
 
 struct DynamicRecipeView: View {
     
-    var activeRecipe: Recipe
-
+    @State var activeRecipe: Recipe? = nil
     @State var dynamicRecipeViewInfo: DynamicRecipeViewInfo?
     
     @State var paraFieldEnable: Bool = Config.paraFieldEnable
@@ -28,17 +27,21 @@ struct DynamicRecipeView: View {
                     Divider()
                 }
                 Spacer()
-                if let info = dynamicRecipeViewInfo {
-                    ScrollView(showsIndicators: false) {
-                        VStack {
-                            ForEach(Array(info.items.enumerated()), id: \.0) { idx, item in
-                                DynamicRecipeItemView(item: item, info: .constant(info), paraFieldEnable: paraFieldEnable)
+                if let _ = activeRecipe {
+                    if let info = dynamicRecipeViewInfo {
+                        ScrollView(showsIndicators: false) {
+                            VStack {
+                                ForEach(Array(info.items.enumerated()), id: \.0) { idx, item in
+                                    DynamicRecipeItemView(item: item, info: .constant(info), paraFieldEnable: paraFieldEnable)
+                                }
                             }
+                            .padding(.vertical, 10)
                         }
-                        .padding(.vertical, 10)
+                    } else {
+                        EmptyView()
                     }
                 } else {
-                    EmptyView()
+                    RecipeListView()
                 }
                 Spacer()
                 if topicSideEnable {
@@ -75,6 +78,9 @@ struct DynamicRecipeView: View {
             }
             .padding(.horizontal)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .RecipeStatusChanged)) { _ in
+            self.activeRecipe = RecipeManager.activeRecipe
+        }
         .onReceive(NotificationCenter.default.publisher(for: .DynamicRecipeViewChanged)) { notification in
             if let startTime = notification.userInfo?["executeTime"] as? Date,
                let info = notification.userInfo?["info"] as? DynamicRecipeViewInfo {
@@ -89,74 +95,74 @@ struct DynamicRecipeView: View {
                 }
             }
         }
-        .onAppear {
-            if fishSideEnable && topicSideEnable {
-                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
-                    x: TouchFishApp.quickExecutionWindow.frame.origin.x - Constant.sideWidth,
-                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
-                    width: TouchFishApp.quickExecutionWindow.frame.width + Constant.sideWidth*2,
-                    height: TouchFishApp.quickExecutionWindow.frame.height
-                ), display: true, animate: true)
-            }
-            if fishSideEnable && !topicSideEnable {
-                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
-                    x: TouchFishApp.quickExecutionWindow.frame.origin.x - Constant.sideWidth,
-                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
-                    width: TouchFishApp.quickExecutionWindow.frame.width + Constant.sideWidth,
-                    height: TouchFishApp.quickExecutionWindow.frame.height
-                ), display: true, animate: true)
-            }
-            if !fishSideEnable && topicSideEnable {
-                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
-                    x: TouchFishApp.quickExecutionWindow.frame.origin.x,
-                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
-                    width: TouchFishApp.quickExecutionWindow.frame.width + Constant.sideWidth,
-                    height: TouchFishApp.quickExecutionWindow.frame.height
-                ), display: true, animate: true)
-            }
-        }
-        .onChange(of: fishSideEnable) {
-            if fishSideEnable {
-                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
-                    x: TouchFishApp.quickExecutionWindow.frame.origin.x - Constant.sideWidth,
-                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
-                    width: TouchFishApp.quickExecutionWindow.frame.width + Constant.sideWidth,
-                    height: TouchFishApp.quickExecutionWindow.frame.height
-                ), display: true, animate: true)
-            } else {
-                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
-                    x: TouchFishApp.quickExecutionWindow.frame.origin.x + Constant.sideWidth,
-                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
-                    width: TouchFishApp.quickExecutionWindow.frame.width - Constant.sideWidth,
-                    height: TouchFishApp.quickExecutionWindow.frame.height
-                ), display: true, animate: true)
-            }
-        }
-        .onChange(of: topicSideEnable) {
-            if topicSideEnable {
-                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
-                    x: TouchFishApp.quickExecutionWindow.frame.origin.x,
-                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
-                    width: TouchFishApp.quickExecutionWindow.frame.width + Constant.sideWidth,
-                    height: TouchFishApp.quickExecutionWindow.frame.height
-                ), display: true, animate: true)
-            } else {
-                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
-                    x: TouchFishApp.quickExecutionWindow.frame.origin.x,
-                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
-                    width: TouchFishApp.quickExecutionWindow.frame.width - Constant.sideWidth,
-                    height: TouchFishApp.quickExecutionWindow.frame.height
-                ), display: true, animate: true)
-            }
-        }
-        .onDisappear {
-            TouchFishApp.quickExecutionWindow.setFrame(NSRect(
-                x: TouchFishApp.quickExecutionWindow.frame.origin.x + (fishSideEnable ? Constant.sideWidth : 0),
-                y: TouchFishApp.quickExecutionWindow.frame.origin.y,
-                width: Constant.mainWidth,
-                height: Constant.mainHeight
-            ), display: true, animate: false)
-        }
+//        .onAppear {
+//            if fishSideEnable && topicSideEnable {
+//                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
+//                    x: TouchFishApp.quickExecutionWindow.frame.origin.x - Constant.sideWidth,
+//                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
+//                    width: TouchFishApp.quickExecutionWindow.frame.width + Constant.sideWidth*2,
+//                    height: TouchFishApp.quickExecutionWindow.frame.height
+//                ), display: true, animate: true)
+//            }
+//            if fishSideEnable && !topicSideEnable {
+//                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
+//                    x: TouchFishApp.quickExecutionWindow.frame.origin.x - Constant.sideWidth,
+//                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
+//                    width: TouchFishApp.quickExecutionWindow.frame.width + Constant.sideWidth,
+//                    height: TouchFishApp.quickExecutionWindow.frame.height
+//                ), display: true, animate: true)
+//            }
+//            if !fishSideEnable && topicSideEnable {
+//                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
+//                    x: TouchFishApp.quickExecutionWindow.frame.origin.x,
+//                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
+//                    width: TouchFishApp.quickExecutionWindow.frame.width + Constant.sideWidth,
+//                    height: TouchFishApp.quickExecutionWindow.frame.height
+//                ), display: true, animate: true)
+//            }
+//        }
+//        .onChange(of: fishSideEnable) {
+//            if fishSideEnable {
+//                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
+//                    x: TouchFishApp.quickExecutionWindow.frame.origin.x - Constant.sideWidth,
+//                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
+//                    width: TouchFishApp.quickExecutionWindow.frame.width + Constant.sideWidth,
+//                    height: TouchFishApp.quickExecutionWindow.frame.height
+//                ), display: true, animate: true)
+//            } else {
+//                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
+//                    x: TouchFishApp.quickExecutionWindow.frame.origin.x + Constant.sideWidth,
+//                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
+//                    width: TouchFishApp.quickExecutionWindow.frame.width - Constant.sideWidth,
+//                    height: TouchFishApp.quickExecutionWindow.frame.height
+//                ), display: true, animate: true)
+//            }
+//        }
+//        .onChange(of: topicSideEnable) {
+//            if topicSideEnable {
+//                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
+//                    x: TouchFishApp.quickExecutionWindow.frame.origin.x,
+//                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
+//                    width: TouchFishApp.quickExecutionWindow.frame.width + Constant.sideWidth,
+//                    height: TouchFishApp.quickExecutionWindow.frame.height
+//                ), display: true, animate: true)
+//            } else {
+//                TouchFishApp.quickExecutionWindow.setFrame(NSRect(
+//                    x: TouchFishApp.quickExecutionWindow.frame.origin.x,
+//                    y: TouchFishApp.quickExecutionWindow.frame.origin.y,
+//                    width: TouchFishApp.quickExecutionWindow.frame.width - Constant.sideWidth,
+//                    height: TouchFishApp.quickExecutionWindow.frame.height
+//                ), display: true, animate: true)
+//            }
+//        }
+//        .onDisappear {
+//            TouchFishApp.quickExecutionWindow.setFrame(NSRect(
+//                x: TouchFishApp.quickExecutionWindow.frame.origin.x + (fishSideEnable ? Constant.sideWidth : 0),
+//                y: TouchFishApp.quickExecutionWindow.frame.origin.y,
+//                width: Constant.mainWidth,
+//                height: Constant.mainHeight
+//            ), display: true, animate: false)
+//        }
     }
     
 }

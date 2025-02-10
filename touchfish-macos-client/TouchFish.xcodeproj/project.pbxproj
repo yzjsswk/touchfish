@@ -11,6 +11,7 @@
 		990EAC0B2D4E5D1E0050E145 /* DynamicRecipeImageCardItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990EAC0A2D4E5D160050E145 /* DynamicRecipeImageCardItemView.swift */; };
 		990EAC0D2D564D040050E145 /* QuickExecutionWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990EAC0C2D564CB50050E145 /* QuickExecutionWindow.swift */; };
 		990EAC0F2D564D6A0050E145 /* PasteBoardWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990EAC0E2D564D0D0050E145 /* PasteBoardWindow.swift */; };
+		990EAC112D56679F0050E145 /* QuickExecutionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990EAC102D56678A0050E145 /* QuickExecutionView.swift */; };
 		995E082A2C17242C00659F85 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995E08292C17242C00659F85 /* SettingView.swift */; };
 		995E082C2C18345C00659F85 /* DataServiceSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995E082B2C18345C00659F85 /* DataServiceSettingView.swift */; };
 		996FEE492BC3E2E50047EB82 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996FEE482BC3E2E50047EB82 /* DataService.swift */; };
@@ -75,6 +76,7 @@
 		990EAC0A2D4E5D160050E145 /* DynamicRecipeImageCardItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicRecipeImageCardItemView.swift; sourceTree = "<group>"; };
 		990EAC0C2D564CB50050E145 /* QuickExecutionWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickExecutionWindow.swift; sourceTree = "<group>"; };
 		990EAC0E2D564D0D0050E145 /* PasteBoardWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteBoardWindow.swift; sourceTree = "<group>"; };
+		990EAC102D56678A0050E145 /* QuickExecutionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickExecutionView.swift; sourceTree = "<group>"; };
 		995E08292C17242C00659F85 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		995E082B2C18345C00659F85 /* DataServiceSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataServiceSettingView.swift; sourceTree = "<group>"; };
 		996FEE482BC3E2E50047EB82 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
@@ -151,11 +153,12 @@
 			isa = PBXGroup;
 			children = (
 				99AC05A82BB2BCD90046E8C5 /* TouchFishApp.swift */,
-				99AC05DF2BB2BD720046E8C5 /* StatusBar.swift */,
 				99AC05B92BB2BD710046E8C5 /* MainWindow.swift */,
-				990EAC0C2D564CB50050E145 /* QuickExecutionWindow.swift */,
-				990EAC0E2D564D0D0050E145 /* PasteBoardWindow.swift */,
 				99AC05C22BB2BD720046E8C5 /* MainView.swift */,
+				990EAC0C2D564CB50050E145 /* QuickExecutionWindow.swift */,
+				990EAC102D56678A0050E145 /* QuickExecutionView.swift */,
+				990EAC0E2D564D0D0050E145 /* PasteBoardWindow.swift */,
+				99AC05DF2BB2BD720046E8C5 /* StatusBar.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -417,6 +420,7 @@
 				99AC05F72BB2BD720046E8C5 /* Storage.swift in Sources */,
 				99AC05F82BB2BD720046E8C5 /* CommandBarView.swift in Sources */,
 				990EAC0D2D564D040050E145 /* QuickExecutionWindow.swift in Sources */,
+				990EAC112D56679F0050E145 /* QuickExecutionView.swift in Sources */,
 				997920382D33B66F007C187A /* DynamicRecipeParaFieldView.swift in Sources */,
 				999C31EF2D1151FF0083D302 /* DynamicRecipeViewInfo.swift in Sources */,
 				99AC05FB2BB2BD720046E8C5 /* CommandManager.swift in Sources */,
@@ -592,7 +596,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yzjsswk.TouchFish;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -624,7 +628,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yzjsswk.TouchFish;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -13,6 +13,9 @@ struct RecipeManageView: View {
             }
         }
         .padding(.horizontal)
+        .onAppear {
+            RecipeManager.refresh()
+        }
         .onReceive(NotificationCenter.default.publisher(for: .RecipeRefreshed)) { _ in
             allRecipes = RecipeManager.allRecipesList
         }

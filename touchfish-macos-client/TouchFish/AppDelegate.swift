@@ -8,7 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
     
     func applicationWillTerminate(_ aNotification: Notification) {
-        Log.info("application exit")
+        Log.info("application exited")
     }
 
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct RecipeListView: View {
     
-    @Binding var recipeList: [Recipe]
+    @State var recipeList: [Recipe] = []
     
     var body: some View {
 
@@ -17,6 +17,14 @@ struct RecipeListView: View {
                     }
                 }
                 .padding(.vertical)
+            }
+        }
+        .onAppear {
+            RecipeManager.refresh()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .RecipeRefreshed)) { _ in
+            withAnimation {
+                recipeList = RecipeManager.orderedRecipeList
             }
         }
         

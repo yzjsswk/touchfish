@@ -7,6 +7,7 @@ let Monitor = MonitorManager.self
 struct MonitorManager {
     
     enum MonitorType {
+        case MainWindowTabBarControll
         case hideMainWindowWhenClickOutside
         case backWhenAssistiveClick
         case showOrHideMainWindowWhenKeyShortCutPressed
@@ -22,6 +23,8 @@ struct MonitorManager {
         case running // normal running, works whenever clipbaord data changes
     }
     
+    static var hoverInMainWindowTabBarMonitor: Any?
+    static var clickInMainWindowTabBarMonitor: Any?
     static var localKeyBoardPressedAsyncEventMonitor: Any?
     static var hideMainWindowWhenClickOutsideMonitor: Any?
     static var backWhenAssistiveClickMonitor: Any?
@@ -30,6 +33,27 @@ struct MonitorManager {
     
     static func start(type: MonitorType) {
         switch type {
+        case .MainWindowTabBarControll:
+            MonitorManager.hoverInMainWindowTabBarMonitor = NSEvent.addLocalMonitorForEvents(matching: .mouseMoved) { [] event in
+                if event.window != nil, let window = NSApp.windows.first {
+                    let x = event.locationInWindow.x
+                    let y = window.frame.size.height - event.locationInWindow.y
+                    if x > 0 && y > 0 && y < Constant.mainWindowTabBarHeight-10 {
+                        NotificationCenter.default.post(name: .HoverInMainWindowTabBar, object: nil, userInfo: ["shift": x])
+                    }
+                }
+                return event
+            }
+            MonitorManager.clickInMainWindowTabBarMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { [] event in
+                if event.window != nil, let window = NSApp.windows.first {
+                    let x = event.locationInWindow.x
+                    let y = window.frame.size.height - event.locationInWindow.y
+                    if x > 0 && y > 0 && y < Constant.mainWindowTabBarHeight-10 {
+                        NotificationCenter.default.post(name: .ClickInMainWindowTabBar, object: nil, userInfo: ["shift": x])
+                    }
+                }
+                return event
+            }
         case .hideMainWindowWhenClickOutside:
             MonitorManager.hideMainWindowWhenClickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [] event in
                 if Config.hideMainWindowWhenClickOutSideEnable && TouchFishApp.quickExecutionWindow.isVisible {
@@ -144,6 +168,15 @@ struct MonitorManager {
     
     static func stop(type: MonitorType) {
         switch type {
+        case .MainWindowTabBarControll:
+            if let monitor = MonitorManager.hoverInMainWindowTabBarMonitor {
+                NSEvent.removeMonitor(monitor)
+                MonitorManager.hoverInMainWindowTabBarMonitor = nil
+            }
+            if let monitor = MonitorManager.clickInMainWindowTabBarMonitor {
+                NSEvent.removeMonitor(monitor)
+                MonitorManager.clickInMainWindowTabBarMonitor = nil
+            }
         case .localKeyBoardPressedAsyncEvent:
             guard let monitor = MonitorManager.localKeyBoardPressedAsyncEventMonitor else { return }
             NSEvent.removeMonitor(monitor)

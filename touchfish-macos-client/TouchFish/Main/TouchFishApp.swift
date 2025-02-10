@@ -8,20 +8,23 @@ class TouchFishApp {
     static let metricsPath = appSupportPath.appendingPathComponent("metrics")
     static let recipesPath = appSupportPath.appendingPathComponent("recipes")
     
+    static var mainWindow: MainWindow!
     static var quickExecutionWindow: QuickExecutionWindow!
     
     static func start() {
         createAppSupportPathIfNotExists()
         SwiftyBeaverLogger.startConsoleLogging(minLevel: .verbose)
         SwiftyBeaverLogger.startFileLogging(minLevel: .verbose, logFileUrl: logPath.appendingPathComponent("log"))
-        Monitor.start(type: .showOrHideMainWindowWhenKeyShortCutPressed)
-        Monitor.start(type: .openFishRepositoryWhenKeyShortCutPressed)
-        Monitor.start(type: .hideMainWindowWhenClickOutside)
-        Monitor.start(type: .backWhenAssistiveClick)
+        Monitor.start(type: .MainWindowTabBarControll)
+//        Monitor.start(type: .showOrHideMainWindowWhenKeyShortCutPressed)
+//        Monitor.start(type: .openFishRepositoryWhenKeyShortCutPressed)
+//        Monitor.start(type: .hideMainWindowWhenClickOutside)
+//        Monitor.start(type: .backWhenAssistiveClick)
         Monitor.start(type: .saveFishWhenClipboardChanges)
         Monitor.start(type: .localKeyBoardPressedAsyncEvent)
-        quickExecutionWindow = QuickExecutionWindow()
-        TouchFishApp.activate()
+        mainWindow = MainWindow()
+//        quickExecutionWindow = QuickExecutionWindow()
+        mainWindow.show()
         Log.info("application start success")
         Log.debug("support path=\(appSupportPath.path)")
     }
@@ -33,18 +36,18 @@ class TouchFishApp {
                     try FileManager.default.createDirectory(at: path, withIntermediateDirectories: false, attributes: nil)
                 } catch {
                     Functions.doAlert(type: .critical, title: "Error", message: "create application support path failed, path=\(path.path)")
-                    TouchFishApp.quit()
+                    quit()
                 }
             }
         }
     }
     
     static func activate() {
-        TouchFishApp.quickExecutionWindow.show()
+        quickExecutionWindow.show()
     }
     
     static func deactivate() {
-        TouchFishApp.quickExecutionWindow.hide()
+        quickExecutionWindow.hide()
         NSApp.hide(nil)
     }
     

@@ -49,89 +49,7 @@ struct RecipeManager {
     }
     
     static var recipeSetting: [String:RecipeSetting] = [:]
-    
-    static var internalRecipeList = [
-        Recipe(
-            bundleId: "com.touchfish.RecipeManage",
-            author: "yzjsswk",
-            version: 0,
-            name: "Recipe Manage",
-            icon: Image(systemName: "books.vertical"),
-            command: "recipe",
-            autoExecute: true,
-            color: Constant.internalRecipeItemColor,
-            order: -600
-        ),
-        Recipe(
-            bundleId: "com.touchfish.Topics",
-            author: "yzjsswk",
-            version: 0,
-            name: "Topics",
-            icon: Image(systemName: "list.bullet.rectangle"),
-            command: "topic",
-            autoExecute: true,
-            parameters: [
-                Recipe.Parameter(name: "type", type: .Text, inputer: .SingleLineEdit)
-            ],
-            color: Constant.internalRecipeItemColor,
-            order: -500
-        ),
-        Recipe(
-            bundleId: "com.touchfish.Setting",
-            author: "yzjsswk",
-            version: 0,
-            name: "Setting",
-            icon: Image(systemName: "gearshape"),
-            command: "set",
-            autoExecute: true,
-            color: Constant.internalRecipeItemColor,
-            order: -400
-        ),
-        Recipe(
-            bundleId: "com.touchfish.Statistics",
-            author: "yzjsswk",
-            version: 0,
-            name: "Statistics",
-            icon: Image(systemName: "chart.line.uptrend.xyaxis.circle.fill"),
-            command: "stats",
-            autoExecute: true,
-            color: Constant.internalRecipeItemColor,
-            order: -300
-        ),
-        Recipe(
-            bundleId: "com.touchfish.FishRepository",
-            author: "yzjsswk",
-            version: 0,
-            name: "Fish Repository",
-            description: "master your information",
-            icon: Image(systemName: "fish"),
-            command: "fish",
-            autoExecute: true,
-            parameters: [
-                Recipe.Parameter(name: "identity", type: .Text, inputer: .SingleLineEdit, separator: ","),
-                Recipe.Parameter(name: "type", type: .Text, inputer: .SingleLineEdit, separator: ","),
-                Recipe.Parameter(name: "tag", type: .Text, inputer: .SingleLineEdit, separator: ","),
-                Recipe.Parameter(name: "marked", type: .Bool, inputer: .SingleLineEdit),
-                Recipe.Parameter(name: "locked", type: .Bool, inputer: .SingleLineEdit),
-                Recipe.Parameter(name: "passed", type: .Number, inputer: .SingleLineEdit),
-                Recipe.Parameter(name: "sort", type: .Text, inputer: .SingleLineEdit)
-            ],
-            color: Constant.internalRecipeItemColor,
-            order: -200
-        ),
-        Recipe(
-            bundleId: "com.touchfish.AddFish",
-            author: "yzjsswk",
-            version: 0,
-            name: "Add Fish",
-            icon: Image(systemName: "plus.square"),
-            command: "add",
-            autoExecute: true,
-            color: Constant.internalRecipeItemColor,
-            order: -100
-        ),
-    ]
-    
+        
     static func readRecipeSetting() {
         recipeSetting = [:]
         if !FileManager.default.fileExists(atPath: TouchFishApp.recipesPath.path) {
@@ -157,23 +75,16 @@ struct RecipeManager {
         readRecipeSetting()
         recipes.removeAll()
         allRecipes.removeAll()
-        for recipe in internalRecipeList {
-            recipes[recipe.bundleId] = recipe
-        }
-        allRecipes["Internal"] = internalRecipeList
         Task {
             for server in Config.recipeServiceConfigs {
                 if !server.enable {
-                    continue
-                }
-                if server.name == "Internal" {
-                    Log.warning("load recipe - ignore recipe server: server name can not be `Internal`")
                     continue
                 }
                 for recipe in await Storage.searchRecipe(host: server.host, port: server.port) {
                     allRecipes[server.name, default: []].append(recipe)
                     if let setting = recipeSetting["\(server.name).\(recipe.bundleId)"], setting.enable {
                         if recipes.keys.contains(recipe.bundleId) {
+                            // todo: when refresh too fast, this task may execute multiple, causing warning
                             Log.warning("load recipe - ignore a recipe: bundleId conflicts, bundleId=\(recipe.bundleId), host=\(String(describing: recipe.host)), port=\(String(describing: recipe.port))")
                         } else {
                             var recipe = recipe
@@ -200,7 +111,11 @@ struct RecipeManager {
         })
     }
     
-    static private var activeRecipeId: String? = nil
+    static private var activeRecipeId: String? = nil {
+        didSet {
+            Log.debug("activeRecipeId -> \(activeRecipeId ?? "null")")
+        }
+    }
     static private var activeRecipeArguments: [String:String] = [:]
     static private var activeRecipeArgumentsAddOrder: [String] = []
     

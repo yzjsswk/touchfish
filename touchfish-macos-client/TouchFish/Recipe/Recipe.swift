@@ -52,15 +52,6 @@ struct Recipe {
         
     }
     
-    var isInternal: Bool {
-        for recipe in RecipeManager.internalRecipeList {
-            if bundleId == recipe.bundleId {
-                return true
-            }
-        }
-        return false
-    }
-    
     func execute() {
         for action in actions {
             action.execute()
