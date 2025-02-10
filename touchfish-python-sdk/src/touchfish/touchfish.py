@@ -689,7 +689,7 @@ class View:
         sys.stdout.reconfigure(line_buffering=True)
         sys.stdout.write(ystr().json().from_object(self)+"\n<RECIPE_OUTPUT_FRAME_END>\n")
 
-class Para:
+class Context:
 
     import os
 
@@ -698,12 +698,21 @@ class Para:
     data_service_host = os.environ.get('TFDS_HOST')
     data_service_port = os.environ.get('TFDS_PORT')
 
-    command_bar_text: str = context.get('command_bar_text', '')
+    query: str = context.get('query', '')
 
-    def get(name: str, default: Any = None) -> Any | None:
-        return Para.context.get(name, default)
+    def get_para(name: str, default: Any = None) -> Any | None:
+        paras = Context.context.get('parameters', {})
+        if type(paras) != dict:
+            return default
+        return paras.get(name, default)
     
-    def get_sys(index: int, default: Any = None) -> str | None:
+    def get_setting(name: str, default: Any = None) -> Any | None:
+        paras = Context.context.get('settings', {})
+        if type(paras) != dict:
+            return default
+        return paras.get(name, default)
+    
+    def get_cmd_arg(index: int, default: Any = None) -> str | None:
         import sys
         if len(sys.argv) > index:
             return sys.argv[index] if sys.argv[index] != None else default

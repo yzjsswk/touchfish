@@ -139,7 +139,11 @@ struct RecipeService {
             "bundle_id": bundleId,
             "command": command,
             "args": arguments,
-            "context": context,
+            "context": [
+                "query": context.query,
+                "parameters": context.parameters,
+                "settings": context.settings,
+            ],
         ]
         return await AF.request(
             url, method: .post, parameters: para.compactMapValues { $0 }, encoding: JSONEncoding.default

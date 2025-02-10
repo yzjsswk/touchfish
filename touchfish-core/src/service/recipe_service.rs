@@ -1,13 +1,12 @@
 use std::sync::Arc;
 use std::time::Duration;
 use std::{collections::HashMap, path::Path, process::Stdio};
-use serde_json::Value;
 use tokio::process::Command;
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
 use tokio::time::{timeout, Instant};
 use yfunc_rust::{prelude::*, YUid};
 
-use crate::{Recipe, RecipeCache, RecipeExecuteResult, RecipeExecuteStatus, RecipeParaType};
+use crate::{ParsedRecipeExecuteContext, Recipe, RecipeCache, RecipeExecuteContext, RecipeExecuteResult, RecipeExecuteStatus};
 
 const RECIPE_EXECUTE_RESULT_FRAME_FLAG: &str = "<RECIPE_OUTPUT_FRAME_END>";
 
@@ -51,7 +50,7 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
         Ok(recipes.into_values().collect())
     }
 
-    pub async fn execute(self: Arc<Self>, bundle_id: &str, command: &str, args: &Vec<String>, context: &HashMap<String, String>) -> YRes<String> {
+    pub async fn execute(self: Arc<Self>, bundle_id: &str, command: &str, args: &Vec<String>, context: &RecipeExecuteContext) -> YRes<String> {
         let bundle_id = bundle_id.to_string();
         let command = command.to_string();
         let args = args.clone();
@@ -102,42 +101,20 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
         let recipe = self.load_recipe_from_file(&recipe_path.join("Recipe.toml")).trace(
             ctx!("execute recipe -> load recipe from recipe path: self.load_recipe_from_file failed", recipe_path, bundle_id)
         )?;
-        let recipe_context = context.into_iter().try_fold::<_, _, YRes<_>>(HashMap::new(), |mut acc, (name, value)| {
-            if name == "command_bar_text" {
-                acc.insert("command_bar_text", Value::String(value.to_string()));
-                return Ok(acc);
-            }
-            for para in &recipe.parameters {
-                if para.name == *name {
-                    match &para.separator {
-                        Some(sep) => {
-                            let origin_values: Vec<&str> = value.split(sep).collect();
-                            let parsed_values = origin_values.into_iter().try_fold::<_, _, YRes<_>>(Vec::new(), |mut acc, it| {
-                                let parsed_value = self.parse_str_para(it, para.para_type).trace(
-                                    ctx!("execute recipe -> parse str para: self.parse_str_para failed", para.name, it, para.para_type, bundle_id, recipe_path)
-                                )?;
-                                acc.push(parsed_value);
-                                Ok(acc)
-                            })?;
-                            acc.insert(name, Value::Array(parsed_values));
-                        },
-                        None => {
-                            let parsed_value = self.parse_str_para(&value, para.para_type).trace(
-                                ctx!("execute recipe -> parse str para: self.parse_str_para failed", para.name, value, para.para_type, bundle_id, recipe_path)
-                            )?;
-                            acc.insert(name, parsed_value);
-                        },
-                    };
-                    break;
-                }
-            }
-            Ok(acc)
-        })?;
-        let recipe_context = serde_json::to_string(&recipe_context).map_err(|e| {
-            err!("execute recipe failed").trace(
-                ctx!("execute recipe -> parse recipe context: serde_json::to_string(&context) failed", bundle_id, recipe_path, context, e)
-            )
-        })?;
+        let parsed_parameters = ParsedRecipeExecuteContext::parse_str_paras(&context.parameters, &recipe).trace(
+            ctx!("execute recipe -> parse parameters context: ParsedRecipeExecuteContext::parse_str_paras failed", bundle_id, recipe_path, context.parameters)
+        )?;
+        let parsed_settings = ParsedRecipeExecuteContext::parse_str_paras(&context.settings, &recipe).trace(
+            ctx!("execute recipe -> parse settings context: ParsedRecipeExecuteContext::parse_str_paras failed", bundle_id, recipe_path, context.settings)
+        )?;
+        let parsed_context = ParsedRecipeExecuteContext {
+            query: context.query.clone(),
+            parameters: parsed_parameters,
+            settings: parsed_settings,
+        };
+        let recipe_context = parsed_context.to_json_str().trace(
+                ctx!("execute recipe -> parse context: parsed_context.to_json_str() failed", bundle_id, recipe_path, parsed_context)
+        )?;
         let execute_uid = YUid::new().to_str();
         let ret = execute_uid.clone();
         let start_time = Instant::now();
@@ -267,31 +244,6 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
             )
         })?;
         Ok(recipe)
-    }
-
-    fn parse_str_para(&self, str_value: &str, para_type: RecipeParaType) -> YRes<Value> {
-        let parsed_value = match para_type {
-            RecipeParaType::Text => Value::String(str_value.to_string()),
-            RecipeParaType::Number => {
-                let number = str_value.parse::<i64>().map_err(|e| {
-                    err!("parse str para failed").trace(
-                        ctx!("parse number parameter: it.parse::<i64>() failed", str_value, para_type, e)
-                    )
-                })?;
-                Value::Number(number.into())
-            },
-            RecipeParaType::Bool => {
-                let bool =  match str_value.to_lowercase().as_str() {
-                    "true" | "1" | "yes" => Ok(true),
-                    "false" | "0" | "no" => Ok(false),
-                    _ => Err(err!("para str para failed").trace(
-                            ctx!("parse bool parameter: invalid value", str_value, para_type)
-                         )),
-                }?;
-                Value::Bool(bool)
-            },
-        };
-        Ok(parsed_value)
     }
 
 }

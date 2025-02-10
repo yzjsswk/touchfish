@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use crate::{Recipe, RecipeCache, RecipeExecuteResult, RecipeService};
+use crate::{Recipe, RecipeCache, RecipeExecuteContext, RecipeExecuteResult, RecipeService};
 use yfunc_rust::prelude::*;
 
 pub struct RecipeApi<C> where C: RecipeCache+Sync+Send+'static {
@@ -21,7 +21,7 @@ impl<C> RecipeApi<C> where C: RecipeCache+Sync+Send+'static {
         )
     }
 
-    pub async fn execute(&self, bundle_id: &str, command: &str, args: &Vec<String>, context: &HashMap<String, String>) -> YRes<String> {
+    pub async fn execute(&self, bundle_id: &str, command: &str, args: &Vec<String>, context: &RecipeExecuteContext) -> YRes<String> {
         Arc::clone(&self.recipe_service).execute(bundle_id, command, args, context).await.trace(
             ctx!("execute recipe: self.recipe_service.execute failed")
         )

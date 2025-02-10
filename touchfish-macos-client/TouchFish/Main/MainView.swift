@@ -235,6 +235,16 @@ struct MainView: View {
             .padding(.horizontal, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onReceive(NotificationCenter.default.publisher(for: .MainWindowEnterFullScreen)) { _ in
+            withAnimation {
+                isFullScreen = true
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .MainWindowExitFullScreen)) { _ in
+            withAnimation {
+                isFullScreen = false
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .RecipeStatusChanged)) { _ in
             if let recipe = RecipeManager.activeRecipe {
                 activeRecipeBundleId = recipe.bundleId
@@ -253,16 +263,6 @@ struct MainView: View {
         .onReceive(NotificationCenter.default.publisher(for: .CommandTextChanged)) { notification in
             if let commandText = notification.userInfo?["commandText"] as? String, self.commandText != commandText {
                 self.commandText = commandText
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .MainWindowEnterFullScreen)) { _ in
-            withAnimation {
-                isFullScreen = true
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .MainWindowExitFullScreen)) { _ in
-            withAnimation {
-                isFullScreen = false
             }
         }
     }

@@ -15,6 +15,8 @@ pub struct Recipe {
     #[serde(default = "default_auto_execute")]
     pub auto_execute: bool,
     #[serde(default = "default_parameters")]
+    pub settings: Vec<RecipePara>,
+    #[serde(default = "default_parameters")]
     pub parameters: Vec<RecipePara>,
     #[serde(default = "default_actions")]
     pub actions: Vec<RecipeAction>,
