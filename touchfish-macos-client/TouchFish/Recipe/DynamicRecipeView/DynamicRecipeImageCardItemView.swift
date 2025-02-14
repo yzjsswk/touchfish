@@ -86,7 +86,7 @@ struct DynamicRecipeImageCardItemView: View {
                                             .offset(x: -5, y: -5)
                                             .onTapGesture {
                                                 for action in op.actions {
-                                                    action.execute()
+//                                                    action.execute()
                                                 }
                                             }
                                     }

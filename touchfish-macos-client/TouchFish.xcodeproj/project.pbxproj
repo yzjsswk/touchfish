@@ -12,6 +12,9 @@
 		990EAC0D2D564D040050E145 /* QuickExecutionWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990EAC0C2D564CB50050E145 /* QuickExecutionWindow.swift */; };
 		990EAC0F2D564D6A0050E145 /* PasteBoardWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990EAC0E2D564D0D0050E145 /* PasteBoardWindow.swift */; };
 		990EAC112D56679F0050E145 /* QuickExecutionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990EAC102D56678A0050E145 /* QuickExecutionView.swift */; };
+		990EAD052D5A56E30050E145 /* RecipeExecutionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990EAD042D5A56DA0050E145 /* RecipeExecutionView.swift */; };
+		990EAD072D5B178A0050E145 /* RecipeExecutionContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990EAD062D5B17840050E145 /* RecipeExecutionContext.swift */; };
+		990EAD092D5D98EF0050E145 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990EAD082D5D98E10050E145 /* TabBarView.swift */; };
 		995E082A2C17242C00659F85 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995E08292C17242C00659F85 /* SettingView.swift */; };
 		995E082C2C18345C00659F85 /* DataServiceSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995E082B2C18345C00659F85 /* DataServiceSettingView.swift */; };
 		996FEE492BC3E2E50047EB82 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996FEE482BC3E2E50047EB82 /* DataService.swift */; };
@@ -49,8 +52,7 @@
 		99AC05F62BB2BD720046E8C5 /* Monitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05CF2BB2BD720046E8C5 /* Monitor.swift */; };
 		99AC05F72BB2BD720046E8C5 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05D02BB2BD720046E8C5 /* Storage.swift */; };
 		99AC05F82BB2BD720046E8C5 /* CommandBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05D22BB2BD720046E8C5 /* CommandBarView.swift */; };
-		99AC05F92BB2BD720046E8C5 /* CommandField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05D32BB2BD720046E8C5 /* CommandField.swift */; };
-		99AC05FB2BB2BD720046E8C5 /* CommandManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05D52BB2BD720046E8C5 /* CommandManager.swift */; };
+		99AC05F92BB2BD720046E8C5 /* CommandBarTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05D32BB2BD720046E8C5 /* CommandBarTextField.swift */; };
 		99AC05FD2BB2BD720046E8C5 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05D82BB2BD720046E8C5 /* Recipe.swift */; };
 		99AC05FE2BB2BD720046E8C5 /* RecipeItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05D92BB2BD720046E8C5 /* RecipeItemView.swift */; };
 		99AC05FF2BB2BD720046E8C5 /* RecipeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05DA2BB2BD720046E8C5 /* RecipeListView.swift */; };
@@ -77,6 +79,9 @@
 		990EAC0C2D564CB50050E145 /* QuickExecutionWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickExecutionWindow.swift; sourceTree = "<group>"; };
 		990EAC0E2D564D0D0050E145 /* PasteBoardWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteBoardWindow.swift; sourceTree = "<group>"; };
 		990EAC102D56678A0050E145 /* QuickExecutionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickExecutionView.swift; sourceTree = "<group>"; };
+		990EAD042D5A56DA0050E145 /* RecipeExecutionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeExecutionView.swift; sourceTree = "<group>"; };
+		990EAD062D5B17840050E145 /* RecipeExecutionContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecipeExecutionContext.swift; sourceTree = "<group>"; };
+		990EAD082D5D98E10050E145 /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
 		995E08292C17242C00659F85 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		995E082B2C18345C00659F85 /* DataServiceSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataServiceSettingView.swift; sourceTree = "<group>"; };
 		996FEE482BC3E2E50047EB82 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
@@ -115,8 +120,7 @@
 		99AC05CF2BB2BD720046E8C5 /* Monitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Monitor.swift; sourceTree = "<group>"; };
 		99AC05D02BB2BD720046E8C5 /* Storage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		99AC05D22BB2BD720046E8C5 /* CommandBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommandBarView.swift; sourceTree = "<group>"; };
-		99AC05D32BB2BD720046E8C5 /* CommandField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommandField.swift; sourceTree = "<group>"; };
-		99AC05D52BB2BD720046E8C5 /* CommandManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommandManager.swift; sourceTree = "<group>"; };
+		99AC05D32BB2BD720046E8C5 /* CommandBarTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommandBarTextField.swift; sourceTree = "<group>"; };
 		99AC05D82BB2BD720046E8C5 /* Recipe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
 		99AC05D92BB2BD720046E8C5 /* RecipeItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeItemView.swift; sourceTree = "<group>"; };
 		99AC05DA2BB2BD720046E8C5 /* RecipeListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeListView.swift; sourceTree = "<group>"; };
@@ -155,6 +159,7 @@
 				99AC05A82BB2BCD90046E8C5 /* TouchFishApp.swift */,
 				99AC05B92BB2BD710046E8C5 /* MainWindow.swift */,
 				99AC05C22BB2BD720046E8C5 /* MainView.swift */,
+				990EAD082D5D98E10050E145 /* TabBarView.swift */,
 				990EAC0C2D564CB50050E145 /* QuickExecutionWindow.swift */,
 				990EAC102D56678A0050E145 /* QuickExecutionView.swift */,
 				990EAC0E2D564D0D0050E145 /* PasteBoardWindow.swift */,
@@ -293,8 +298,7 @@
 			isa = PBXGroup;
 			children = (
 				99AC05D22BB2BD720046E8C5 /* CommandBarView.swift */,
-				99AC05D32BB2BD720046E8C5 /* CommandField.swift */,
-				99AC05D52BB2BD720046E8C5 /* CommandManager.swift */,
+				99AC05D32BB2BD720046E8C5 /* CommandBarTextField.swift */,
 			);
 			path = CommandBar;
 			sourceTree = "<group>";
@@ -308,6 +312,8 @@
 				997FAFD82CEB81870023A6BC /* RecipeManageView.swift */,
 				99AC05D92BB2BD720046E8C5 /* RecipeItemView.swift */,
 				99AC05DA2BB2BD720046E8C5 /* RecipeListView.swift */,
+				990EAD062D5B17840050E145 /* RecipeExecutionContext.swift */,
+				990EAD042D5A56DA0050E145 /* RecipeExecutionView.swift */,
 			);
 			path = Recipe;
 			sourceTree = "<group>";
@@ -411,24 +417,26 @@
 				99AC05E52BB2BD720046E8C5 /* FishEditView.swift in Sources */,
 				99EF7A282BF3C0EC00675CC2 /* StatsView.swift in Sources */,
 				997FAFD72CEB695D0023A6BC /* Topic.swift in Sources */,
-				99AC05F92BB2BD720046E8C5 /* CommandField.swift in Sources */,
+				99AC05F92BB2BD720046E8C5 /* CommandBarTextField.swift in Sources */,
 				99AC06052BB2BE440046E8C5 /* AppDelegate.swift in Sources */,
+				990EAD072D5B178A0050E145 /* RecipeExecutionContext.swift in Sources */,
 				997FAFDB2CEB83610023A6BC /* RecipeManager.swift in Sources */,
 				99AC05ED2BB2BD720046E8C5 /* KeyboardShortcut.swift in Sources */,
 				997FAFD92CEB818E0023A6BC /* RecipeManageView.swift in Sources */,
 				99AC05FD2BB2BD720046E8C5 /* Recipe.swift in Sources */,
 				99AC05F72BB2BD720046E8C5 /* Storage.swift in Sources */,
+				990EAD092D5D98EF0050E145 /* TabBarView.swift in Sources */,
 				99AC05F82BB2BD720046E8C5 /* CommandBarView.swift in Sources */,
 				990EAC0D2D564D040050E145 /* QuickExecutionWindow.swift in Sources */,
 				990EAC112D56679F0050E145 /* QuickExecutionView.swift in Sources */,
 				997920382D33B66F007C187A /* DynamicRecipeParaFieldView.swift in Sources */,
 				999C31EF2D1151FF0083D302 /* DynamicRecipeViewInfo.swift in Sources */,
-				99AC05FB2BB2BD720046E8C5 /* CommandManager.swift in Sources */,
 				996FEE492BC3E2E50047EB82 /* DataService.swift in Sources */,
 				99AC05E42BB2BD720046E8C5 /* FishDetailView.swift in Sources */,
 				99AC05E82BB2BD720046E8C5 /* FishListView.swift in Sources */,
 				99AC05E22BB2BD720046E8C5 /* MainWindow.swift in Sources */,
 				99EDC3362CC4FE8F0023CDF0 /* PieChartView.swift in Sources */,
+				990EAD052D5A56E30050E145 /* RecipeExecutionView.swift in Sources */,
 				99EDC3402CC6A5620023CDF0 /* RecipeStatsView.swift in Sources */,
 				9991B00C2C0C88B000EFE02C /* FishAddView.swift in Sources */,
 				998020442CDA378D004DC045 /* RecipeService.swift in Sources */,

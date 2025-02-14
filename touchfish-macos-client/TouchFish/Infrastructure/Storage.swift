@@ -8,28 +8,28 @@ struct Storage {
         private var lock = NSLock()
         
         func getFish(_ uid: String) -> Fish? {
-            lock.lock()
             defer {
                 lock.unlock()
             }
+            lock.lock()
 //            Log.debug("get \(uid)")
             return cache[uid]
         }
         
         mutating func setFish(_ fish: Fish) {
-            lock.lock()
             defer {
                 lock.unlock()
             }
+            lock.lock()
 //            Log.debug("set \(fish.uid)")
             cache[fish.uid] = fish
         }
         
         mutating func batchSetFish(_ fishList: [Fish]) {
-            lock.lock()
             defer {
                 lock.unlock()
             }
+            lock.lock()
             for fish in fishList {
 //                Log.debug("batch set \(fish.uid)")
                 cache[fish.uid] = fish
@@ -37,19 +37,19 @@ struct Storage {
         }
         
         mutating func removeFish(_ uid: String) {
-            lock.lock()
             defer {
                 lock.unlock()
             }
+            lock.lock()
 //            Log.debug("remove \(uid)")
             cache.removeValue(forKey: uid)
         }
         
         mutating func batchRemoveFish(_ uids: [String]) {
-            lock.lock()
             defer {
                 lock.unlock()
             }
+            lock.lock()
             for uid in uids {
 //                Log.debug("batch remove \(uid)")
                 cache.removeValue(forKey: uid)
@@ -57,10 +57,10 @@ struct Storage {
         }
         
         mutating func clear() {
-            lock.lock()
             defer {
                 lock.unlock()
             }
+            lock.lock()
 //            Log.debug("clear")
             cache.removeAll()
         }
@@ -72,18 +72,18 @@ struct Storage {
         private var lock = NSLock()
         
         func getLatestVersion() -> Int64 {
-            lock.lock()
             defer {
                 lock.unlock()
             }
+            lock.lock()
             return version
         }
         
         mutating func updateVersion() {
-            lock.lock()
             defer {
                 lock.unlock()
             }
+            lock.lock()
             version = Int64(Date().timeIntervalSince1970 * 1000)
         }
         
@@ -548,7 +548,7 @@ struct Storage {
                 return ret
             }
             for recipeResp in data {
-                guard let recipe = recipeResp.toRecipe() else {
+                guard let recipe = recipeResp.toRecipe(host: host, port: port) else {
                     Log.warning("Storage.searchRecipe - skip a recipe: parse recipeResp to recipe failed, bundleId=\(recipeResp.bundleId), host=\(host), port=\(port)")
                     continue
                 }

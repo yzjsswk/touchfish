@@ -67,7 +67,7 @@ struct DynamicRecipeStripItemView: View {
         .onTapGesture {
             if let operation = operation {
                 for action in operation.actions {
-                    action.execute()
+//                    action.execute()
                 }
             }
         }

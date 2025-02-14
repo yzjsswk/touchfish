@@ -49,16 +49,26 @@ struct MonitorManager {
                     let x = event.locationInWindow.x
                     let y = window.frame.size.height - event.locationInWindow.y
                     if x > 0 && y > 0 && y < Constant.mainWindowTabBarHeight-10 {
-                        NotificationCenter.default.post(name: .ClickInMainWindowTabBar, object: nil, userInfo: ["shift": x])
+                        NotificationCenter.default.post(name: .LeftClickInMainWindowTabBar, object: nil, userInfo: ["shift": x])
+                    }
+                }
+                return event
+            }
+            MonitorManager.clickInMainWindowTabBarMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { [] event in
+                if event.window != nil, let window = NSApp.windows.first {
+                    let x = event.locationInWindow.x
+                    let y = window.frame.size.height - event.locationInWindow.y
+                    if x > 0 && y > 0 && y < Constant.mainWindowTabBarHeight-10 {
+                        NotificationCenter.default.post(name: .RightClickInMainWindowTabBar, object: nil, userInfo: ["shift": x])
                     }
                 }
                 return event
             }
         case .hideMainWindowWhenClickOutside:
             MonitorManager.hideMainWindowWhenClickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [] event in
-                if Config.hideMainWindowWhenClickOutSideEnable && TouchFishApp.quickExecutionWindow.isVisible {
-                    TouchFishApp.deactivate()
-                }
+//                if Config.hideMainWindowWhenClickOutSideEnable && TouchFishApp.quickExecutionWindow.isVisible {
+//                    TouchFishApp.deactivate()
+//                }
             }
         case .backWhenAssistiveClick:
             MonitorManager.backWhenAssistiveClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { [] event in
@@ -69,18 +79,18 @@ struct MonitorManager {
             }
         case .showOrHideMainWindowWhenKeyShortCutPressed:
             GlobalKeyboardEventListener().startListening(keyboardShortcut: Config.appActiveKeyShortcut) { [] _ in
-                if TouchFishApp.quickExecutionWindow.isVisible {
-                    TouchFishApp.deactivate()
-                } else {
-                    TouchFishApp.activate()
-                }
+//                if TouchFishApp.quickExecutionWindow.isVisible {
+//                    TouchFishApp.deactivate()
+//                } else {
+//                    TouchFishApp.activate()
+//                }
             }
         case .openFishRepositoryWhenKeyShortCutPressed:
             GlobalKeyboardEventListener().startListening(keyboardShortcut: Config.fishRepositoryActiveKeyShortcut) { [] _ in
-                if !TouchFishApp.quickExecutionWindow.isVisible {
-                    RecipeManager.goToRecipe(recipeId: "com.touchfish.FishRepository")
+//                if !TouchFishApp.quickExecutionWindow.isVisible {
+//                    RecipeManager.goToRecipe(recipeId: "com.touchfish.FishRepository")
                     TouchFishApp.activate()
-                }
+//                }
             }
         case .localKeyBoardPressedAsyncEvent:
             MonitorManager.localKeyBoardPressedAsyncEventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [] event in

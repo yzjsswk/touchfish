@@ -46,7 +46,7 @@ struct RecipeItemView: View {
             }
         }
         .onTapGesture(count: 1) {
-            RecipeManager.goToRecipe(recipeId: recipe.bundleId)
+//            RecipeManager.goToRecipe(recipeId: recipe.bundleId)
         }
     }
     

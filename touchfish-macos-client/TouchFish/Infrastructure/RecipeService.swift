@@ -44,8 +44,10 @@ struct RecipeResp: Codable {
         case color = "color"
     }
     
-    func toRecipe() -> Recipe? {
+    func toRecipe(host: String, port: String) -> Recipe? {
         return Recipe(
+            host: host,
+            port: port,
             bundleId: self.bundleId,
             author: self.author,
             version: self.version,
@@ -92,12 +94,6 @@ struct RecipeExecuteResult: Codable {
     
 }
 
-struct RecipeExecuteContext: Codable {
-    var query: String
-    var parameters: [String:String]
-    var settings: [String:String]
-}
-
 struct RecipeService {
     
     let host: String
@@ -132,17 +128,18 @@ struct RecipeService {
     }
     
     func executeRecipe(
-        bundleId: String, command: String, arguments: [String], context: RecipeExecuteContext
+        bundleId: String, command: String, arguments: [String], query: String, parameters: [String:String], settings: [String:String]
     ) async -> Result<RecipeServiceResponse<String>, AFError> {
+        Log.debug("execute recipe: bundleId=\(bundleId), query=\(query), parameters=\(parameters), settings=\(settings)")
         let url = urlPrefix + "/recipe/execute"
         let para: [String:Any?] = [
             "bundle_id": bundleId,
             "command": command,
             "args": arguments,
             "context": [
-                "query": context.query,
-                "parameters": context.parameters,
-                "settings": context.settings,
+                "query": query,
+                "parameters": parameters,
+                "settings": settings,
             ],
         ]
         return await AF.request(
@@ -151,6 +148,7 @@ struct RecipeService {
     }
     
     func fetchExecuteResult(executeUid: String) async -> Result<RecipeServiceResponse<RecipeExecuteResult>, AFError> {
+//        Log.debug("fetch execute result: executeUid=\(executeUid)")
         let url = urlPrefix + "/recipe/fetch_result/\(executeUid)"
         return await AF.request(url).serializingDecodable(RecipeServiceResponse.self).result
     }

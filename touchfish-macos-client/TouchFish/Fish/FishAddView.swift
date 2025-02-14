@@ -55,7 +55,7 @@ struct FishAddView: View {
                                 }
                             }
                         }
-                        RecipeManager.goToRecipe(recipeId: nil)
+//                        RecipeManager.goToRecipe(recipeId: nil)
                     }
                     Spacer()
                 }
@@ -113,7 +113,7 @@ struct FishAddView: View {
                     }
                 }
             } else {
-                RecipeManager.goToRecipe(recipeId: nil)
+//                RecipeManager.goToRecipe(recipeId: nil)
             }
         }
 

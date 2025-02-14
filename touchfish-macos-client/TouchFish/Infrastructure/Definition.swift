@@ -311,7 +311,10 @@ extension Notification.Name {
     static let MainWindowEnterFullScreen = Notification.Name("MainWindowEnterFullScreen")
     static let MainWindowExitFullScreen = Notification.Name("MainWindowExitFullScreen")
     static let HoverInMainWindowTabBar = Notification.Name("HoverInMainWindowTabBar")
-    static let ClickInMainWindowTabBar = Notification.Name("ClickInMainWindowTabBar")
+    static let LeftClickInMainWindowTabBar = Notification.Name("LeftClickInMainWindowTabBar")
+    static let RightClickInMainWindowTabBar = Notification.Name("RightClickInMainWindowTabBar")
+    static let ShouldRemoveRecipeExecutionContext = Notification.Name("ShouldRemoveRecipeExecutionContext")
+    static let RecipeExecutionContextChanged = Notification.Name("RecipeExecutionContextChanged")
     
     static let ReturnKeyWasPressed = Notification.Name("ReturnKeyWasPressed")
     static let UpArrowKeyWasPressed = Notification.Name("UpArrowKeyWasPressed")
@@ -326,10 +329,16 @@ extension Notification.Name {
     static let FishRefreshed = Notification.Name("FishRefreshed")
     static let RecipeRefreshed = Notification.Name("RecipeRefreshed")
     static let RecipeStatusChanged = Notification.Name("RecipeStatusChanged")
-    static let CommandTextChanged = Notification.Name("CommandTextChanged")
+    static let CommandBarTextChanged = Notification.Name("CommandBarTextChanged")
     static let CommandBarEndEditing = Notification.Name("CommandBarEndEditing")
     static let CommandBarShouldFocus = Notification.Name("CommandBarShouldFocus")
     static let DynamicRecipeViewChanged = Notification.Name("DynamicRecipeViewChanged")
     static let RecipeCommited = Notification.Name("RecipeCommited")
     static let ShouldRefreshTopic = Notification.Name("ShouldRefreshTopic")
+    
+    
+    func group(_ group: String) -> Notification.Name {
+        return Notification.Name("\(group)-\(self.rawValue)")
+    }
+    
 }

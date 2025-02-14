@@ -1,26 +1,26 @@
 import SwiftUI
+import YFuncSwift
+import AppKit
 
-struct CommandField: NSViewControllerRepresentable {
+struct CommandBarTextField: NSViewControllerRepresentable {
     
-    @Binding var commandText: String
+    @Binding var text: String
     
-    func makeNSViewController(context: Context) -> some CommandFieldViewController {
-        return CommandFieldViewController(text: $commandText)
+    func makeNSViewController(context: Context) -> some CommandBarTextFieldViewController {
+        return CommandBarTextFieldViewController(text: $text)
     }
     
     func updateNSViewController(_ nsViewController: NSViewControllerType, context: Context) {
         guard let textField = nsViewController.textField else {
-            Log.error("update command bar - fail: get textField = nil")
+            Log.error("update CommandBarTextField - failed: got nsViewController.textField=nil")
             return
         }
-        textField.stringValue = CommandManager.update(commandText)
-        CommandManager.commandText = textField.stringValue
-        NotificationCenter.default.post(name: .CommandTextChanged, object: nil, userInfo: ["commandText":textField.stringValue])
+        textField.stringValue = text
     }
     
 }
 
-class CommandFieldViewController: NSViewController, NSTextFieldDelegate {
+class CommandBarTextFieldViewController: NSViewController, NSTextFieldDelegate {
     
     @Binding var text: String
     

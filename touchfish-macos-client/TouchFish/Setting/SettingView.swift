@@ -82,7 +82,7 @@ struct SettingView: View {
                     let ok = tempSetting.save()
                     if ok {
                         Config = Configuration.read()
-                        RecipeManager.goToRecipe(recipeId: nil)
+//                        RecipeManager.goToRecipe(recipeId: nil)
                     } else {
                         Functions.doAlert(type: .warning, title: "Warning", message: "Save Failed")
                     }

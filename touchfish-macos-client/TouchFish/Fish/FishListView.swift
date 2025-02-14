@@ -60,6 +60,3 @@ struct FishListView: View {
     }
     
 }
-
-
-

@@ -208,51 +208,51 @@ struct FishRepositoryView: View {
             }
             NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .RecipeStatusChanged)) { _ in
-            identitys = nil
-            fishTypes = nil
-            tags = nil
-            isMarked = nil
-            isLocked = nil
-            passedHours = nil
-            sortField = ""
-            for (argName, argValue) in RecipeManager.activeRecipeArg {
-                if argName == "identity" {
-                    identitys = argValue
-                }
-                if argName == "type" {
-                    fishTypes = argValue.compactMap { Fish.FishType(rawValue: $0.capitalized) }
-                }
-                if argName == "tag" {
-                    tags = argValue
-                }
-                if argName == "marked", argValue.count > 0 {
-                    if argValue[0].lowercased() == "true" || argValue[0] == "1" {
-                        isMarked = true
-                    }
-                    if argValue[0].lowercased() == "false" || argValue[0] == "0" {
-                        isMarked = false
-                    }
-                }
-                if argName == "locked", argValue.count > 0 {
-                    if argValue[0].lowercased() == "true" || argValue[0] == "1" {
-                        isLocked = true
-                    }
-                    if argValue[0].lowercased() == "false" || argValue[0] == "0" {
-                        isLocked = false
-                    }
-                }
-                if argName == "passed", argValue.count > 0 {
-                    if let value = Int(argValue[0]) {
-                        passedHours = value
-                    }
-                }
-                if argName == "sort", argValue.count > 0 {
-                    sortField = argValue[0].lowercased()
-                }
-            }
-            NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
-        }
+//        .onReceive(NotificationCenter.default.publisher(for: .RecipeStatusChanged)) { _ in
+//            identitys = nil
+//            fishTypes = nil
+//            tags = nil
+//            isMarked = nil
+//            isLocked = nil
+//            passedHours = nil
+//            sortField = ""
+//            for (argName, argValue) in RecipeManager.activeRecipeArg {
+//                if argName == "identity" {
+//                    identitys = argValue
+//                }
+//                if argName == "type" {
+//                    fishTypes = argValue.compactMap { Fish.FishType(rawValue: $0.capitalized) }
+//                }
+//                if argName == "tag" {
+//                    tags = argValue
+//                }
+//                if argName == "marked", argValue.count > 0 {
+//                    if argValue[0].lowercased() == "true" || argValue[0] == "1" {
+//                        isMarked = true
+//                    }
+//                    if argValue[0].lowercased() == "false" || argValue[0] == "0" {
+//                        isMarked = false
+//                    }
+//                }
+//                if argName == "locked", argValue.count > 0 {
+//                    if argValue[0].lowercased() == "true" || argValue[0] == "1" {
+//                        isLocked = true
+//                    }
+//                    if argValue[0].lowercased() == "false" || argValue[0] == "0" {
+//                        isLocked = false
+//                    }
+//                }
+//                if argName == "passed", argValue.count > 0 {
+//                    if let value = Int(argValue[0]) {
+//                        passedHours = value
+//                    }
+//                }
+//                if argName == "sort", argValue.count > 0 {
+//                    sortField = argValue[0].lowercased()
+//                }
+//            }
+//            NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
+//        }
     }
 
 }

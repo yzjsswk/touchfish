@@ -2,14 +2,14 @@ import SwiftUI
 
 class TouchFishApp {
     
-    static let appSupportPath = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("TouchFish")
-    static let logPath = appSupportPath.appendingPathComponent("log")
+    static let appSupportPath = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("TouchFish/")
+    static let logPath = appSupportPath.appendingPathComponent("log/")
     static let configPath = appSupportPath.appendingPathComponent("config")
     static let metricsPath = appSupportPath.appendingPathComponent("metrics")
     static let recipesPath = appSupportPath.appendingPathComponent("recipes")
     
     static var mainWindow: MainWindow!
-    static var quickExecutionWindow: QuickExecutionWindow!
+//    static var quickExecutionWindow: QuickExecutionWindow!
     
     static func start() {
         createAppSupportPathIfNotExists()
@@ -43,11 +43,11 @@ class TouchFishApp {
     }
     
     static func activate() {
-        quickExecutionWindow.show()
+//        quickExecutionWindow.show()
     }
     
     static func deactivate() {
-        quickExecutionWindow.hide()
+//        quickExecutionWindow.hide()
         NSApp.hide(nil)
     }
     
