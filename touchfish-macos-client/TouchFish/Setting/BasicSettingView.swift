@@ -97,7 +97,7 @@ struct BasicSettingView: View {
                     .font(.title3)
                     .bold()
                 Spacer()
-                Toggle(isOn: $tempSetting.hideMainWindowWhenClickOutSideEnable) {}
+                Toggle(isOn: $tempSetting.hideMainQuickExecutionWindowWhenClickOutSideEnable) {}
                     .padding(.horizontal, 5)
             }
             .padding(.vertical, 2)

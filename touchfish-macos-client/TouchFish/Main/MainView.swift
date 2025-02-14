@@ -45,7 +45,6 @@ struct MainView: View {
                 case .RecipeExecution(let idx):
                     if idx < recipeExecutionContexts.count {
                         CommandBarView(
-                            text: "",
                             situation: Binding<CommandBarView.Situation>(
                                 get: { return .MainWindowRecipe(recipeExecutionContexts[idx]) },
                                 set: { newValue in

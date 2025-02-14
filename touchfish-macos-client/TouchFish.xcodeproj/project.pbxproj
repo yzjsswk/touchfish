@@ -56,7 +56,6 @@
 		99AC05FD2BB2BD720046E8C5 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05D82BB2BD720046E8C5 /* Recipe.swift */; };
 		99AC05FF2BB2BD720046E8C5 /* RecipeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05DA2BB2BD720046E8C5 /* RecipeSelectionView.swift */; };
 		99AC06002BB2BD720046E8C5 /* DynamicRecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05DB2BB2BD720046E8C5 /* DynamicRecipeView.swift */; };
-		99AC06022BB2BD720046E8C5 /* StatusBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05DF2BB2BD720046E8C5 /* StatusBar.swift */; };
 		99AC06052BB2BE440046E8C5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC06042BB2BE440046E8C5 /* AppDelegate.swift */; };
 		99AC06082BB2BE930046E8C5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 99AC06072BB2BE930046E8C5 /* Main.storyboard */; };
 		99AC060B2BB413AD0046E8C5 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 99AC060A2BB413AD0046E8C5 /* SwiftyBeaver */; };
@@ -123,7 +122,6 @@
 		99AC05D82BB2BD720046E8C5 /* Recipe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
 		99AC05DA2BB2BD720046E8C5 /* RecipeSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeSelectionView.swift; sourceTree = "<group>"; };
 		99AC05DB2BB2BD720046E8C5 /* DynamicRecipeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicRecipeView.swift; sourceTree = "<group>"; };
-		99AC05DF2BB2BD720046E8C5 /* StatusBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBar.swift; sourceTree = "<group>"; };
 		99AC06042BB2BE440046E8C5 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		99AC06072BB2BE930046E8C5 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		99C614F92C43C38B00A99567 /* BasicSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicSettingView.swift; sourceTree = "<group>"; };
@@ -163,7 +161,6 @@
 				990EAC0C2D564CB50050E145 /* QuickExecutionWindow.swift */,
 				990EAC102D56678A0050E145 /* QuickExecutionView.swift */,
 				990EAC0E2D564D0D0050E145 /* PasteBoardWindow.swift */,
-				99AC05DF2BB2BD720046E8C5 /* StatusBar.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -395,7 +392,6 @@
 				99AC05FF2BB2BD720046E8C5 /* RecipeSelectionView.swift in Sources */,
 				99EDC33C2CC69FD90023CDF0 /* Metrics.swift in Sources */,
 				99AC05F52BB2BD720046E8C5 /* Log.swift in Sources */,
-				99AC06022BB2BD720046E8C5 /* StatusBar.swift in Sources */,
 				990EAC0B2D4E5D1E0050E145 /* DynamicRecipeImageCardItemView.swift in Sources */,
 				99C614FC2C43F56500A99567 /* FishRepositorySettingView.swift in Sources */,
 				998EB13B2D36967C00A4844A /* DynamicRecipeFishSideView.swift in Sources */,

@@ -9,21 +9,23 @@ class TouchFishApp {
     static let recipesPath = appSupportPath.appendingPathComponent("recipes")
     
     static var mainWindow: MainWindow!
-//    static var quickExecutionWindow: QuickExecutionWindow!
+    static var quickExecutionWindow: QuickExecutionWindow!
     
     static func start() {
         createAppSupportPathIfNotExists()
         SwiftyBeaverLogger.startConsoleLogging(minLevel: .verbose)
         SwiftyBeaverLogger.startFileLogging(minLevel: .verbose, logFileUrl: logPath.appendingPathComponent("log"))
         Monitor.start(type: .MainWindowTabBarControll)
-//        Monitor.start(type: .showOrHideMainWindowWhenKeyShortCutPressed)
+        Monitor.start(type: .ShowOrHideQuickExecutionWindowWhenKeyShortCutPressed)
+        Monitor.start(type: .HideQuickExecutionWindowWhenClickOutside)
+        
 //        Monitor.start(type: .openFishRepositoryWhenKeyShortCutPressed)
-//        Monitor.start(type: .hideMainWindowWhenClickOutside)
+
 //        Monitor.start(type: .backWhenAssistiveClick)
         Monitor.start(type: .saveFishWhenClipboardChanges)
         Monitor.start(type: .localKeyBoardPressedAsyncEvent)
         mainWindow = MainWindow()
-//        quickExecutionWindow = QuickExecutionWindow()
+        quickExecutionWindow = QuickExecutionWindow()
         mainWindow.show()
         Log.info("application start success")
         Log.debug("support path=\(appSupportPath.path)")
@@ -40,15 +42,6 @@ class TouchFishApp {
                 }
             }
         }
-    }
-    
-    static func activate() {
-//        quickExecutionWindow.show()
-    }
-    
-    static func deactivate() {
-//        quickExecutionWindow.hide()
-        NSApp.hide(nil)
     }
     
     static func quit() {

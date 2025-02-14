@@ -2,6 +2,8 @@ import SwiftUI
 
 struct DynamicRecipeItemView: View {
     
+    @Binding var context: RecipeExecutionContext
+    
     var item: DynamicRecipeViewInfo.ViewItem
     
     @Binding var info: DynamicRecipeViewInfo
@@ -88,7 +90,7 @@ struct DynamicRecipeItemView: View {
             DynamicRecipeStripItemView(
                 size: size, title: title, description: description, iconPattern: iconPattern, tags: tags,
                 hoverEffects: hoverEffects, operation: operation, value: value, selectable: selectable,
-                info: $info, paraFieldEnable: paraFieldEnable
+                info: $info, context:$context, paraFieldEnable: paraFieldEnable
             )
         case .TextCard(
             let size, let title, let description, let iconPattern, let tags,
@@ -98,7 +100,7 @@ struct DynamicRecipeItemView: View {
             DynamicRecipeTextCardItemView(
                 size: size, title: title, description: description, iconPattern: iconPattern, tags: tags,
                 content: body, properties: properties, showProperties: showProperties, operations: operations,
-                value: value, selectable: selectable, info: $info, paraFieldEnable: paraFieldEnable
+                value: value, selectable: selectable, info: $info, context:$context, paraFieldEnable: paraFieldEnable
             )
         case .ImageCard(
             let size, let title, let description, let iconPattern, let tags,
@@ -108,7 +110,7 @@ struct DynamicRecipeItemView: View {
             DynamicRecipeImageCardItemView(
                 size: size, title: title, description: description, iconPattern: iconPattern, tags: tags,
                 imagePatterns: imagePatterns, properties: properties, showProperties: showProperties, operations: operations,
-                value: value, selectable: selectable, info: $info, paraFieldEnable: paraFieldEnable
+                value: value, selectable: selectable, info: $info, context:$context, paraFieldEnable: paraFieldEnable
             )
         }
     }

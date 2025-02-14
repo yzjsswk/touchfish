@@ -13,6 +13,7 @@ struct DynamicRecipeStripItemView: View {
     var selectable: Bool
     
     @Binding var info: DynamicRecipeViewInfo
+    @Binding var context: RecipeExecutionContext
     
     var paraFieldEnable: Bool
     
@@ -65,11 +66,14 @@ struct DynamicRecipeStripItemView: View {
             }
         }
         .onTapGesture {
-            if let operation = operation {
-                for action in operation.actions {
-//                    action.execute()
+            Task {
+                if let operation = operation {
+                    for action in operation.actions {
+                        await context.executeAction(action: action)
+                    }
                 }
             }
+
         }
     }
     

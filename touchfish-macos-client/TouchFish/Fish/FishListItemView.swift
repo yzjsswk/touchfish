@@ -147,7 +147,7 @@ struct FishListItemView: View {
             } else {
                 fish.copyToClipboard()
                 if Config.fastPasteToFrontmostApplication {
-                    TouchFishApp.deactivate()
+//                    TouchFishApp.quickExecutionWindow
                     pasteToFrontmostApp()
                 } else {
                     showCopyed = true

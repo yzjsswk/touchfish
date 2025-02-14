@@ -294,7 +294,7 @@ struct TabBarView: View {
             }
             .popover(isPresented: $showPopover, arrowEdge: .bottom) {
                 VStack(spacing: 0) {
-                    PopoverButtonView(desc: "Bind")
+//                    PopoverButtonView(desc: "Bind")
                     PopoverButtonView(desc: "Close")
                     .onTapGesture {
                         if let contextUid = self.recipeExecutionContextUid {

@@ -8,15 +8,17 @@ struct RecipeExecutionView: View {
     @State var fishSideEnable: Bool = Config.fishSideEnable
     @State var topicSideEnable: Bool = Config.topicSideEnable
     
+    var isQuickExecution = false
+    
     var body: some View {
         VStack {
             HStack(spacing: 0) {
-                if fishSideEnable {
+                if fishSideEnable && !isQuickExecution {
                     DynamicRecipeFishSideView()
                     .frame(width: Constant.sideWidth)
                     Divider()
                 }
-                if paraFieldEnable {
+                if paraFieldEnable && !isQuickExecution {
                     DynamicRecipeParaFieldView(context: $context)
                     .frame(width: Constant.mainWidth * 0.3)
                     .padding(5)
@@ -25,7 +27,7 @@ struct RecipeExecutionView: View {
                 Spacer()
                 if let _ = context.activeRecipe {
                     if let info = context.executeResult.viewInfo {
-                        DynamicRecipeView(dynamicRecipeViewInfo: info, paraFieldEnable: paraFieldEnable)
+                        DynamicRecipeView(context: $context, dynamicRecipeViewInfo: info, paraFieldEnable: paraFieldEnable)
                     } else {
                         EmptyView()
                     }
@@ -33,7 +35,7 @@ struct RecipeExecutionView: View {
                     RecipeSelectionView(context: $context)
                 }
                 Spacer()
-                if topicSideEnable {
+                if topicSideEnable && !isQuickExecution {
                     Divider()
                     DynamicRecipeTopicSideView()
                     .frame(width: Constant.sideWidth)
@@ -41,20 +43,22 @@ struct RecipeExecutionView: View {
             }
             Spacer()
             HStack {
-                HStack(spacing: 10) {
-                    FishSideButtonView(fishSideEnable: $fishSideEnable)
-                    if context.activeRecipe == nil {
-                        ParaFieldButtonView(withAnima: true, paraFieldEnable: $paraFieldEnable)
-                    } else {
-                        if let info = context.executeResult.viewInfo, info.items.count > 0 && info.items.count > 0 {
+                if !isQuickExecution {
+                    HStack(spacing: 10) {
+                        FishSideButtonView(fishSideEnable: $fishSideEnable)
+                        if context.activeRecipe == nil {
                             ParaFieldButtonView(withAnima: true, paraFieldEnable: $paraFieldEnable)
                         } else {
-                            ParaFieldButtonView(withAnima: false, paraFieldEnable: $paraFieldEnable)
+                            if let info = context.executeResult.viewInfo, info.items.count > 0 && info.items.count > 0 {
+                                ParaFieldButtonView(withAnima: true, paraFieldEnable: $paraFieldEnable)
+                            } else {
+                                ParaFieldButtonView(withAnima: false, paraFieldEnable: $paraFieldEnable)
+                            }
                         }
+                        TopicSideButtonView(topicSideEnable: $topicSideEnable)
                     }
-                    TopicSideButtonView(topicSideEnable: $topicSideEnable)
+                    .frame(height: 16)
                 }
-                .frame(height: 16)
                 Spacer()
                 if let info = context.executeResult.viewInfo {
                     HStack(spacing: 20) {

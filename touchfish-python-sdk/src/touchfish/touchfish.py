@@ -11,8 +11,8 @@ class DataService:
 
     @staticmethod
     def get_url_prefix() -> str:
-        host = DataService.host if DataService.host != None else Para.data_service_host
-        port = DataService.port if DataService.port != None else Para.data_service_port
+        host = DataService.host if DataService.host != None else Context.data_service_host
+        port = DataService.port if DataService.port != None else Context.data_service_port
         if host == None:
             raise Exception("no host delected, use DataService.host=... to specify a host")
         if port == None:

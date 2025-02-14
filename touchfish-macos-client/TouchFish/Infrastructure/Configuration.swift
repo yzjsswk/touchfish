@@ -68,7 +68,7 @@ struct Configuration: Codable {
     }
     var recipeServiceConfigs: [RecipeServerConfig] = []
     
-    var hideMainWindowWhenClickOutSideEnable = true
+    var hideMainQuickExecutionWindowWhenClickOutSideEnable = true
     var backWhenAssistiveClick = true
     var paraFieldEnable = false
     var fishSideEnable = false

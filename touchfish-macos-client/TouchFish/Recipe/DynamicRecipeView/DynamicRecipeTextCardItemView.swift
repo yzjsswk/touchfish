@@ -15,6 +15,7 @@ struct DynamicRecipeTextCardItemView: View {
     var selectable: Bool
 
     @Binding var info: DynamicRecipeViewInfo
+    @Binding var context: RecipeExecutionContext
     
     var paraFieldEnable: Bool
     
@@ -73,13 +74,15 @@ struct DynamicRecipeTextCardItemView: View {
                                     Spacer()
                                     ForEach(Array(operations.enumerated()), id: \.0) { _, op in
                                         DynamicRecipeCardItemButtonView(label: op.name)
-                                            .frame(width: 90, height: 25)
-                                            .offset(x: -5, y: -5)
-                                            .onTapGesture {
+                                        .frame(width: 90, height: 25)
+                                        .offset(x: -5, y: -5)
+                                        .onTapGesture {
+                                            Task {
                                                 for action in op.actions {
-//                                                    action.execute()
+                                                    await context.executeAction(action: action)
                                                 }
                                             }
+                                        }
                                     }
                                 }
                             }

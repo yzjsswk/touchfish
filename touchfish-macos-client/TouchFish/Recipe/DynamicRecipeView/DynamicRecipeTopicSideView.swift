@@ -124,7 +124,7 @@ struct DynamicRecipeTopicSideMessageItemView: View {
         }
         .padding(.horizontal, 6)
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 readEnable = true
             }
         }

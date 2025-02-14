@@ -8,9 +8,10 @@ struct MonitorManager {
     
     enum MonitorType {
         case MainWindowTabBarControll
-        case hideMainWindowWhenClickOutside
+        case HideQuickExecutionWindowWhenClickOutside
+        case ShowOrHideQuickExecutionWindowWhenKeyShortCutPressed
+        
         case backWhenAssistiveClick
-        case showOrHideMainWindowWhenKeyShortCutPressed
         case openFishRepositoryWhenKeyShortCutPressed
         case localKeyBoardPressedAsyncEvent
         case saveFishWhenClipboardChanges
@@ -24,9 +25,11 @@ struct MonitorManager {
     }
     
     static var hoverInMainWindowTabBarMonitor: Any?
-    static var clickInMainWindowTabBarMonitor: Any?
+    static var leftClickInMainWindowTabBarMonitor: Any?
+    static var rightClickInMainWindowTabBarMonitor: Any?
+    static var hideQuickExecutionWindowWhenClickOutsideMonitor: Any?
+    
     static var localKeyBoardPressedAsyncEventMonitor: Any?
-    static var hideMainWindowWhenClickOutsideMonitor: Any?
     static var backWhenAssistiveClickMonitor: Any?
     static var clipboardListenerState: ClipboardListenerState = .unStarted
     static var lastClipboardData = UUID().uuidString.data(using: .utf8)
@@ -44,7 +47,7 @@ struct MonitorManager {
                 }
                 return event
             }
-            MonitorManager.clickInMainWindowTabBarMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { [] event in
+            MonitorManager.leftClickInMainWindowTabBarMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { [] event in
                 if event.window != nil, let window = NSApp.windows.first {
                     let x = event.locationInWindow.x
                     let y = window.frame.size.height - event.locationInWindow.y
@@ -54,7 +57,7 @@ struct MonitorManager {
                 }
                 return event
             }
-            MonitorManager.clickInMainWindowTabBarMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { [] event in
+            MonitorManager.rightClickInMainWindowTabBarMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { [] event in
                 if event.window != nil, let window = NSApp.windows.first {
                     let x = event.locationInWindow.x
                     let y = window.frame.size.height - event.locationInWindow.y
@@ -64,11 +67,19 @@ struct MonitorManager {
                 }
                 return event
             }
-        case .hideMainWindowWhenClickOutside:
-            MonitorManager.hideMainWindowWhenClickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [] event in
-//                if Config.hideMainWindowWhenClickOutSideEnable && TouchFishApp.quickExecutionWindow.isVisible {
-//                    TouchFishApp.deactivate()
-//                }
+        case .ShowOrHideQuickExecutionWindowWhenKeyShortCutPressed:
+            GlobalKeyboardEventListener().startListening(keyboardShortcut: Config.appActiveKeyShortcut) { [] _ in
+                if TouchFishApp.quickExecutionWindow.isVisible {
+                    TouchFishApp.quickExecutionWindow.hide()
+                } else {
+                    TouchFishApp.quickExecutionWindow.show()
+                }
+            }
+        case .HideQuickExecutionWindowWhenClickOutside:
+            MonitorManager.hideQuickExecutionWindowWhenClickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [] event in
+                if Config.hideMainQuickExecutionWindowWhenClickOutSideEnable && TouchFishApp.quickExecutionWindow.isVisible {
+                    TouchFishApp.quickExecutionWindow.hide()
+                }
             }
         case .backWhenAssistiveClick:
             MonitorManager.backWhenAssistiveClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { [] event in
@@ -77,19 +88,12 @@ struct MonitorManager {
                 }
                 return nil
             }
-        case .showOrHideMainWindowWhenKeyShortCutPressed:
-            GlobalKeyboardEventListener().startListening(keyboardShortcut: Config.appActiveKeyShortcut) { [] _ in
-//                if TouchFishApp.quickExecutionWindow.isVisible {
-//                    TouchFishApp.deactivate()
-//                } else {
-//                    TouchFishApp.activate()
-//                }
-            }
+
         case .openFishRepositoryWhenKeyShortCutPressed:
             GlobalKeyboardEventListener().startListening(keyboardShortcut: Config.fishRepositoryActiveKeyShortcut) { [] _ in
 //                if !TouchFishApp.quickExecutionWindow.isVisible {
 //                    RecipeManager.goToRecipe(recipeId: "com.touchfish.FishRepository")
-                    TouchFishApp.activate()
+//                    TouchFishApp.activate()
 //                }
             }
         case .localKeyBoardPressedAsyncEvent:
@@ -183,18 +187,23 @@ struct MonitorManager {
                 NSEvent.removeMonitor(monitor)
                 MonitorManager.hoverInMainWindowTabBarMonitor = nil
             }
-            if let monitor = MonitorManager.clickInMainWindowTabBarMonitor {
+            if let monitor = MonitorManager.leftClickInMainWindowTabBarMonitor {
                 NSEvent.removeMonitor(monitor)
-                MonitorManager.clickInMainWindowTabBarMonitor = nil
+                MonitorManager.leftClickInMainWindowTabBarMonitor = nil
+            }
+            if let monitor = MonitorManager.rightClickInMainWindowTabBarMonitor {
+                NSEvent.removeMonitor(monitor)
+                MonitorManager.rightClickInMainWindowTabBarMonitor = nil
+            }
+        case .HideQuickExecutionWindowWhenClickOutside:
+            if let monitor = MonitorManager.hideQuickExecutionWindowWhenClickOutsideMonitor {
+                NSEvent.removeMonitor(monitor)
+                MonitorManager.hideQuickExecutionWindowWhenClickOutsideMonitor = nil
             }
         case .localKeyBoardPressedAsyncEvent:
             guard let monitor = MonitorManager.localKeyBoardPressedAsyncEventMonitor else { return }
             NSEvent.removeMonitor(monitor)
             MonitorManager.localKeyBoardPressedAsyncEventMonitor = nil
-        case .hideMainWindowWhenClickOutside:
-            guard let monitor = MonitorManager.hideMainWindowWhenClickOutsideMonitor else { return }
-            NSEvent.removeMonitor(monitor)
-            MonitorManager.hideMainWindowWhenClickOutsideMonitor = nil
         case .backWhenAssistiveClick:
             guard let monitor = MonitorManager.backWhenAssistiveClickMonitor else { return }
             NSEvent.removeMonitor(monitor)

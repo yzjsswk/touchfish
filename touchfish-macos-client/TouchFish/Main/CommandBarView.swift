@@ -112,9 +112,6 @@ struct CommandBarView: View {
                 }
             }
         }
-        .onChange(of: uid) { old, new in
-            Log.debug("main view rebuild")
-        }
         .onChange(of: text) { old, new in
             let editTime = Date()
             Task {
@@ -128,7 +125,6 @@ struct CommandBarView: View {
                     finalText = await self.handleCell(text: new, context: context)
                 }
                 if editTime > lastEditTime {
-//                    Log.debug("text changed at \(editTime): [\(old)] -> [\(new)] => [\(finalText)]")
                     self.text = finalText
                     switch situation {
                     case .NotRecipe:

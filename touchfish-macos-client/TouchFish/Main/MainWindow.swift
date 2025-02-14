@@ -59,4 +59,17 @@ class MainWindow: NSWindow, NSWindowDelegate {
         NotificationCenter.default.post(name: .MainWindowExitFullScreen, object: nil)
     }
     
+    override func mouseDown(with event: NSEvent) {
+        if TouchFishApp.quickExecutionWindow.isVisible {
+            TouchFishApp.quickExecutionWindow.hide()
+        }
+        super.mouseDown(with: event)
+    }
+    
+    func windowDidBecomeKey(_ notification: Notification) {
+        if TouchFishApp.quickExecutionWindow.isVisible {
+            TouchFishApp.quickExecutionWindow.hide()
+        }
+    }
+    
 }

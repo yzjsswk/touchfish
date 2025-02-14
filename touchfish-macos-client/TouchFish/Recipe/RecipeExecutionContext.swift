@@ -258,7 +258,7 @@ actor RecipeExecutionContext {
             self.switchRecipe(nil)
         case .HideTouchFish:
             // todo: only hide quick execution window
-            TouchFishApp.deactivate()
+            TouchFishApp.quickExecutionWindow.hide()
         case .OpenUrl(let url):
             // todo: browser config
             AppleScriptRunner.openWebUrl(with: "Google Chrome", url: url)
