@@ -3,7 +3,6 @@ import SwiftUI
 struct RecipeExecutionView: View {
     
     @Binding var context: RecipeExecutionContext
-    @State var contextUid: UUID
     
     @State var paraFieldEnable: Bool = Config.paraFieldEnable
     @State var fishSideEnable: Bool = Config.fishSideEnable
@@ -18,10 +17,10 @@ struct RecipeExecutionView: View {
                     Divider()
                 }
                 if paraFieldEnable {
-//                    DynamicRecipeParaFieldView()
-//                    .frame(width: Constant.mainWidth * 0.3)
-//                    .padding(5)
-//                    Divider()
+                    DynamicRecipeParaFieldView(context: $context)
+                    .frame(width: Constant.mainWidth * 0.3)
+                    .padding(5)
+                    Divider()
                 }
                 Spacer()
                 if let _ = context.activeRecipe {
@@ -31,7 +30,7 @@ struct RecipeExecutionView: View {
                         EmptyView()
                     }
                 } else {
-                    RecipeListView()
+                    RecipeSelectionView(context: $context)
                 }
                 Spacer()
                 if topicSideEnable {
@@ -44,10 +43,14 @@ struct RecipeExecutionView: View {
             HStack {
                 HStack(spacing: 10) {
                     FishSideButtonView(fishSideEnable: $fishSideEnable)
-                    if let info = context.executeResult.viewInfo, info.items.count > 0 && info.items.count > 0 {
+                    if context.activeRecipe == nil {
                         ParaFieldButtonView(withAnima: true, paraFieldEnable: $paraFieldEnable)
                     } else {
-                        ParaFieldButtonView(withAnima: false, paraFieldEnable: $paraFieldEnable)
+                        if let info = context.executeResult.viewInfo, info.items.count > 0 && info.items.count > 0 {
+                            ParaFieldButtonView(withAnima: true, paraFieldEnable: $paraFieldEnable)
+                        } else {
+                            ParaFieldButtonView(withAnima: false, paraFieldEnable: $paraFieldEnable)
+                        }
                     }
                     TopicSideButtonView(topicSideEnable: $topicSideEnable)
                 }
@@ -68,7 +71,7 @@ struct RecipeExecutionView: View {
             }
             .padding(.horizontal, 3)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .RecipeExecutionContextChanged.group(contextUid.uuidString))) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .RecipeExecutionContextChanged.group(context.uid.uuidString))) { _ in
             withAnimation {
                 self.context = self.context
             }

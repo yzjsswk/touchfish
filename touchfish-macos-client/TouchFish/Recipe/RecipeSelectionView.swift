@@ -1,10 +1,46 @@
 import SwiftUI
 
-struct RecipeItemView: View {
+struct RecipeSelectionView: View {
+    
+    @State var recipeList: [Recipe] = []
+    
+    @Binding var context: RecipeExecutionContext
+    
+    var body: some View {
+
+        VStack {
+            ScrollView(showsIndicators: false) {
+                VStack {
+                    ForEach(recipeList.filter {$0.order < 0}, id: \.bundleId) { recipe in
+                        RecipeSelectionItemView(recipe: recipe, context: $context)
+                    }
+                    ForEach(recipeList.filter {$0.order >= 0}, id: \.bundleId) { recipe in
+                        RecipeSelectionItemView(recipe: recipe, context: $context)
+                    }
+                }
+                .padding(.vertical)
+            }
+        }
+        .onAppear {
+            RecipeManager.refresh()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .RecipeRefreshed)) { _ in
+            withAnimation {
+                recipeList = RecipeManager.orderedRecipeList
+            }
+        }
+        
+    }
+    
+}
+
+struct RecipeSelectionItemView: View {
     
     var recipe: Recipe
     
     @State var isSelected: Bool = false
+    
+    @Binding var context: RecipeExecutionContext
     
     var body: some View {
         HStack(spacing: 10) {
@@ -46,7 +82,10 @@ struct RecipeItemView: View {
             }
         }
         .onTapGesture(count: 1) {
-//            RecipeManager.goToRecipe(recipeId: recipe.bundleId)
+            Task {
+                await context.switchRecipe(recipe.bundleId)
+                await context.executeIfAutomatic()
+            }
         }
     }
     

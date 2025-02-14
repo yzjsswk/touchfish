@@ -54,8 +54,7 @@
 		99AC05F82BB2BD720046E8C5 /* CommandBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05D22BB2BD720046E8C5 /* CommandBarView.swift */; };
 		99AC05F92BB2BD720046E8C5 /* CommandBarTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05D32BB2BD720046E8C5 /* CommandBarTextField.swift */; };
 		99AC05FD2BB2BD720046E8C5 /* Recipe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05D82BB2BD720046E8C5 /* Recipe.swift */; };
-		99AC05FE2BB2BD720046E8C5 /* RecipeItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05D92BB2BD720046E8C5 /* RecipeItemView.swift */; };
-		99AC05FF2BB2BD720046E8C5 /* RecipeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05DA2BB2BD720046E8C5 /* RecipeListView.swift */; };
+		99AC05FF2BB2BD720046E8C5 /* RecipeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05DA2BB2BD720046E8C5 /* RecipeSelectionView.swift */; };
 		99AC06002BB2BD720046E8C5 /* DynamicRecipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05DB2BB2BD720046E8C5 /* DynamicRecipeView.swift */; };
 		99AC06022BB2BD720046E8C5 /* StatusBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC05DF2BB2BD720046E8C5 /* StatusBar.swift */; };
 		99AC06052BB2BE440046E8C5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC06042BB2BE440046E8C5 /* AppDelegate.swift */; };
@@ -122,8 +121,7 @@
 		99AC05D22BB2BD720046E8C5 /* CommandBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommandBarView.swift; sourceTree = "<group>"; };
 		99AC05D32BB2BD720046E8C5 /* CommandBarTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommandBarTextField.swift; sourceTree = "<group>"; };
 		99AC05D82BB2BD720046E8C5 /* Recipe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Recipe.swift; sourceTree = "<group>"; };
-		99AC05D92BB2BD720046E8C5 /* RecipeItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeItemView.swift; sourceTree = "<group>"; };
-		99AC05DA2BB2BD720046E8C5 /* RecipeListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeListView.swift; sourceTree = "<group>"; };
+		99AC05DA2BB2BD720046E8C5 /* RecipeSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeSelectionView.swift; sourceTree = "<group>"; };
 		99AC05DB2BB2BD720046E8C5 /* DynamicRecipeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicRecipeView.swift; sourceTree = "<group>"; };
 		99AC05DF2BB2BD720046E8C5 /* StatusBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBar.swift; sourceTree = "<group>"; };
 		99AC06042BB2BE440046E8C5 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -160,6 +158,8 @@
 				99AC05B92BB2BD710046E8C5 /* MainWindow.swift */,
 				99AC05C22BB2BD720046E8C5 /* MainView.swift */,
 				990EAD082D5D98E10050E145 /* TabBarView.swift */,
+				99AC05D22BB2BD720046E8C5 /* CommandBarView.swift */,
+				99AC05D32BB2BD720046E8C5 /* CommandBarTextField.swift */,
 				990EAC0C2D564CB50050E145 /* QuickExecutionWindow.swift */,
 				990EAC102D56678A0050E145 /* QuickExecutionView.swift */,
 				990EAC0E2D564D0D0050E145 /* PasteBoardWindow.swift */,
@@ -239,13 +239,12 @@
 			children = (
 				99C646352CCB63E9002454C9 /* yfunc-swift */,
 				995E08282C15F8A700659F85 /* Main */,
-				99AC05D72BB2BD720046E8C5 /* CommandBar */,
 				99AC05D12BB2BD720046E8C5 /* Infrastructure */,
+				996FEE572BF2E80B0047EB82 /* Setting */,
 				99AC05C12BB2BD720046E8C5 /* Fish */,
 				99AC05DC2BB2BD720046E8C5 /* Recipe */,
-				997FAFD42CEB69130023A6BC /* Topic */,
-				996FEE572BF2E80B0047EB82 /* Setting */,
 				996FEE582BF2E81A0047EB82 /* Statistics */,
+				997FAFD42CEB69130023A6BC /* Topic */,
 				99AC05AE2BB2BCDA0046E8C5 /* Preview Content */,
 				99AC06042BB2BE440046E8C5 /* AppDelegate.swift */,
 				99AC05AC2BB2BCDA0046E8C5 /* Assets.xcassets */,
@@ -294,15 +293,6 @@
 			path = Infrastructure;
 			sourceTree = "<group>";
 		};
-		99AC05D72BB2BD720046E8C5 /* CommandBar */ = {
-			isa = PBXGroup;
-			children = (
-				99AC05D22BB2BD720046E8C5 /* CommandBarView.swift */,
-				99AC05D32BB2BD720046E8C5 /* CommandBarTextField.swift */,
-			);
-			path = CommandBar;
-			sourceTree = "<group>";
-		};
 		99AC05DC2BB2BD720046E8C5 /* Recipe */ = {
 			isa = PBXGroup;
 			children = (
@@ -310,8 +300,7 @@
 				99AC05D82BB2BD720046E8C5 /* Recipe.swift */,
 				997FAFDA2CEB835B0023A6BC /* RecipeManager.swift */,
 				997FAFD82CEB81870023A6BC /* RecipeManageView.swift */,
-				99AC05D92BB2BD720046E8C5 /* RecipeItemView.swift */,
-				99AC05DA2BB2BD720046E8C5 /* RecipeListView.swift */,
+				99AC05DA2BB2BD720046E8C5 /* RecipeSelectionView.swift */,
 				990EAD062D5B17840050E145 /* RecipeExecutionContext.swift */,
 				990EAD042D5A56DA0050E145 /* RecipeExecutionView.swift */,
 			);
@@ -403,7 +392,7 @@
 				99AC05E32BB2BD720046E8C5 /* Fish.swift in Sources */,
 				997FAFDF2CEB861C0023A6BC /* TopicListItemView.swift in Sources */,
 				999C31ED2D0C3DB40083D302 /* RecipeServiceSettingView.swift in Sources */,
-				99AC05FF2BB2BD720046E8C5 /* RecipeListView.swift in Sources */,
+				99AC05FF2BB2BD720046E8C5 /* RecipeSelectionView.swift in Sources */,
 				99EDC33C2CC69FD90023CDF0 /* Metrics.swift in Sources */,
 				99AC05F52BB2BD720046E8C5 /* Log.swift in Sources */,
 				99AC06022BB2BD720046E8C5 /* StatusBar.swift in Sources */,
@@ -450,7 +439,6 @@
 				99EDC3382CC630420023CDF0 /* BarChartView.swift in Sources */,
 				99C614FA2C43C38B00A99567 /* BasicSettingView.swift in Sources */,
 				99AC05F42BB2BD720046E8C5 /* Definition.swift in Sources */,
-				99AC05FE2BB2BD720046E8C5 /* RecipeItemView.swift in Sources */,
 				995E082C2C18345C00659F85 /* DataServiceSettingView.swift in Sources */,
 				99AC05E72BB2BD720046E8C5 /* FishListItemView.swift in Sources */,
 				990EAC0F2D564D6A0050E145 /* PasteBoardWindow.swift in Sources */,

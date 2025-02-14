@@ -4,7 +4,7 @@ struct MainView: View {
     
     @State var recipeExecutionContexts: [RecipeExecutionContext] = []
     
-    @State var pressedTab: TabBarView.Tab = .Setting
+    @State var pressedTab: TabBarView.Tab = .Home
     @State var isFullScreen: Bool = false
     
     var body: some View {
@@ -20,6 +20,16 @@ struct MainView: View {
             .offset(y: 9 + (isFullScreen ? 28 : 0))
             VStack {
                 switch pressedTab {
+                case .Home:
+                    ZStack {
+                        Color.gray.opacity(0.05)
+                        VStack {
+                            Text("Welcome!")
+                            .font(.title)
+                        }
+                    }
+                    .cornerRadius(10)
+                    .padding(10)
                 case .Setting:
                     CommandBarView(cells: ["Setting"], situation: .constant(.NotRecipe))
                     SettingView()
@@ -46,7 +56,7 @@ struct MainView: View {
                             )
                         )
                         .id("recipe_command_bar_\(recipeExecutionContexts[idx].uid)")
-                        RecipeExecutionView(context: $recipeExecutionContexts[idx], contextUid: recipeExecutionContexts[idx].uid)
+                        RecipeExecutionView(context: $recipeExecutionContexts[idx])
                         .id("recipe_execution_view_\(recipeExecutionContexts[idx].uid)")
                     } else {
                         EmptyView()
@@ -82,7 +92,7 @@ struct MainView: View {
                                     let new_pidx = (pidx <= idx) ? ((pidx == recipeExecutionContexts.count) ? pidx-1 : pidx) : pidx-1
                                     pressedTab = .RecipeExecution(new_pidx)
                                 } else {
-                                    pressedTab = .Setting
+                                    pressedTab = .Home
                                 }
                             }
                         }

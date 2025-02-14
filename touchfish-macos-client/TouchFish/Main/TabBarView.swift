@@ -20,6 +20,14 @@ struct TabBarView: View {
                     .fill(Color.clear)
                     .frame(width: isFullScreen ? 5 : Constant.mainWindowWindowButtonAreaWidth)
                     TabButton(
+                        tab: .Home,
+                        icon: Image(systemName: "house"),
+                        isFullScreen: $isFullScreen,
+                        pressedTab: $pressedTab,
+                        popoverTab: .constant(nil),
+                        hoveringTab: $hoveringTab
+                    )
+                    TabButton(
                         tab: .Setting,
                         icon: Image(systemName: "gearshape"),
                         isFullScreen: $isFullScreen,
@@ -124,24 +132,27 @@ struct TabBarView: View {
         if pos <= bound(0) {
             return nil
         }
-        if pos < bound(1) {
-            return .Setting
+        if pos <= bound(1) {
+            return .Home
         }
         if pos < bound(2) {
-            return .FishRepository
+            return .Setting
         }
         if pos < bound(3) {
-            return .RecipeManage
+            return .FishRepository
         }
         if pos < bound(4) {
+            return .RecipeManage
+        }
+        if pos < bound(5) {
             return .Statistics
         }
         for i in 0..<recipeExecutionCount {
-            if pos < bound(5+i) {
+            if pos < bound(6+i) {
                 return .RecipeExecution(i)
             }
         }
-        if pos < bound(5+recipeExecutionCount) {
+        if pos < bound(6+recipeExecutionCount) {
             return .AddRecipeExecution
         }
         return nil
@@ -318,6 +329,7 @@ struct TabBarView: View {
     }
     
     enum Tab: Equatable {
+        case Home
         case Setting
         case FishRepository
         case RecipeManage
@@ -327,6 +339,8 @@ struct TabBarView: View {
         
         static func ==(a: Tab, b: Tab) -> Bool {
             switch (a, b) {
+            case (.Home, .Home):
+                return true
             case (.Setting, .Setting):
                 return true
             case (.FishRepository, .FishRepository):
