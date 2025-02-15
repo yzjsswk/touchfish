@@ -8,13 +8,11 @@ struct MonitorManager {
     
     enum MonitorType {
         case MainWindowTabBarControll
-        case HideQuickExecutionWindowWhenClickOutside
+        case HideWindowWhenClickOutside
         case ShowOrHideQuickExecutionWindowWhenKeyShortCutPressed
-        
-        case backWhenAssistiveClick
-        case openFishRepositoryWhenKeyShortCutPressed
-        case localKeyBoardPressedAsyncEvent
-        case saveFishWhenClipboardChanges
+        case ShowPasteBoardViewWhenKeyShortCutPressed
+        case LocalKeyBoardPressedAsyncEvent
+        case SaveFishWhenClipboardChanges
     }
 
     enum ClipboardListenerState {
@@ -28,9 +26,8 @@ struct MonitorManager {
     static var leftClickInMainWindowTabBarMonitor: Any?
     static var rightClickInMainWindowTabBarMonitor: Any?
     static var hideQuickExecutionWindowWhenClickOutsideMonitor: Any?
-    
     static var localKeyBoardPressedAsyncEventMonitor: Any?
-    static var backWhenAssistiveClickMonitor: Any?
+    
     static var clipboardListenerState: ClipboardListenerState = .unStarted
     static var lastClipboardData = UUID().uuidString.data(using: .utf8)
     
@@ -75,28 +72,22 @@ struct MonitorManager {
                     TouchFishApp.quickExecutionWindow.show()
                 }
             }
-        case .HideQuickExecutionWindowWhenClickOutside:
+        case .HideWindowWhenClickOutside:
             MonitorManager.hideQuickExecutionWindowWhenClickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [] event in
                 if Config.hideMainQuickExecutionWindowWhenClickOutSideEnable && TouchFishApp.quickExecutionWindow.isVisible {
                     TouchFishApp.quickExecutionWindow.hide()
                 }
-            }
-        case .backWhenAssistiveClick:
-            MonitorManager.backWhenAssistiveClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { [] event in
-                if Config.backWhenAssistiveClick {
-                    NotificationCenter.default.post(name: .ShouldBack, object: nil)
+                if TouchFishApp.pasteBoardWindow.isVisible {
+                    TouchFishApp.pasteBoardWindow.hide()
                 }
-                return nil
             }
-
-        case .openFishRepositoryWhenKeyShortCutPressed:
+        case .ShowPasteBoardViewWhenKeyShortCutPressed:
             GlobalKeyboardEventListener().startListening(keyboardShortcut: Config.fishRepositoryActiveKeyShortcut) { [] _ in
-//                if !TouchFishApp.quickExecutionWindow.isVisible {
-//                    RecipeManager.goToRecipe(recipeId: "com.touchfish.FishRepository")
-//                    TouchFishApp.activate()
-//                }
+                if !TouchFishApp.pasteBoardWindow.isVisible {
+                    TouchFishApp.pasteBoardWindow.show()
+                }
             }
-        case .localKeyBoardPressedAsyncEvent:
+        case .LocalKeyBoardPressedAsyncEvent:
             MonitorManager.localKeyBoardPressedAsyncEventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [] event in
                 if event.keyCode == kVK_UpArrow {
                     NotificationCenter.default.post(name: .UpArrowKeyWasPressed, object: nil)
@@ -129,7 +120,7 @@ struct MonitorManager {
                 }
                 return event
             }
-            case .saveFishWhenClipboardChanges:
+            case .SaveFishWhenClipboardChanges:
                 if MonitorManager.clipboardListenerState == .unStarted {
                     listenToClipboardChanges()
                 }
@@ -195,20 +186,17 @@ struct MonitorManager {
                 NSEvent.removeMonitor(monitor)
                 MonitorManager.rightClickInMainWindowTabBarMonitor = nil
             }
-        case .HideQuickExecutionWindowWhenClickOutside:
+        case .HideWindowWhenClickOutside:
             if let monitor = MonitorManager.hideQuickExecutionWindowWhenClickOutsideMonitor {
                 NSEvent.removeMonitor(monitor)
                 MonitorManager.hideQuickExecutionWindowWhenClickOutsideMonitor = nil
             }
-        case .localKeyBoardPressedAsyncEvent:
-            guard let monitor = MonitorManager.localKeyBoardPressedAsyncEventMonitor else { return }
-            NSEvent.removeMonitor(monitor)
-            MonitorManager.localKeyBoardPressedAsyncEventMonitor = nil
-        case .backWhenAssistiveClick:
-            guard let monitor = MonitorManager.backWhenAssistiveClickMonitor else { return }
-            NSEvent.removeMonitor(monitor)
-            MonitorManager.backWhenAssistiveClickMonitor = nil
-        case .saveFishWhenClipboardChanges:
+        case .LocalKeyBoardPressedAsyncEvent:
+            if let monitor = MonitorManager.localKeyBoardPressedAsyncEventMonitor {
+                NSEvent.removeMonitor(monitor)
+                MonitorManager.localKeyBoardPressedAsyncEventMonitor = nil
+            }
+        case .SaveFishWhenClipboardChanges:
             if MonitorManager.clipboardListenerState != .unStarted {
                 MonitorManager.clipboardListenerState = .stop
             }

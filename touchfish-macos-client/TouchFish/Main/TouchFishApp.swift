@@ -10,6 +10,7 @@ class TouchFishApp {
     
     static var mainWindow: MainWindow!
     static var quickExecutionWindow: QuickExecutionWindow!
+    static var pasteBoardWindow: PasteBoardWindow!
     
     static func start() {
         createAppSupportPathIfNotExists()
@@ -17,18 +18,16 @@ class TouchFishApp {
         SwiftyBeaverLogger.startFileLogging(minLevel: .verbose, logFileUrl: logPath.appendingPathComponent("log"))
         Monitor.start(type: .MainWindowTabBarControll)
         Monitor.start(type: .ShowOrHideQuickExecutionWindowWhenKeyShortCutPressed)
-        Monitor.start(type: .HideQuickExecutionWindowWhenClickOutside)
-        
-//        Monitor.start(type: .openFishRepositoryWhenKeyShortCutPressed)
-
-//        Monitor.start(type: .backWhenAssistiveClick)
-        Monitor.start(type: .saveFishWhenClipboardChanges)
-        Monitor.start(type: .localKeyBoardPressedAsyncEvent)
+        Monitor.start(type: .HideWindowWhenClickOutside)
+        Monitor.start(type: .ShowPasteBoardViewWhenKeyShortCutPressed)
+        Monitor.start(type: .SaveFishWhenClipboardChanges)
+        Monitor.start(type: .LocalKeyBoardPressedAsyncEvent)
         mainWindow = MainWindow()
         quickExecutionWindow = QuickExecutionWindow()
+        pasteBoardWindow = PasteBoardWindow()
         mainWindow.show()
         Log.info("application start success")
-        Log.debug("support path=\(appSupportPath.path)")
+        Log.debug("support path: \(appSupportPath.path)")
     }
     
     static private func createAppSupportPathIfNotExists() {

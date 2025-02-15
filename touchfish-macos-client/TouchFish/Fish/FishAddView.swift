@@ -67,9 +67,9 @@ struct FishAddView: View {
             panel.allowsMultipleSelection = true
             panel.canChooseDirectories = false
             panel.canChooseFiles = true
-            Monitor.stop(type:.HideQuickExecutionWindowWhenClickOutside)
+            Monitor.stop(type:.HideWindowWhenClickOutside)
             let res = panel.runModal()
-            Monitor.start(type:.HideQuickExecutionWindowWhenClickOutside)
+            Monitor.start(type:.HideWindowWhenClickOutside)
             if res == .OK && panel.urls.count > 0 {
                 let urls = panel.urls.sorted {$0.path < $1.path}
                 for url in urls {

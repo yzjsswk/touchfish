@@ -1,11 +1,10 @@
 import SwiftUI
 
-struct DynamicRecipeFishSideView: View {
+struct PasteBoardView: View {
     
     @State var fishList: [Fish] = []
     
     @State var hoveredFish: Fish? = nil
-    @State var selectedFish: Fish? = nil
     
     @State var searchText: String = ""
     @State var type: Fish.FishType?
@@ -14,39 +13,56 @@ struct DynamicRecipeFishSideView: View {
     @State var isLocked: Bool?
     @State var sortField: String = "Update Time"
     
+    @State var isFiltering: Bool = false
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            DynamicRecipeFishSideSearchView(searchText: $searchText)
-            ScrollView(showsIndicators: false) {
-                LazyVStack {
-                    ForEach(fishList, id: \.uid) { fish in
-                        DynamicRecipeFishSideItemView(fish: fish, hoveredFish: $hoveredFish, selectedFish: $selectedFish)
-                    }
+        ZStack {
+            RoundedRectangle(cornerRadius: 5)
+            .fill(Constant.mainBackgroundColor)
+            .stroke("A1A9C6".color, lineWidth: 2)
+            .padding(3)
+            VStack {
+                HStack {
+                    PasteBoardSearchView(searchText: $searchText)
+                    .padding(.horizontal, 5)
+                    .padding(.top, 10)
+                    .padding(.bottom, 10)
+                    PasteBoardFilterButtonView(isFiltering: $isFiltering)
+                    .padding(.trailing, 3)
                 }
-                .padding(.top, 5)
-            }
-            ZStack {
-                RoundedRectangle(cornerRadius: 5)
-                .stroke("A1A9C6".color, lineWidth: 2)
-                if let fish = (selectedFish != nil ? selectedFish : hoveredFish) {
-                    DynamicRecipeFishSideDetailView(fish: .constant(fish))
-                } else {
+                HStack {
                     VStack {
-                        DynamicRecipeFishSideFilterView(type: $type, tags: $tags, isMarked: $isMarked, isLocked: $isLocked, sortField: $sortField)
-                        HStack {
-                            Spacer()
-                            Text("\(fishList.count) items")
-                                .font(.callout)
-                                .foregroundStyle(.gray)
+                        VStack(alignment: .leading, spacing: 3) {
+                            ScrollView(showsIndicators: false) {
+                                LazyVStack {
+                                    ForEach(fishList, id: \.uid) { fish in
+                                        PasteBoardFishItemView(fish: fish, hoveredFish: $hoveredFish)
+                                    }
+                                }
+                                .padding(.vertical, 3)
+                            }
                         }
-                        .padding([.bottom, .horizontal], 3)
+                        HStack {
+                            Text("\(fishList.count) items")
+                            .font(.callout)
+                            .foregroundStyle(.gray)
+                            Spacer()
+                        }
                     }
+                    HStack {
+                        if isFiltering {
+                            PasteBoardFishFilterView(type: $type, tags: $tags, isMarked: $isMarked, isLocked: $isLocked, sortField: $sortField)
+                        } else {
+                            if let fish = hoveredFish {
+                                PasteBoardFishDetailView(fish: .constant(fish))
+                            }
+                        }
+                    }
+                    .frame(width: 550/2)
                 }
             }
-            .frame(height: 182)
-            .padding(.horizontal, 3)
+            .padding(10)
         }
-        .padding(5)
         .onAppear {
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
@@ -114,13 +130,174 @@ struct DynamicRecipeFishSideView: View {
             })
             withAnimation {
                 self.fishList = sortedFish
+                if self.fishList.count == 0 {
+                    self.hoveredFish = nil
+                }
             }
         }
     }
     
 }
 
-struct DynamicRecipeFishSideFilterView: View {
+struct PasteBoardFilterButtonView: View {
+    
+    @Binding var isFiltering: Bool
+    
+    @State var isHovering: Bool = false
+    
+    var body: some View {
+        HStack {
+            Image(systemName: isFiltering ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+            .resizable()
+            .scaledToFit()
+            .frame(maxWidth: 20, maxHeight: 20)
+            .foregroundStyle(.black.opacity(0.6))
+        }
+        .frame(width: 30, height: 30)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill("C6C7F4".color.opacity(isHovering ? 0.6 : 0.4))
+        )
+        .onHover { isHovering in
+            self.isHovering = isHovering
+        }
+        .onTapGesture {
+            isFiltering.toggle()
+        }
+    }
+}
+
+struct PasteBoardSearchView: View {
+    
+    @Binding var searchText: String
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 5)
+                .stroke("A1A9C6".color, lineWidth: 3)
+            HStack {
+                Image(systemName: "magnifyingglass")
+                .resizable()
+                .scaledToFit()
+                .padding([.vertical, .leading], 5)
+                VStack {
+                    Spacer(minLength: 0)
+                    TextField("", text: $searchText)
+                        .textFieldStyle(PlainTextFieldStyle())
+                        .font(.custom("Menlo", size: 16))
+                    Spacer(minLength: 0)
+                }
+                .padding([.vertical], 5)
+            }
+        }
+        .background(Color.white)
+        .cornerRadius(5)
+        .frame(height: 16)
+    }
+    
+}
+
+struct PasteBoardFishItemView: View {
+    
+    var fish: Fish
+    
+    @Binding var hoveredFish: Fish?
+    
+    var isHovered: Bool {
+        if let hoveredFish = hoveredFish {
+            return fish.uid == hoveredFish.uid
+        }
+        return false
+        
+    }
+    
+    var body: some View {
+        HStack {
+            HStack {
+                fish.fishIcon
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(isHovered ? "27295F".color : Color.black)
+            }
+            .frame(height: 16)
+            if fish.isMarked {
+                Text(fish.linePreview)
+                    .font(.body)
+                    .foregroundColor(isHovered ? Color.black: "222D59".color)
+            } else {
+                Text(fish.linePreview)
+                    .font(.body)
+                    .foregroundColor(isHovered ? "666970".color : Color.gray )
+            }
+            Spacer()
+        }
+        .padding(5)
+        .background(isHovered ? "EEF2FD".color : .clear)
+        .cornerRadius(5)
+        .frame(height: 19)
+        .onHover { isHovered in
+            if isHovered {
+                hoveredFish = fish
+            }
+        }
+        .onTapGesture {
+            fish.copyToClipboard()
+            if Config.fastPasteToFrontmostApplication {
+                TouchFishApp.pasteBoardWindow.hide()
+                pasteToFrontmostApp()
+            }
+        }
+    }
+    
+    func pasteToFrontmostApp() {
+        if let frontApp = NSWorkspace.shared.frontmostApplication {
+            frontApp.activate(options: .activateIgnoringOtherApps)
+    //        let keyEvent = CGEvent(keyboardEventSource: nil, virtualKey: 9, keyDown: true)
+    //        keyEvent?.flags = [.maskCommand]
+    //        Log.debug("do copy")
+    //        keyEvent?.post(tap: .cghidEventTap)
+            Log.debug("paste fish to frontmost app")
+            AppleScriptRunner.doPaste()
+        } else {
+            Log.warning("paste fish to frontmost app - failed: got frontApp=nil")
+        }
+    }
+    
+}
+
+struct PasteBoardFishDetailView: View {
+    
+    @Binding var fish: Fish
+    
+    var body: some View {
+        VStack {
+            if fish.tags.count > 0 || fish.description.count > 0 {
+                VStack {
+                    if fish.tags.count > 0 {
+                        DetailTagView(fish: $fish)
+                        .padding(.bottom, -6)
+                    }
+                    if fish.description.count > 0 {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            Text(fish.description)
+                            .font(.body)
+                            .bold()
+                        }
+                        .padding(.bottom, -2)
+                        .padding(.horizontal, 3)
+                    }
+                }
+            }
+            ScrollView {
+                DetailValueView(fish: $fish)
+            }
+        }
+        .padding(2)
+    }
+    
+}
+
+struct PasteBoardFishFilterView: View {
     
     @Binding var type: Fish.FishType?
     @Binding var tags: [String:Bool]
@@ -230,6 +407,7 @@ struct DynamicRecipeFishSideFilterView: View {
                 .pickerStyle(.menu)
                 .frame(width: 120)
             }
+            Spacer()
         }
         .padding([.top, .horizontal], 5)
         .onAppear {
@@ -271,135 +449,6 @@ struct DynamicRecipeFishSideFilterView: View {
         var fishTypes = Fish.FishType.allCases.map { $0.rawValue }
         fishTypes.append("All")
         return fishTypes
-    }
-    
-}
-
-struct DynamicRecipeFishSideSearchView: View {
-    
-    @Binding var searchText: String
-    
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 5)
-                .stroke("A1A9C6".color, lineWidth: 3)
-            HStack {
-                Image(systemName: "magnifyingglass")
-                .resizable()
-                .scaledToFit()
-                .padding([.vertical, .leading], 5)
-                VStack {
-                    Spacer(minLength: 0)
-                    TextField("", text: $searchText)
-                        .textFieldStyle(PlainTextFieldStyle())
-                        .font(.custom("Menlo", size: 16))
-                    Spacer(minLength: 0)
-                }
-                .padding([.vertical], 5)
-            }
-        }
-        .background(Color.white)
-        .cornerRadius(5)
-        .frame(height: 16)
-        .padding(.horizontal, 3)
-        .padding(.top, 5)
-        .padding(.bottom, 10)
-    }
-    
-}
-
-struct DynamicRecipeFishSideItemView: View {
-    
-    var fish: Fish
-    
-    @State var isHovered: Bool = false
-    
-    @Binding var hoveredFish: Fish?
-    @Binding var selectedFish: Fish?
-    
-    private var isSelected: Bool {
-        if let selectedFish = selectedFish, selectedFish.uid == fish.uid {
-            return true
-        }
-        return false
-    }
-    
-    var body: some View {
-        HStack {
-            HStack {
-                fish.fishIcon
-                .resizable()
-                .scaledToFit()
-                .foregroundColor((isSelected || isHovered) ? "27295F".color : Color.black)
-            }
-            .frame(height: 16)
-            if fish.isMarked {
-                Text(fish.linePreview)
-                    .font(.body)
-                    .foregroundColor((isSelected || isHovered) ? Color.black: "222D59".color)
-            } else {
-                Text(fish.linePreview)
-                    .font(.body)
-                    .foregroundColor((isSelected || isHovered) ? "666970".color : Color.gray )
-            }
-            Spacer()
-        }
-        .padding(5)
-        .background(isSelected ? "C6C7F4".color : (isHovered ? "EEF2FD".color : .clear))
-        .cornerRadius(5)
-        .frame(height: 19)
-        .onHover { isHovered in
-            self.isHovered = isHovered
-//            TouchFishApp.quickExecutionWindow.isMovableByWindowBackground = !isHovered
-            if isHovered {
-                hoveredFish = fish
-            } else {
-                hoveredFish = nil
-            }
-        }
-        .onTapGesture {
-            if let selectedFish = selectedFish, selectedFish.uid == fish.uid {
-                self.selectedFish = nil
-            } else {
-                self.selectedFish = fish
-            }
-        }
-        .onDrag {
-            let provider = NSItemProvider(object: NSString(string: fish.uid))
-            return provider
-        }
-    }
-    
-}
-
-struct DynamicRecipeFishSideDetailView: View {
-    
-    @Binding var fish: Fish
-    
-    var body: some View {
-        VStack {
-            if fish.tags.count > 0 || fish.description.count > 0 {
-                VStack {
-                    if fish.tags.count > 0 {
-                        DetailTagView(fish: $fish)
-                        .padding(.bottom, -6)
-                    }
-                    if fish.description.count > 0 {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            Text(fish.description)
-                            .font(.body)
-                            .bold()
-                        }
-                        .padding(.bottom, -2)
-                        .padding(.horizontal, 3)
-                    }
-                }
-            }
-            ScrollView {
-                DetailValueView(fish: $fish)
-            }
-        }
-        .padding(2)
     }
     
 }

@@ -63,12 +63,18 @@ class MainWindow: NSWindow, NSWindowDelegate {
         if TouchFishApp.quickExecutionWindow.isVisible {
             TouchFishApp.quickExecutionWindow.hide()
         }
+        if TouchFishApp.pasteBoardWindow.isVisible {
+            TouchFishApp.pasteBoardWindow.hide()
+        }
         super.mouseDown(with: event)
     }
     
     func windowDidBecomeKey(_ notification: Notification) {
         if TouchFishApp.quickExecutionWindow.isVisible {
             TouchFishApp.quickExecutionWindow.hide()
+        }
+        if TouchFishApp.pasteBoardWindow.isVisible {
+            TouchFishApp.pasteBoardWindow.hide()
         }
     }
     

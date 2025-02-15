@@ -59,6 +59,7 @@
 		99AC06052BB2BE440046E8C5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC06042BB2BE440046E8C5 /* AppDelegate.swift */; };
 		99AC06082BB2BE930046E8C5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 99AC06072BB2BE930046E8C5 /* Main.storyboard */; };
 		99AC060B2BB413AD0046E8C5 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 99AC060A2BB413AD0046E8C5 /* SwiftyBeaver */; };
+		99B657EA2D5F7CAC0095B3F0 /* PasteBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B657E92D5F7CA50095B3F0 /* PasteBoardView.swift */; };
 		99C614FA2C43C38B00A99567 /* BasicSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C614F92C43C38B00A99567 /* BasicSettingView.swift */; };
 		99C614FC2C43F56500A99567 /* FishRepositorySettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C614FB2C43F56500A99567 /* FishRepositorySettingView.swift */; };
 		99C646362CCB63E9002454C9 /* yfunc-swift in Resources */ = {isa = PBXBuildFile; fileRef = 99C646352CCB63E9002454C9 /* yfunc-swift */; };
@@ -124,6 +125,7 @@
 		99AC05DB2BB2BD720046E8C5 /* DynamicRecipeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicRecipeView.swift; sourceTree = "<group>"; };
 		99AC06042BB2BE440046E8C5 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		99AC06072BB2BE930046E8C5 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		99B657E92D5F7CA50095B3F0 /* PasteBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteBoardView.swift; sourceTree = "<group>"; };
 		99C614F92C43C38B00A99567 /* BasicSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicSettingView.swift; sourceTree = "<group>"; };
 		99C614FB2C43F56500A99567 /* FishRepositorySettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FishRepositorySettingView.swift; sourceTree = "<group>"; };
 		99C646352CCB63E9002454C9 /* yfunc-swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "yfunc-swift"; path = "../../../YFunc/yfunc-swift"; sourceTree = "<group>"; };
@@ -161,6 +163,7 @@
 				990EAC0C2D564CB50050E145 /* QuickExecutionWindow.swift */,
 				990EAC102D56678A0050E145 /* QuickExecutionView.swift */,
 				990EAC0E2D564D0D0050E145 /* PasteBoardWindow.swift */,
+				99B657E92D5F7CA50095B3F0 /* PasteBoardView.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -393,6 +396,7 @@
 				99EDC33C2CC69FD90023CDF0 /* Metrics.swift in Sources */,
 				99AC05F52BB2BD720046E8C5 /* Log.swift in Sources */,
 				990EAC0B2D4E5D1E0050E145 /* DynamicRecipeImageCardItemView.swift in Sources */,
+				99B657EA2D5F7CAC0095B3F0 /* PasteBoardView.swift in Sources */,
 				99C614FC2C43F56500A99567 /* FishRepositorySettingView.swift in Sources */,
 				998EB13B2D36967C00A4844A /* DynamicRecipeFishSideView.swift in Sources */,
 				995E082A2C17242C00659F85 /* SettingView.swift in Sources */,

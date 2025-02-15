@@ -145,16 +145,16 @@ struct FishListItemView: View {
                     multSelectedFishUids.insert(fish.uid)
                 }
             } else {
-                fish.copyToClipboard()
-                if Config.fastPasteToFrontmostApplication {
-//                    TouchFishApp.quickExecutionWindow
-                    pasteToFrontmostApp()
-                } else {
-                    showCopyed = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                        showCopyed = false
-                    }
-                }
+//                fish.copyToClipboard()
+//                if Config.fastPasteToFrontmostApplication {
+//                    TouchFishApp.pasteBoardWindow.hide()
+//                    pasteToFrontmostApp()
+//                } else {
+//                    showCopyed = true
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+//                        showCopyed = false
+//                    }
+//                }
             }
         }
         .onLongPressGesture(minimumDuration: 0.8) { isPressing in
@@ -317,21 +317,5 @@ struct DeleteButtonView: View {
                 self.isHovered = isHovered
             }
         }
-    }
-}
-
-
-func pasteToFrontmostApp() {
-    // 模拟粘贴操作 alfred运行时会失效
-    if let frontApp = NSWorkspace.shared.frontmostApplication {
-        frontApp.activate(options: .activateIgnoringOtherApps)
-//        let keyEvent = CGEvent(keyboardEventSource: nil, virtualKey: 9, keyDown: true)
-//        keyEvent?.flags = [.maskCommand]
-//        Log.debug("do copy")
-//        keyEvent?.post(tap: .cghidEventTap)
-        Log.debug("paste fish to frontmost app")
-        AppleScriptRunner.doPaste()
-    } else {
-        Log.warning("paste fish to frontmost app - failed: got frontApp=nil")
     }
 }
