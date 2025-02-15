@@ -17,7 +17,7 @@ struct RecipeStatsView: View {
             seriesName: ["default"],
             maxHeight: 120
         )
-        .frame(width: Constant.mainWidth-60, height: 300)
+        .frame(height: 300)
         .padding()
     }
     

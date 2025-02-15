@@ -32,7 +32,7 @@ struct RecipeManageServerView: View {
         Text("\(serverName) (\(recipes.count) recipes)")
             .font(.title2)
             .padding(.vertical, 5)
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
             ForEach(recipes, id: \.bundleId) { recipe in
                 ZStack {
                     RoundedRectangle(cornerRadius: 20)
@@ -59,7 +59,7 @@ struct RecipeManageServerView: View {
                     }
                     .padding(8)
                 }
-                .frame(width: (Constant.mainWidth-120)/3, height: 65)
+                .frame(height: 65)
                 .padding(.vertical, 5)
                 .padding(.horizontal)
             }

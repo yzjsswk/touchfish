@@ -25,7 +25,7 @@ struct FishStatsView: View {
                     ],
                     radius: 80
                 )
-                .frame(width: 350, height: 250)
+                .frame(height: 250)
                 .padding()
                 PieChartView(
                     title: "Count By Type",
@@ -51,7 +51,7 @@ struct FishStatsView: View {
                     ],
                     radius: 80
                 )
-                .frame(width: 350, height: 250)
+                .frame(height: 250)
                 .padding()
             }
             HStack {
@@ -73,7 +73,7 @@ struct FishStatsView: View {
                     ],
                     radius: 80
                 )
-                .frame(width: 350, height: 250)
+                .frame(height: 250)
                 .padding()
                 PieChartView(
                     title: "Count By Lock Status",
@@ -93,7 +93,7 @@ struct FishStatsView: View {
                     ],
                     radius: 80
                 )
-                .frame(width: 350, height: 250)
+                .frame(height: 250)
                 .padding()
             }
             BarChartView(
@@ -110,7 +110,7 @@ struct FishStatsView: View {
                 seriesName: ["default"],
                 maxHeight: 120
             )
-            .frame(width: Constant.mainWidth-60, height: 300)
+            .frame(height: 300)
             .padding()
             BarChartView(
                 title: "Count By Create Time",
@@ -123,7 +123,7 @@ struct FishStatsView: View {
                 seriesName: ["Day", "Week", "Month", "Year"],
                 maxHeight: 120
             )
-            .frame(width: Constant.mainWidth-60, height: 300)
+            .frame(height: 300)
             .padding()
         }
     }

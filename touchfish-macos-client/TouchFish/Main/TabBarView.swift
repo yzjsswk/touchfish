@@ -51,14 +51,6 @@ struct TabBarView: View {
                         popoverTab: .constant(nil),
                         hoveringTab: $hoveringTab
                     )
-                    TabButton(
-                        tab: .Statistics,
-                        icon: Image(systemName: "chart.line.uptrend.xyaxis.circle"),
-                        isFullScreen: $isFullScreen,
-                        pressedTab: $pressedTab,
-                        popoverTab: .constant(nil),
-                        hoveringTab: $hoveringTab
-                    )
                     ForEach(Array(recipeExecutionContexts.enumerated()), id: \.0) { idx, context in
                         TabButton(
                             tab: .RecipeExecution(idx),
@@ -144,15 +136,12 @@ struct TabBarView: View {
         if pos < bound(4) {
             return .RecipeManage
         }
-        if pos < bound(5) {
-            return .Statistics
-        }
         for i in 0..<recipeExecutionCount {
-            if pos < bound(6+i) {
+            if pos < bound(5+i) {
                 return .RecipeExecution(i)
             }
         }
-        if pos < bound(6+recipeExecutionCount) {
+        if pos < bound(5+recipeExecutionCount) {
             return .AddRecipeExecution
         }
         return nil
@@ -245,7 +234,10 @@ struct TabBarView: View {
                 icon
                 .resizable()
                 .scaledToFit()
-                .frame(maxWidth: 20, maxHeight: 20)
+                .frame(
+                    maxWidth: (tab == .FishRepository) ? 23 : (tab == .Home ? 22 : 20),
+                    maxHeight: (tab == .FishRepository) ? 23 : (tab == .Home ? 22 : 20)
+                )
                 .foregroundStyle("27295F".color)
             }
             .frame(width: 40, height: 40)
@@ -333,7 +325,6 @@ struct TabBarView: View {
         case Setting
         case FishRepository
         case RecipeManage
-        case Statistics
         case RecipeExecution(Int)
         case AddRecipeExecution
         
@@ -346,8 +337,6 @@ struct TabBarView: View {
             case (.FishRepository, .FishRepository):
                 return true
             case (.RecipeManage, .RecipeManage):
-                return true
-            case (.Statistics, .Statistics):
                 return true
             case (.RecipeExecution(let idx1), .RecipeExecution(let idx2)):
                 return idx1 == idx2

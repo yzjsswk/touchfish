@@ -122,12 +122,11 @@ struct FishListItemView: View {
                 }
             }
         }
-        .frame(maxWidth: Constant.mainWidth)
         .padding(5)
         .background(isSelected ? "EEF2FD".color : .clear)
 //        .shadow(color: Color.gray.opacity(0.3), radius: 2, x: 0, y: 2)
         .cornerRadius(5)
-        .frame(width: (Constant.mainWidth-30)/2, height: isHovering ? Constant.fishItemHeight+20 : Constant.fishItemHeight)
+        .frame(height: isHovering ? Constant.fishItemHeight+20 : Constant.fishItemHeight)
         .popover(isPresented: $showCopyed, arrowEdge: .trailing) {
             Text("Copyed")
                 .padding(10)

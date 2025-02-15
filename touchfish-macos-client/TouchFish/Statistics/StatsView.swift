@@ -6,9 +6,10 @@ struct StatsView: View {
     @State var selectedTab: StatsTabView.StatsTab = .Fish
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
+        VStack(alignment: .leading) {
             StatsTabView(selectedTab: $selectedTab)
-                .frame(width: Constant.mainWidth*0.4)
+            .frame(width: 250)
+            .padding(.leading, 30)
             switch selectedTab {
             case .Fish:
                 if let statistics = statistics {
@@ -67,9 +68,9 @@ struct StatsTabView: View {
         HStack {
             ForEach(StatsTab.allCases, id:\.self) { tab in
                 StatsTabItemView(title: tab.rawValue, isSelected: selectedTab == tab)
-                    .onTapGesture {
-                        selectedTab = tab
-                    }
+                .onTapGesture {
+                    selectedTab = tab
+                }
             }
         }
     }

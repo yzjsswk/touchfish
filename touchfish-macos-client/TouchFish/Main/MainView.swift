@@ -21,27 +21,17 @@ struct MainView: View {
             VStack {
                 switch pressedTab {
                 case .Home:
-                    ZStack {
-                        Color.gray.opacity(0.05)
-                        VStack {
-                            Text("Welcome!")
-                            .font(.title)
-                        }
-                    }
-                    .cornerRadius(10)
-                    .padding(10)
+                    HomeView()
                 case .Setting:
                     CommandBarView(cells: ["Setting"], situation: .constant(.NotRecipe))
                     SettingView()
+                    .padding(5)
                 case .FishRepository:
-                    CommandBarView(cells: ["Fish Repository"], placeHolder: "search...", situation: .constant(.NotRecipe))
+                    CommandBarView(cells: ["Fish"], placeHolder: "search...", situation: .constant(.NotRecipe))
                     FishRepositoryView()
                 case .RecipeManage:
-                    CommandBarView(cells: ["Recipe Manage"], situation: .constant(.NotRecipe))
+                    CommandBarView(cells: ["Recipe"], situation: .constant(.NotRecipe))
                     RecipeManageView()
-                case .Statistics:
-                    CommandBarView(cells: ["Statistics"], situation: .constant(.NotRecipe))
-                    StatsView()
                 case .RecipeExecution(let idx):
                     if idx < recipeExecutionContexts.count {
                         CommandBarView(

@@ -48,7 +48,7 @@ struct SettingView: View {
         VStack {
             HStack {
                 SettingTabView(selectedTab: $selectedTab)
-                    .frame(width: Constant.mainWidth*0.2)
+                .frame(width: 160)
                 Divider()
                 VStack {
                     ScrollView(showsIndicators: false) {
@@ -60,7 +60,6 @@ struct SettingView: View {
                         }
                     }
                 }
-                .frame(width: Constant.mainWidth*0.75)
             }
             HStack {
                 Spacer()

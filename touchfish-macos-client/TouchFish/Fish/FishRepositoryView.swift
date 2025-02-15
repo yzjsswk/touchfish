@@ -57,7 +57,7 @@ struct FishRepositoryView: View {
                     description: editingFish.description,
                     tags: Dictionary(uniqueKeysWithValues: editingFish.tags.map { ($0, true) })
                 )
-                .frame(width: Constant.mainWidth-30)
+//                .frame(width: Constant.mainWidth-30)
             } else {
                 VStack {
                     if isMultSelecting {
@@ -143,7 +143,7 @@ struct FishRepositoryView: View {
                         multSelectedFishUids: $multSelectedFishUids,
                         fishItemPosOffset: $fishItemPosOffset
                     )
-                    .frame(width: (Constant.mainWidth - 30)/2)
+//                    .frame(width: (Constant.mainWidth - 30)/2)
                 }
                 FishDetailView(
                     fishs: $fishs,
@@ -151,7 +151,7 @@ struct FishRepositoryView: View {
                     isMultSelecting: $isMultSelecting,
                     multSelectedFishUids: $multSelectedFishUids
                 )
-                .frame(width: (Constant.mainWidth - 30)/2)
+//                .frame(width: (Constant.mainWidth - 30)/2)
             }
         }
         .padding(.horizontal, 5)

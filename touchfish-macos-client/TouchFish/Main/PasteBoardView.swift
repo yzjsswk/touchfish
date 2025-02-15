@@ -46,6 +46,7 @@ struct PasteBoardView: View {
                             Text("\(fishList.count) items")
                             .font(.callout)
                             .foregroundStyle(.gray)
+                            .offset(y: 1.5)
                             Spacer()
                         }
                     }
