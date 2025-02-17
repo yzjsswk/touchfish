@@ -14,13 +14,27 @@ async fn heart_beat() -> impl Responder {
 }
 
 #[get("/recipe/list")]
-async fn list_recipe(recipe_api: Data<RecipeApi<RedisCache>>) -> impl Responder {
-    recipe_api.get_recipe_list().to_resp()
+async fn list_recipe(recipe_api: Data<RecipeApi<RedisCache>>, recipe_server_id: Data<String>) -> impl Responder {
+    let res = match recipe_api.get_recipe_list() {
+        Ok(mut recipe_list) => {
+            for recipe in recipe_list.iter_mut() {
+                recipe.bundle_id = format!("{}.{}", recipe_server_id.get_ref(), recipe.bundle_id);
+            }
+            Ok(recipe_list)
+        },
+        Err(err) => Err(err),
+    };
+    res.to_resp()
 }
 
 #[post("/recipe/execute")]
-async fn execute_recipe(recipe_api: Data<RecipeApi<RedisCache>>, req: Json<ExecuteRecipeReq>) -> impl Responder {
-    recipe_api.execute(&req.bundle_id, &req.command, &req.args, &req.context).await.to_resp()
+async fn execute_recipe(recipe_api: Data<RecipeApi<RedisCache>>, recipe_server_id: Data<String>, req: Json<ExecuteRecipeReq>) -> impl Responder {
+    let bundle_id = if req.bundle_id.starts_with(&(recipe_server_id.get_ref().clone()+".")) {
+        &req.bundle_id[recipe_server_id.get_ref().len()+1..].to_string()
+    } else {
+        &req.bundle_id
+    };
+    recipe_api.execute(bundle_id, &req.command, &req.args, &req.context).await.to_resp()
 }
 
 #[get("/recipe/fetch_result/{execute_uid}")]
@@ -35,6 +49,10 @@ async fn main() -> std::io::Result<()> {
         Ok(v) => v.parse().expect(&format!("env var TFRS_PORT parse failed, TFRS_PORT={}", v)),
         Err(_) => 56189,
     };
+    let recipe_server_id = std::env::var("TFRS_ID").expect("recipe server id is required");
+    if !recipe_server_id.chars().all(|c| c.is_ascii_alphabetic()) {
+        panic!("recipe server id `{}` is invalid (only can contain A-Z, a-z)", recipe_server_id)
+    }
     let folder_path = std::env::var("TFRS_RECIPE_FOLDER").expect("recipe folder path is required");
     let redis_uri = std::env::var("TFRS_REDIS_URI").expect("environment variable TFRS_REDIS_URI is required");
     let redis_cache = RedisCache::new(&redis_uri).expect("connect to redis failed");
@@ -43,6 +61,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(Logger::default())
             .app_data(recipe_api.clone())
+            .app_data(Data::new(recipe_server_id.clone()))
             .service(heart_beat)
             .service(list_recipe)
             .service(execute_recipe)

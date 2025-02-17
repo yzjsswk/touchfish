@@ -67,9 +67,12 @@ struct Configuration: Codable {
         var enable: Bool
     }
     var recipeServiceConfigs: [RecipeServerConfig] = []
+    var enableRecipes: [String] = []
+    var recipeSettings: [String:[String:String]] = [:]
+    var recipeOrders: [String] = []
     
     var hideMainQuickExecutionWindowWhenClickOutSideEnable = true
-    var backWhenAssistiveClick = true
+    var backWhenAssistiveClick = true // todo: remove
     var paraFieldEnable = false
     var fishSideEnable = false
     var topicSideEnable = false
@@ -79,7 +82,5 @@ struct Configuration: Codable {
     var textFishDetailPreviewLength = 1000
     var autoImportedFromClipboard = true
     var fastPasteToFrontmostApplication = false
-    var autoRemoveFishEnable = true
-    var autoRemoveFishPastHours = 3 * 24
 
 }

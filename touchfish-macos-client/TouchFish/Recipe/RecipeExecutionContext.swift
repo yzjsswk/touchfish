@@ -150,16 +150,25 @@ actor RecipeExecutionContext {
     func addOrModifyArg(key: String, value: String) {
         if self.arguments.keys.contains(key) {
             self._parameters[key] = value
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .RecipeExecutionContextChanged.group(self.uid.uuidString), object: nil)
+            }
             return
         }
         if let validParas = self.activeRecipe?.parameters.map({$0.name}), validParas.contains(key) {
             self._parameters[key] = value
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .RecipeExecutionContextChanged.group(self.uid.uuidString), object: nil)
+            }
         }
     }
     
     func delArg(key: String) {
         if self.arguments.keys.contains(key) {
             self._parameters.removeValue(forKey: key)
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .RecipeExecutionContextChanged.group(self.uid.uuidString), object: nil)
+            }
         }
     }
     
@@ -168,6 +177,9 @@ actor RecipeExecutionContext {
             for para in recipe.parameters.reversed() {
                 if self.arguments.keys.contains(para.name) {
                     self._parameters.removeValue(forKey: para.name)
+                    DispatchQueue.main.async {
+                        NotificationCenter.default.post(name: .RecipeExecutionContextChanged.group(self.uid.uuidString), object: nil)
+                    }
                     break
                 }
             }
@@ -177,6 +189,9 @@ actor RecipeExecutionContext {
     func clearArg() {
         if self.arguments.count > 0 {
             self._parameters.removeAll()
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .RecipeExecutionContextChanged.group(self.uid.uuidString), object: nil)
+            }
         }
     }
     

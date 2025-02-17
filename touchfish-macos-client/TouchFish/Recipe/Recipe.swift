@@ -16,7 +16,6 @@ struct Recipe {
     var parameters: [Parameter] = []
     var actions: [RecipeAction] = []
     var color: LinearGradient
-    var order: Int
     
     struct Parameter: Codable {
         

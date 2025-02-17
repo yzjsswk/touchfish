@@ -52,8 +52,8 @@ struct RecipeManageServerView: View {
                             RecipeManageToggleView(
                                 serverName: serverName,
                                 bundleId: recipe.bundleId,
-                                canEdit: RecipeManager.canEditSetting(serverName: serverName, bundleId: recipe.bundleId),
-                                enable: RecipeManager.isEnable(serverName: serverName, bundleId: recipe.bundleId)
+                                canEdit: true,
+                                enable: RecipeManager.isEnable(bundleId: recipe.bundleId)
                             )
                         }
                     }
@@ -81,17 +81,12 @@ struct RecipeManageToggleView: View {
         Toggle("", isOn: $enable)
             .toggleStyle(SwitchToggleStyle())
             .disabled(!canEdit)
-            .onChange(of: enable) { old, new in
-                let key = "\(serverName).\(bundleId)"
-                if var setting = RecipeManager.recipeSetting[key] {
-                    setting.enable = new
-                    RecipeManager.recipeSetting[key] = setting
-                } else if new {
-                    RecipeManager.recipeSetting[key] = RecipeManager.RecipeSetting(
-                        serverName: serverName, bundleId: bundleId, enable: new, order: 0
-                    )
+            .onChange(of: enable) {
+                if enable {
+                    let _ = RecipeManager.enable(bundleId: bundleId)
+                } else {
+                    let _ = RecipeManager.disable(bundleId: bundleId)
                 }
-                RecipeManager.saveRecipeSetting()
                 RecipeManager.refresh()
             }
         

@@ -6,7 +6,6 @@ class TouchFishApp {
     static let logPath = appSupportPath.appendingPathComponent("log/")
     static let configPath = appSupportPath.appendingPathComponent("config")
     static let metricsPath = appSupportPath.appendingPathComponent("metrics")
-    static let recipesPath = appSupportPath.appendingPathComponent("recipes")
     
     static var mainWindow: MainWindow!
     static var quickExecutionWindow: QuickExecutionWindow!

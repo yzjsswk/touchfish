@@ -6,7 +6,7 @@ struct RecipeStatsView: View {
         BarChartView(
             title: "Recipe Usage Count",
             data: [
-                    Metrics.recipeUseCount.map {
+                    Metrics.recipeUsageCount.map {
                         BarSlice(
                             label: RecipeManager.recipes[$0.key]?.name ?? $0.key,
                             value: $0.value,

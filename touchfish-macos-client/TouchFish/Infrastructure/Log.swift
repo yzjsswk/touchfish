@@ -17,7 +17,7 @@ struct SwiftyBeaverLogger {
     static func startFileLogging(minLevel: SwiftyBeaver.Level, logFileUrl: URL) {
         fileDst.minLevel = minLevel
         fileDst.logFileURL = logFileUrl
-        fileDst.logFileMaxSize = 10
+        fileDst.logFileAmount = 10
         fileDst.format = "$Dyyyy-MM-dd HH:mm:ss.SSS$d $C$L$c $N.$F:$l - $M"
         fileDst.colored = true
         SwiftyBeaver.addDestination(fileDst)

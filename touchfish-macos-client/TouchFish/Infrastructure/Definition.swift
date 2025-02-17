@@ -336,7 +336,6 @@ extension Notification.Name {
     static let RecipeCommited = Notification.Name("RecipeCommited")
     static let ShouldRefreshTopic = Notification.Name("ShouldRefreshTopic")
     
-    
     func group(_ group: String) -> Notification.Name {
         return Notification.Name("\(group)-\(self.rawValue)")
     }

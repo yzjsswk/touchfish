@@ -59,8 +59,7 @@ struct RecipeResp: Codable {
             settings: self.settings ?? [],
             parameters: self.parameters ?? [],
             actions: self.actions ?? [],
-            color: self.color?.linearGradient ?? Constant.userDefinedRecipeDefaultIemColor,
-            order: 0
+            color: self.color?.linearGradient ?? Constant.userDefinedRecipeDefaultIemColor
         )
     }
     
@@ -131,6 +130,8 @@ struct RecipeService {
         bundleId: String, command: String, arguments: [String], query: String, parameters: [String:String], settings: [String:String]
     ) async -> Result<RecipeServiceResponse<String>, AFError> {
         Log.debug("execute recipe: bundleId=\(bundleId), query=\(query), parameters=\(parameters), settings=\(settings)")
+        Metrics.recipeUsageCount[bundleId, default: 0] += 1
+        Metrics.save()
         let url = urlPrefix + "/recipe/execute"
         let para: [String:Any?] = [
             "bundle_id": bundleId,

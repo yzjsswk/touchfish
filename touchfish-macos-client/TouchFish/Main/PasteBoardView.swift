@@ -70,6 +70,7 @@ struct PasteBoardView: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .ShouldRefreshFish)) { _ in
+            Log.debug("pasteboard refresh fish")
             Storage.incrementalUpdate()
             Task {
                 var newTags: [String:Bool] = [:]

@@ -16,6 +16,8 @@ struct QuickExecutionView: View {
                         }
                     })
                 )
+                .padding(.top, 5)
+                .padding(.horizontal, 5)
                 .id("recipe_command_bar_\(contexts[0].uid)")
                 RecipeExecutionView(context: $contexts[0], isQuickExecution: true)
                 .id("recipe_execution_view_\(contexts[0].uid)")
@@ -27,8 +29,7 @@ struct QuickExecutionView: View {
         .cornerRadius(10)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-            .stroke(Color.black.opacity(0.1), lineWidth: 0.5)
-            .shadow(radius: 5)
+            .stroke(Color.black.opacity(0.2), lineWidth: 0.8)
         )
         .onReceive(NotificationCenter.default.publisher(for: .EscapeKeyWasPressed)) { _ in
             TouchFishApp.quickExecutionWindow.hide()

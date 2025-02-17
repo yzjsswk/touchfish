@@ -11,10 +11,7 @@ struct RecipeSelectionView: View {
         VStack {
             ScrollView(showsIndicators: false) {
                 VStack {
-                    ForEach(recipeList.filter {$0.order < 0}, id: \.bundleId) { recipe in
-                        RecipeSelectionItemView(recipe: recipe, context: $context)
-                    }
-                    ForEach(recipeList.filter {$0.order >= 0}, id: \.bundleId) { recipe in
+                    ForEach(recipeList, id: \.bundleId) { recipe in
                         RecipeSelectionItemView(recipe: recipe, context: $context)
                     }
                 }

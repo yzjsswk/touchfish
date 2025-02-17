@@ -23,18 +23,18 @@ struct CommandBarView: View {
     var body: some View {
         ZStack {
             HStack {
-                ForEach(Array(cells.enumerated()), id: \.0) { _, cellText in
+                ForEach(Array(cells.enumerated()), id: \.0) { idx, cellText in
                     Text(getCellText(originText: cellText))
                         .background(
                             GeometryReader { geometry in
                                 Rectangle()
                                     .cornerRadius(5)
-                                    .foregroundStyle("5B5BCF".color)
+                                    .foregroundStyle(idx == 0 ? "5B5BCF".color : "C6C7F4".color)
                                     .frame(width: geometry.size.width+5, height: geometry.size.height+8)
                                     .offset(x: -2.5, y: -4)
                             }
                         )
-                        .foregroundColor(.white)
+                        .foregroundColor(idx == 0 ? .white : "666970".color)
                         .font(.custom("Menlo", size: 16))
                         .padding([.leading], 3)
                 }
@@ -59,51 +59,43 @@ struct CommandBarView: View {
                 switch situation {
                 case .NotRecipe:
                     EmptyView()
-                case .MainWindowRecipe(let context):
-                    if context.activeRecipe != nil {
-                        CommitRecipeButtonView(recipeExecutionContext: context)
-                        .padding(.trailing, 5)
-                    }
-                case .QuickExecutionRecipe(let context):
+                case .MainWindowRecipe(let context),  .QuickExecutionRecipe(let context):
                     if context.activeRecipe != nil {
                         CommitRecipeButtonView(recipeExecutionContext: context)
                         .padding(.trailing, 5)
                     }
                 }
-                
             }
             .padding([.leading], 6)
             .frame(height: Constant.commandBarHeight)
         }
         .background(Constant.commandBarBackgroundColor)
         .cornerRadius(10)
+        .onChange(of: uid) { _ in
+            Log.debug("rebuild")
+        }
         .onAppear {
             Task {
                 switch situation {
                 case .NotRecipe:
                     return
-                case .MainWindowRecipe(let context):
+                case .MainWindowRecipe(let context), .QuickExecutionRecipe(let context):
                     self.contextUid = await context.uid
                     self.text = await context.query
                     if let recipe = await context.activeRecipe {
+                        let arguments = await context.arguments
                         var cells: [String] = []
+                        var placeHolder = ""
                         cells.append(recipe.name)
-                        for (name, value) in await context.arguments {
-                            cells.append("\(name):\(value)")
+                        for para in recipe.parameters {
+                            if let value = arguments[para.name] {
+                                cells.append("\(para.name):\(value)")
+                            } else {
+                                placeHolder.append("\(para.name):")
+                            }
                         }
                         self.cells = cells
-                        self.placeHolder = ""
-                    } else {
-                        self.text = ""
-                        self.cells = []
-                        self.placeHolder = "input `command`+`space` or select one"
-                    }
-                case .QuickExecutionRecipe(let context):
-                    self.contextUid = await context.uid
-                    self.text = await context.query
-                    if let recipe = await context.activeRecipe {
-                        self.cells = [recipe.name]
-                        self.placeHolder = ""
+                        self.placeHolder = placeHolder
                     } else {
                         self.text = ""
                         self.cells = []
@@ -119,9 +111,7 @@ struct CommandBarView: View {
                 switch situation {
                 case .NotRecipe:
                     finalText = new
-                case .MainWindowRecipe(let context):
-                    finalText = await self.handleCell(text: new, context: context)
-                case .QuickExecutionRecipe(let context):
+                case .MainWindowRecipe(let context), .QuickExecutionRecipe(let context):
                     finalText = await self.handleCell(text: new, context: context)
                 }
                 if editTime > lastEditTime {
@@ -129,9 +119,7 @@ struct CommandBarView: View {
                     switch situation {
                     case .NotRecipe:
                         break
-                    case .MainWindowRecipe(let context):
-                        await context.modifyQuery(finalText)
-                    case .QuickExecutionRecipe(let context):
+                    case .MainWindowRecipe(let context), .QuickExecutionRecipe(let context):
                         await context.modifyQuery(finalText)
                     }
                     lastEditTime = editTime
@@ -148,28 +136,19 @@ struct CommandBarView: View {
                 switch situation {
                 case .NotRecipe:
                     break
-                case .MainWindowRecipe(let context):
-                    if let _ = await context.activeRecipe {
-                        await context.executeIfAutomatic()
-                    }
-                case .QuickExecutionRecipe(let context):
+                case .MainWindowRecipe(let context), .QuickExecutionRecipe(let context):
                     if let _ = await context.activeRecipe {
                         await context.executeIfAutomatic()
                     }
                 }
             }
         }
-        // todo: carefully controll event, avoid repeat execute
        .onReceive(NotificationCenter.default.publisher(for: .RecipeCommited)) { _ in
            Task {
                switch situation {
                case .NotRecipe:
                    return
-               case .MainWindowRecipe(let context):
-                   if let _ = await context.activeRecipe {
-                       await context.execute()
-                   }
-               case .QuickExecutionRecipe(let context):
+               case .MainWindowRecipe(let context), .QuickExecutionRecipe(let context):
                    if let _ = await context.activeRecipe {
                        await context.execute()
                    }
@@ -181,28 +160,22 @@ struct CommandBarView: View {
                 switch situation {
                 case .NotRecipe:
                     return
-                case .MainWindowRecipe(let context):
+                case .MainWindowRecipe(let context), .QuickExecutionRecipe(let context):
                     if let recipe = await context.activeRecipe {
+                        let arguments = await context.arguments
                         var cells: [String] = []
+                        var placeHolder = ""
                         cells.append(recipe.name)
-                        for (name, value) in await context.arguments {
-                            cells.append("\(name):\(value)")
+                        for para in recipe.parameters {
+                            if let value = arguments[para.name] {
+                                cells.append("\(para.name):\(value)")
+                            } else {
+                                placeHolder.append("\(para.name):")
+                            }
                         }
-//                        self.text = await context.query
                         self.cells = cells
-                        self.placeHolder = ""
+                        self.placeHolder = placeHolder
                     } else {
-//                        self.text = ""
-                        self.cells = []
-                        self.placeHolder = "input `command`+`space` or select one"
-                    }
-                case .QuickExecutionRecipe(let context):
-                    if let recipe = await context.activeRecipe {
-//                        self.text = await context.query
-                        self.cells = [recipe.name]
-                        self.placeHolder = ""
-                    } else {
-//                        self.text = ""
                         self.cells = []
                         self.placeHolder = "input `command`+`space` or select one"
                     }
@@ -288,15 +261,10 @@ struct CommandBarView: View {
             switch situation {
             case .NotRecipe:
                 return
-            case .MainWindowRecipe(let context):
+            case .MainWindowRecipe(let context), .QuickExecutionRecipe(let context):
                 if await context.arguments.count > 0 {
                     await context.delLastArg()
-                } else {
-                    await context.switchRecipe(nil)
-                }
-            case .QuickExecutionRecipe(let context):
-                if await context.arguments.count > 0 {
-                    await context.delLastArg()
+                    await context.executeIfAutomatic()
                 } else {
                     await context.switchRecipe(nil)
                 }

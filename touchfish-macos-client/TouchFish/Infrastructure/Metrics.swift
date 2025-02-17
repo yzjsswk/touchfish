@@ -4,7 +4,7 @@ var Metrics = TFMetrics.it
 
 struct TFMetrics: Codable {
     
-    var recipeUseCount: [String:Int] = [:]
+    var recipeUsageCount: [String:Int] = [:]
     
     static var it = read()
     

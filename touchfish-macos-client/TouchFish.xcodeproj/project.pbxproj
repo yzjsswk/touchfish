@@ -289,8 +289,8 @@
 				99AC05C52BB2BD720046E8C5 /* KeyboardShortcut.swift */,
 				99AC05CF2BB2BD720046E8C5 /* Monitor.swift */,
 				99AC05D02BB2BD720046E8C5 /* Storage.swift */,
-				996FEE482BC3E2E50047EB82 /* DataService.swift */,
 				99EDC33B2CC69FD90023CDF0 /* Metrics.swift */,
+				996FEE482BC3E2E50047EB82 /* DataService.swift */,
 				998020432CDA378D004DC045 /* RecipeService.swift */,
 			);
 			path = Infrastructure;

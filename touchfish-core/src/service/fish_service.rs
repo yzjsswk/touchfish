@@ -50,7 +50,7 @@ impl<S> FishService<S> where S: FishStorage {
                 ).trace(
                     ctx!("add fish -> type=text -> parse fish data to text: fish_data.to_str() failed")
                 )?;
-                data_info.char_count = Some(s.len());
+                data_info.char_count = Some(s.chars().count());
                 data_info.word_count = Some(s.split_whitespace().collect::<Vec<_>>().len());
                 data_info.row_count = Some(s.split('\n').collect::<Vec<_>>().len());
             },
@@ -93,7 +93,9 @@ impl<S> FishService<S> where S: FishStorage {
                     if !skip_if_locked && x.is_locked {
                         return Err(err!("FISH_IS_LOCKED": "fish {} is locked", uid))
                     }
-                    expire_uids.push(uid);
+                    if !x.is_locked {
+                        expire_uids.push(uid);
+                    }
                 }
             }
         }
@@ -140,7 +142,9 @@ impl<S> FishService<S> where S: FishStorage {
                     if !skip_if_locked && x.is_locked {
                         return Err(err!("FISH_IS_LOCKED": "fish {} is locked", uid))
                     }
-                    mark_uids.push(uid);
+                    if !x.is_locked {
+                        mark_uids.push(uid);
+                    }
                 }
             }
         }
@@ -165,7 +169,9 @@ impl<S> FishService<S> where S: FishStorage {
                     if !skip_if_locked && x.is_locked {
                         return Err(err!("FISH_IS_LOCKED": "fish {} is locked", uid))
                     }
-                    unmark_uids.push(uid);
+                    if !x.is_locked {
+                        unmark_uids.push(uid);
+                    }
                 }
             }
         }
@@ -234,7 +240,9 @@ impl<S> FishService<S> where S: FishStorage {
                     if !skip_if_locked && x.is_locked {
                         return Err(err!("FISH_IS_LOCKED": "fish {} is locked", uid))
                     }
-                    pin_uids.push(uid);
+                    if !x.is_locked {
+                        pin_uids.push(uid);
+                    }
                 }
             }
         }
