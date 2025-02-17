@@ -47,9 +47,9 @@ struct SettingView: View {
     var body: some View {
         VStack {
             HStack {
-                SettingTabView(selectedTab: $selectedTab)
-                .frame(width: 160)
-                Divider()
+//                SettingTabView(selectedTab: $selectedTab)
+//                .frame(width: 160)
+//                Divider()
                 VStack {
                     ScrollView(showsIndicators: false) {
                         switch selectedTab {
@@ -81,9 +81,9 @@ struct SettingView: View {
                     let ok = tempSetting.save()
                     if ok {
                         Config = Configuration.read()
-//                        RecipeManager.goToRecipe(recipeId: nil)
+                        Functions.doAlert(type: .informational, title: "Save Successd!", message: "")
                     } else {
-                        Functions.doAlert(type: .warning, title: "Warning", message: "Save Failed")
+                        Functions.doAlert(type: .warning, title: "Save Failed", message: "")
                     }
                 }
                 Spacer()

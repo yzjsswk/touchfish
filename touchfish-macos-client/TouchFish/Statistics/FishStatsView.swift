@@ -187,4 +187,3 @@ func buildYearSlices(data: [String:Int]) -> [BarSlice] {
         )
     }.sorted { $0.label < $1.label }
 }
-

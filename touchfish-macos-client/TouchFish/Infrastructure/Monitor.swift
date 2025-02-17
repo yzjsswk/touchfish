@@ -74,7 +74,7 @@ struct MonitorManager {
             }
         case .HideWindowWhenClickOutside:
             MonitorManager.hideQuickExecutionWindowWhenClickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [] event in
-                if Config.hideMainQuickExecutionWindowWhenClickOutSideEnable && TouchFishApp.quickExecutionWindow.isVisible {
+                if Config.hideQuickExecutionWindowWhenClickOutSideEnable && TouchFishApp.quickExecutionWindow.isVisible {
                     TouchFishApp.quickExecutionWindow.hide()
                 }
                 if TouchFishApp.pasteBoardWindow.isVisible {

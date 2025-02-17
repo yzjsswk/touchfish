@@ -71,8 +71,7 @@ struct Configuration: Codable {
     var recipeSettings: [String:[String:String]] = [:]
     var recipeOrders: [String] = []
     
-    var hideMainQuickExecutionWindowWhenClickOutSideEnable = true
-    var backWhenAssistiveClick = true // todo: remove
+    var hideQuickExecutionWindowWhenClickOutSideEnable = true
     var paraFieldEnable = false
     var fishSideEnable = false
     var topicSideEnable = false

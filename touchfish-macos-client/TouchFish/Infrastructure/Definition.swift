@@ -212,7 +212,6 @@ struct Functions {
         alert.messageText = title
         alert.informativeText = message
         if let appIcon = NSImage(named: NSImage.applicationIconName) {
-            Log.debug("here")
             alert.icon = appIcon
         }
         alert.runModal()

@@ -76,6 +76,3 @@ struct StatsTabView: View {
     }
     
 }
-
-
-
