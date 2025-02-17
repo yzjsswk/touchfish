@@ -4,11 +4,12 @@ struct MainView: View {
     
     @State var recipeExecutionContexts: [RecipeExecutionContext] = []
     
+    @State var fishTags: [String] = []
+    
     @State var pressedTab: TabBarView.Tab = .Home
     @State var isFullScreen: Bool = false
     
     var body: some View {
-        
         ZStack {
             VStack {
                 TabBarView(pressedTab: $pressedTab, isFullScreen: $isFullScreen, recipeExecutionContexts: $recipeExecutionContexts)
@@ -45,7 +46,7 @@ struct MainView: View {
                             )
                         )
                         .id("recipe_command_bar_\(recipeExecutionContexts[idx].uid)")
-                        RecipeExecutionView(context: $recipeExecutionContexts[idx])
+                        RecipeExecutionView(context: $recipeExecutionContexts[idx], fishTags: $fishTags)
                         .id("recipe_execution_view_\(recipeExecutionContexts[idx].uid)")
                     } else {
                         EmptyView()
@@ -60,6 +61,20 @@ struct MainView: View {
             .padding(.horizontal, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            Task {
+                if let stats = await Storage.countFish() {
+                    fishTags = stats.tagCount.keys.filter { !$0.isEmpty }
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .ShouldRefreshFish)) { _ in
+            Task {
+                if let stats = await Storage.countFish() {
+                    fishTags = stats.tagCount.keys.filter { !$0.isEmpty }
+                }
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .MainWindowEnterFullScreen)) { _ in
             withAnimation {
                 isFullScreen = true
@@ -90,5 +105,4 @@ struct MainView: View {
             }
         }
     }
-    
 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct RecipeExecutionView: View {
     
     @Binding var context: RecipeExecutionContext
+    @Binding var fishTags: [String]
     
     @State var paraFieldEnable: Bool = Config.paraFieldEnable
     @State var fishSideEnable: Bool = Config.fishSideEnable
@@ -19,7 +20,7 @@ struct RecipeExecutionView: View {
                     Divider()
                 }
                 if paraFieldEnable && !isQuickExecution {
-                    DynamicRecipeParaFieldView(context: $context)
+                    DynamicRecipeParaFieldView(fishTags: $fishTags, context: $context)
                     .frame(width: Constant.mainWidth * 0.3)
                     .padding(5)
                     Divider()

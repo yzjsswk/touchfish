@@ -2,7 +2,7 @@ import SwiftUI
 
 struct DynamicRecipeParaFieldView: View {
     
-    @State var fishTags: [String] = []
+    @Binding var fishTags: [String]
     
     @Binding var context: RecipeExecutionContext
     
@@ -42,14 +42,6 @@ struct DynamicRecipeParaFieldView: View {
             }
             .padding(5)
         }
-        .onAppear {
-            Task {
-                if let stats = await Storage.countFish() {
-                    fishTags = stats.tagCount.keys.filter { !$0.isEmpty }
-                }
-            }
-        }
-        
     }
 }
 
@@ -217,7 +209,13 @@ struct DynamicRecipeSingleLineEditParaView: View {
         .cornerRadius(5)
         .onAppear {
             if isSetting {
-                // todo: read setting
+                Task {
+                    if let recipe = await context.activeRecipe, let value = Config.recipeSettings[recipe.bundleId, default: [:]][name] {
+                        self.value = value
+                    } else {
+                        self.value = ""
+                    }
+                }
             } else {
                 Task {
                     if let value = await context.arguments[name] {
@@ -229,7 +227,24 @@ struct DynamicRecipeSingleLineEditParaView: View {
             }
         }
         .onChange(of: value) {
-            if !isSetting {
+            if isSetting {
+                Task {
+                    if let recipe = await context.activeRecipe {
+                        if value == "" {
+                            Config.recipeSettings[recipe.bundleId, default: [:]].removeValue(forKey: name)
+                            if !Config.save() {
+                                Log.warning("remove recipe setting failed, bundleId=\(recipe.bundleId), name=\(name)")
+                            }
+                        } else {
+                            Config.recipeSettings[recipe.bundleId, default: [:]][name] = value
+                            if !Config.save() {
+                                Log.warning("set recipe setting failed, bundleId=\(recipe.bundleId), name=\(name), value=\(value)")
+                            }
+                        }
+                        
+                    }
+                }
+            } else {
                 Task {
                     if value == "" {
                         await context.delArg(key: name)
@@ -237,8 +252,6 @@ struct DynamicRecipeSingleLineEditParaView: View {
                         await context.addOrModifyArg(key: name, value: value)
                     }
                 }
-            } else {
-                // todo: modify setting
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .RecipeExecutionContextChanged.group(context.uid.uuidString))) { _ in
@@ -305,7 +318,29 @@ struct DynamicRecipeListSingleLineEditParaView: View {
         }
         .onAppear {
             if isSetting {
-                // todo: read setting
+                Task {
+                    if let recipe = await context.activeRecipe, let value = Config.recipeSettings[recipe.bundleId, default: [:]][name] {
+                        for setting in recipe.settings {
+                            if setting.name == name, let separator = setting.separator {
+                                self.values = value.split(separator: separator).map { String($0) }
+                                self.isHovered = Array(repeating: false, count: self.values.count)
+                            }
+                        }
+                    } else {
+                        self.values.removeAll { !$0.isEmpty }
+                        self.isHovered = Array(repeating: false, count: self.values.count)
+                    }
+                }
+            } else {
+                Task {
+                    if let values = await context.parsedArguments[name] {
+                        self.values = values
+                        self.isHovered = Array(repeating: false, count: self.values.count)
+                    } else {
+                        self.values.removeAll { !$0.isEmpty }
+                        self.isHovered = Array(repeating: false, count: self.values.count)
+                    }
+                }
             }
         }
         .onChange(of: addFlag) {
@@ -313,7 +348,24 @@ struct DynamicRecipeListSingleLineEditParaView: View {
             isHovered.append(false)
         }
         .onChange(of: values) {
-            if !isSetting {
+            let value = values.filter { $0 != "" }.joined(separator: separator)
+            if isSetting {
+                Task {
+                    if let recipe = await context.activeRecipe {
+                        if value == "" {
+                            Config.recipeSettings[recipe.bundleId, default: [:]].removeValue(forKey: name)
+                            if !Config.save() {
+                                Log.warning("remove recipe setting failed, bundleId=\(recipe.bundleId), name=\(name)")
+                            }
+                        } else {
+                            Config.recipeSettings[recipe.bundleId, default: [:]][name] = value
+                            if !Config.save() {
+                                Log.warning("set recipe setting failed, bundleId=\(recipe.bundleId), name=\(name), value=\(value)")
+                            }
+                        }
+                    }
+                }
+            } else {
                 Task {
                     let value = values.filter { $0 != "" }.joined(separator: separator)
                     if value == "" {
@@ -322,8 +374,6 @@ struct DynamicRecipeListSingleLineEditParaView: View {
                         await context.addOrModifyArg(key: name, value: value)
                     }
                 }
-            } else {
-                // todo: modify setting
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .RecipeExecutionContextChanged.group(context.uid.uuidString))) { _ in
@@ -370,11 +420,42 @@ struct DynamicRecipeMultLineEditParaView: View {
         .frame(height: Constant.mainWidth*0.12)
         .onAppear {
             if isSetting {
-                // todo: read setting
+                Task {
+                    if let recipe = await context.activeRecipe, let value = Config.recipeSettings[recipe.bundleId, default: [:]][name] {
+                        self.value = value
+                    } else {
+                        self.value = ""
+                    }
+                }
+            } else {
+                Task {
+                    if let value = await context.arguments[name] {
+                        self.value = value
+                    } else {
+                        self.value = ""
+                    }
+                }
             }
         }
         .onChange(of: value) {
-            if !isSetting {
+            if isSetting {
+                Task {
+                    if let recipe = await context.activeRecipe {
+                        if value == "" {
+                            Config.recipeSettings[recipe.bundleId, default: [:]].removeValue(forKey: name)
+                            if !Config.save() {
+                                Log.warning("remove recipe setting failed, bundleId=\(recipe.bundleId), name=\(name)")
+                            }
+                        } else {
+                            Config.recipeSettings[recipe.bundleId, default: [:]][name] = value
+                            if !Config.save() {
+                                Log.warning("set recipe setting failed, bundleId=\(recipe.bundleId), name=\(name), value=\(value)")
+                            }
+                        }
+                        
+                    }
+                }
+            } else {
                 Task {
                     if value == "" {
                         await context.delArg(key: name)
@@ -382,8 +463,6 @@ struct DynamicRecipeMultLineEditParaView: View {
                         await context.addOrModifyArg(key: name, value: value)
                     }
                 }
-            } else {
-                // todo: modify setting
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .RecipeExecutionContextChanged.group(context.uid.uuidString))) { _ in
@@ -451,7 +530,29 @@ struct DynamicRecipeListMultLineEditParaView: View {
         }
         .onAppear {
             if isSetting {
-                // todo: read setting
+                Task {
+                    if let recipe = await context.activeRecipe, let value = Config.recipeSettings[recipe.bundleId, default: [:]][name] {
+                        for setting in recipe.settings {
+                            if setting.name == name, let separator = setting.separator {
+                                self.values = value.split(separator: separator).map { String($0) }
+                                self.isHovered = Array(repeating: false, count: self.values.count)
+                            }
+                        }
+                    } else {
+                        self.values.removeAll { !$0.isEmpty }
+                        self.isHovered = Array(repeating: false, count: self.values.count)
+                    }
+                }
+            } else {
+                Task {
+                    if let values = await context.parsedArguments[name] {
+                        self.values = values
+                        self.isHovered = Array(repeating: false, count: self.values.count)
+                    } else {
+                        self.values.removeAll { !$0.isEmpty }
+                        self.isHovered = Array(repeating: false, count: self.values.count)
+                    }
+                }
             }
         }
         .onChange(of: addFlag) {
@@ -459,7 +560,24 @@ struct DynamicRecipeListMultLineEditParaView: View {
             isHovered.append(false)
         }
         .onChange(of: values) {
-            if !isSetting {
+            let value = values.filter { $0 != "" }.joined(separator: separator)
+            if isSetting {
+                Task {
+                    if let recipe = await context.activeRecipe {
+                        if value == "" {
+                            Config.recipeSettings[recipe.bundleId, default: [:]].removeValue(forKey: name)
+                            if !Config.save() {
+                                Log.warning("remove recipe setting failed, bundleId=\(recipe.bundleId), name=\(name)")
+                            }
+                        } else {
+                            Config.recipeSettings[recipe.bundleId, default: [:]][name] = value
+                            if !Config.save() {
+                                Log.warning("set recipe setting failed, bundleId=\(recipe.bundleId), name=\(name), value=\(value)")
+                            }
+                        }
+                    }
+                }
+            } else {
                 Task {
                     let value = values.filter { $0 != "" }.joined(separator: separator)
                     if value == "" {
@@ -468,8 +586,6 @@ struct DynamicRecipeListMultLineEditParaView: View {
                         await context.addOrModifyArg(key: name, value: value)
                     }
                 }
-            } else {
-                // todo: modify setting
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .RecipeExecutionContextChanged.group(context.uid.uuidString))) { _ in
@@ -516,11 +632,50 @@ struct DynamicRecipeChoiceParaView: View {
         .padding(.horizontal, 5)
         .onAppear {
             if isSetting {
-                // todo: read setting
+                Task {
+                    if let recipe = await context.activeRecipe, let value = Config.recipeSettings[recipe.bundleId, default: [:]][name] {
+                        if options.contains(value) {
+                            self.value = value
+                        } else {
+                            self.value = "nothing"
+                        }
+                    } else {
+                        self.value = "nothing"
+                    }
+                }
+            } else {
+                Task {
+                    if let value = await context.arguments[name] {
+                        if options.contains(value) {
+                            self.value = value
+                        } else {
+                            self.value = "nothing"
+                        }
+                    } else {
+                        self.value = "nothing"
+                    }
+                }
             }
         }
         .onChange(of: value) {
-            if !isSetting {
+            if isSetting {
+                Task {
+                    if let recipe = await context.activeRecipe {
+                        if value == "nothing" {
+                            Config.recipeSettings[recipe.bundleId, default: [:]].removeValue(forKey: name)
+                            if !Config.save() {
+                                Log.warning("remove recipe setting failed, bundleId=\(recipe.bundleId), name=\(name)")
+                            }
+                        } else {
+                            Config.recipeSettings[recipe.bundleId, default: [:]][name] = value
+                            if !Config.save() {
+                                Log.warning("set recipe setting failed, bundleId=\(recipe.bundleId), name=\(name), value=\(value)")
+                            }
+                        }
+                        
+                    }
+                }
+            } else {
                 Task {
                     if value == "nothing" {
                         await context.delArg(key: name)
@@ -528,8 +683,6 @@ struct DynamicRecipeChoiceParaView: View {
                         await context.addOrModifyArg(key: name, value: value)
                     }
                 }
-            } else {
-                // todo: modify setting
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .RecipeExecutionContextChanged.group(context.uid.uuidString))) { _ in
@@ -599,30 +752,38 @@ struct DynamicRecipeListChoiceParaView: View {
         }
         .onAppear {
             if isSetting {
-                // todo: read setting
-            }
-        }
-        .onChange(of: addFlag) {
-            values.append("nothing")
-            isHovered.append(false)
-        }
-        .onChange(of: values) {
-            if !isSetting {
                 Task {
-                    let value = values.filter { $0 != "nothing" }.joined(separator: separator)
-                    if value == "" {
-                        await context.delArg(key: name)
+                    if let recipe = await context.activeRecipe, let value = Config.recipeSettings[recipe.bundleId, default: [:]][name] {
+                        for setting in recipe.settings {
+                            if setting.name == name, let separator = setting.separator {
+                                let values = value.split(separator: separator).map { String($0) }
+                                let somethingCount = self.values.filter { $0 != "nothing" }.count
+                                if somethingCount != values.count {
+                                    self.values = values.map { options.contains($0) ? $0 : "nothing" }
+                                    self.isHovered = Array(repeating: false, count: self.values.count)
+                                } else {
+                                    var cnt = 0
+                                    for idx in self.values.indices {
+                                        if self.values[idx] == "nothing" {
+                                            continue
+                                        }
+                                        if cnt < values.count {
+                                            self.values[idx] = values[cnt]
+                                        } else {
+                                            Log.warning("dynamicRecipeViewParaField -> appear -> modify list type singleChioce para: \(name) -> something count of field == of that in commandbar -> only modify something in paraField(keep nothing) -> code logic bug: cnt >= values.count")
+                                        }
+                                        cnt += 1
+                                    }
+                                }
+                            }
+                        }
                     } else {
-                        await context.addOrModifyArg(key: name, value: value)
+                        self.values = Array(repeating: "nothing", count: self.values.count)
+                        self.isHovered = Array(repeating: false, count: self.values.count)
                     }
                 }
             } else {
-                // todo: modify setting
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .RecipeExecutionContextChanged.group(context.uid.uuidString))) { _ in
-            Task {
-                if !isSetting {
+                Task {
                     if let values = await context.parsedArguments[name] {
                         let somethingCount = self.values.filter { $0 != "nothing" }.count
                         if somethingCount != values.count {
@@ -637,7 +798,68 @@ struct DynamicRecipeListChoiceParaView: View {
                                 if cnt < values.count {
                                     self.values[idx] = values[cnt]
                                 } else {
-                                    Log.warning("dynamicRecipeViewParaField -> received recipeStatusChanged -> modify list type singleChioce para: \(name) -> something count of field == of that in commandbar -> only modify something in paraField(keep nothing) -> code logic bug: cnt >= values.count")
+                                    Log.warning("dynamicRecipeViewParaField -> received RecipeExecutionContextChanged -> modify list type singleChioce para: \(name) -> something count of field == of that in commandbar -> only modify something in paraField(keep nothing) -> code logic bug: cnt >= values.count")
+                                }
+                                cnt += 1
+                            }
+                        }
+                    } else {
+                        self.values = Array(repeating: "nothing", count: self.values.count)
+                        self.isHovered = Array(repeating: false, count: self.values.count)
+                    }
+                }
+            }
+        }
+        .onChange(of: addFlag) {
+            values.append("nothing")
+            isHovered.append(false)
+        }
+        .onChange(of: values) {
+            let value = values.filter { $0 != "nothing" }.joined(separator: separator)
+            if isSetting {
+                Task {
+                    if let recipe = await context.activeRecipe {
+                        if value == "" {
+                            Config.recipeSettings[recipe.bundleId, default: [:]].removeValue(forKey: name)
+                            if !Config.save() {
+                                Log.warning("remove recipe setting failed, bundleId=\(recipe.bundleId), name=\(name)")
+                            }
+                        } else {
+                            Config.recipeSettings[recipe.bundleId, default: [:]][name] = value
+                            if !Config.save() {
+                                Log.warning("set recipe setting failed, bundleId=\(recipe.bundleId), name=\(name), value=\(value)")
+                            }
+                        }
+                    }
+                }
+            } else {
+                Task {
+                    if value == "" {
+                        await context.delArg(key: name)
+                    } else {
+                        await context.addOrModifyArg(key: name, value: value)
+                    }
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .RecipeExecutionContextChanged.group(context.uid.uuidString))) { _ in
+            if !isSetting {
+                Task {
+                    if let values = await context.parsedArguments[name] {
+                        let somethingCount = self.values.filter { $0 != "nothing" }.count
+                        if somethingCount != values.count {
+                            self.values = values.map { options.contains($0) ? $0 : "nothing" }
+                            self.isHovered = Array(repeating: false, count: self.values.count)
+                        } else {
+                            var cnt = 0
+                            for idx in self.values.indices {
+                                if self.values[idx] == "nothing" {
+                                    continue
+                                }
+                                if cnt < values.count {
+                                    self.values[idx] = values[cnt]
+                                } else {
+                                    Log.warning("dynamicRecipeViewParaField -> received RecipeExecutionContextChanged -> modify list type singleChioce para: \(name) -> something count of field == of that in commandbar -> only modify something in paraField(keep nothing) -> code logic bug: cnt >= values.count")
                                 }
                                 cnt += 1
                             }
@@ -685,11 +907,69 @@ struct DynamicRecipeCheckParaView: View {
         .padding(.horizontal, 2)
         .onAppear {
             if isSetting {
-                // todo: read setting
+                Task {
+                    if let recipe = await context.activeRecipe, let value = Config.recipeSettings[recipe.bundleId, default: [:]][name] {
+                        if value.lowercased() == "true" || value == "1" {
+                            self.enable = true
+                            self.value = true
+                        } else if value.lowercased() == "false" || value == "0" {
+                            self.enable = true
+                            self.value = false
+                        } else {
+                            self.enable = false
+                            self.value = false
+                        }
+                    } else {
+                        self.enable = false
+                        self.value = false
+                    }
+                }
+            } else {
+                Task {
+                    if let value = await context.arguments[name] {
+                        if value.lowercased() == "true" || value == "1" {
+                            self.enable = true
+                            self.value = true
+                        } else if value.lowercased() == "false" || value == "0" {
+                            self.enable = true
+                            self.value = false
+                        } else {
+                            self.enable = false
+                            self.value = false
+                        }
+                    } else {
+                        self.enable = false
+                        self.value = false
+                    }
+                }
             }
         }
         .onChange(of: value) {
-            if !isSetting {
+            if isSetting {
+                Task {
+                    if let recipe = await context.activeRecipe {
+                        if value {
+                            enable = true
+                            Config.recipeSettings[recipe.bundleId, default: [:]][name] = value ? "1" : "0"
+                            if !Config.save() {
+                                Log.warning("set recipe setting failed, bundleId=\(recipe.bundleId), name=\(name), value=\(value)")
+                            }
+                        } else {
+                            if enable {
+                                Config.recipeSettings[recipe.bundleId, default: [:]][name] = value ? "1" : "0"
+                                if !Config.save() {
+                                    Log.warning("set recipe setting failed, bundleId=\(recipe.bundleId), name=\(name), value=\(value)")
+                                }
+                            } else {
+                                Config.recipeSettings[recipe.bundleId, default: [:]].removeValue(forKey: name)
+                                if !Config.save() {
+                                    Log.warning("remove recipe setting failed, bundleId=\(recipe.bundleId), name=\(name)")
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
                 Task {
                     if value {
                         enable = true
@@ -702,19 +982,24 @@ struct DynamicRecipeCheckParaView: View {
                         }
                     }
                 }
-            } else {
-                // todo: modify setting
             }
         }
         .onChange(of: enable) {
-            if !isSetting {
+            if isSetting {
+                Task {
+                    if !enable, let recipe = await context.activeRecipe {
+                        Config.recipeSettings[recipe.bundleId, default: [:]].removeValue(forKey: name)
+                        if !Config.save() {
+                            Log.warning("remove recipe setting failed, bundleId=\(recipe.bundleId), name=\(name)")
+                        }
+                    }
+                }
+            } else {
                 Task {
                     if !enable {
                         await context.delArg(key: name)
                     }
                 }
-            } else {
-                // todo: modify setting
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .RecipeExecutionContextChanged.group(context.uid.uuidString))) { _ in
@@ -740,16 +1025,6 @@ struct DynamicRecipeCheckParaView: View {
         }
     }
     
-}
-
-func getOptions(_ originOptions: [String]) -> [String] {
-    var ret = ["nothing"]
-    for opt in originOptions {
-        if opt != "nothing" {
-            ret.append(opt)
-        }
-    }
-    return ret
 }
 
 struct DynamicRecipeListCheckParaView: View {
@@ -790,7 +1065,44 @@ struct DynamicRecipeListCheckParaView: View {
         }
         .onAppear {
             if isSetting {
-                // todo: read setting
+                Task {
+                    var newValues: [Bool] = []
+                    var newIsHovered: [Bool] = []
+                    if let recipe = await context.activeRecipe, let value = Config.recipeSettings[recipe.bundleId, default: [:]][name] {
+                        for setting in recipe.settings {
+                            if setting.name == name, let separator = setting.separator {
+                                let values = value.split(separator: separator).map { String($0) }
+                                for value in values {
+                                    if value.lowercased() == "true" || value == "1" {
+                                        newValues.append(true)
+                                    } else {
+                                        newValues.append(false)
+                                    }
+                                    newIsHovered.append(false)
+                                }
+                            }
+                        }
+                    }
+                    self.values = newValues
+                    self.isHovered = newIsHovered
+                }
+            } else {
+                Task {
+                    var newValues: [Bool] = []
+                    var newIsHovered: [Bool] = []
+                    if let values = await context.parsedArguments[name] {
+                        for value in values {
+                            if value.lowercased() == "true" || value == "1" {
+                                newValues.append(true)
+                            } else {
+                                newValues.append(false)
+                            }
+                            newIsHovered.append(false)
+                        }
+                    }
+                    self.values = newValues
+                    self.isHovered = newIsHovered
+                }
             }
         }
         .onChange(of: addFlag) {
@@ -798,7 +1110,24 @@ struct DynamicRecipeListCheckParaView: View {
             isHovered.append(false)
         }
         .onChange(of: values) {
-            if !isSetting {
+            if isSetting {
+                Task {
+                    let value = values.map { $0 ? "1" : "0" }.joined(separator: separator)
+                    if let recipe = await context.activeRecipe {
+                        if value == "" {
+                            Config.recipeSettings[recipe.bundleId, default: [:]].removeValue(forKey: name)
+                            if !Config.save() {
+                                Log.warning("remove recipe setting failed, bundleId=\(recipe.bundleId), name=\(name)")
+                            }
+                        } else {
+                            Config.recipeSettings[recipe.bundleId, default: [:]][name] = value
+                            if !Config.save() {
+                                Log.warning("set recipe setting failed, bundleId=\(recipe.bundleId), name=\(name), value=\(value)")
+                            }
+                        }
+                    }
+                }
+            } else {
                 Task {
                     let value = values.map { $0 ? "1" : "0" }.joined(separator: separator)
                     if value == "" {
@@ -807,8 +1136,6 @@ struct DynamicRecipeListCheckParaView: View {
                         await context.addOrModifyArg(key: name, value: value)
                     }
                 }
-            } else {
-                // todo: modify setting
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .RecipeExecutionContextChanged.group(context.uid.uuidString))) { _ in
@@ -816,7 +1143,7 @@ struct DynamicRecipeListCheckParaView: View {
                 Task {
                     var newValues: [Bool] = []
                     var newIsHovered: [Bool] = []
-                    if let values = context.parsedArguments[name] {
+                    if let values = await context.parsedArguments[name] {
                         for value in values {
                             if value.lowercased() == "true" || value == "1" {
                                 newValues.append(true)
@@ -833,4 +1160,14 @@ struct DynamicRecipeListCheckParaView: View {
         }
     }
     
+}
+
+func getOptions(_ originOptions: [String]) -> [String] {
+    var ret = ["nothing"]
+    for opt in originOptions {
+        if opt != "nothing" {
+            ret.append(opt)
+        }
+    }
+    return ret
 }

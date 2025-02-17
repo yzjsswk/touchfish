@@ -19,7 +19,7 @@ struct QuickExecutionView: View {
                 .padding(.top, 5)
                 .padding(.horizontal, 5)
                 .id("recipe_command_bar_\(contexts[0].uid)")
-                RecipeExecutionView(context: $contexts[0], isQuickExecution: true)
+                RecipeExecutionView(context: $contexts[0], fishTags: .constant([]), isQuickExecution: true)
                 .id("recipe_execution_view_\(contexts[0].uid)")
                 Spacer()
             }

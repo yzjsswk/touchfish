@@ -28,7 +28,7 @@ struct SearchFishResp: Codable {
         case data = "data"
     }
     
-    func getFish() -> [Fish]? {
+    func getFish() -> [Fish] {
         return self.data.compactMap { fishResp in
             if let fish = fishResp.toEntity() {
                 return fish

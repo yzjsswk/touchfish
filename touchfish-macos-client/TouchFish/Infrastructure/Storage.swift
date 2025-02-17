@@ -99,49 +99,65 @@ struct Storage {
         incrementalUpdateQueue.sync {
             let semaphore = DispatchSemaphore(value: 0)
             Task {
-                let result: Result<DataServiceResponse<[String]>, AFError>
                 if var version = self.version {
                     let lastUpdateTime = version.getLatestVersion()
                     version.updateVersion()
-                    result = await DataService.delectFish(updateAfter: lastUpdateTime)
-                } else {
-                    self.version = Version()
-                    result = await DataService.delectFish()
-                }
-                var uids: [String] = []
-                switch result {
-                case .success(let resp):
-                    if !resp.isOk() {
-                        Log.error("Storage.incrementalUpdate - fail: delectFish.resp.code is not ok, resp.code=\(resp.code)")
-                        return
-                    }
-                    guard let data = resp.data else {
-                        Log.error("Storage.incrementalUpdate - fail: delectFish.resp.data=nil, resp.code=\(resp.code)")
-                        return
-                    }
-                    uids = data
-                case .failure(let err):
-                    Log.error("Storage.incrementalUpdate - fail: delectFish request failed, err=\(err)")
-                }
-                for uid in uids {
-                    let result = await DataService.pickFish(uid: uid)
+                    self.version = version
+//                    Log.debug("incremental update after: \(lastUpdateTime)")
+                    let result = await DataService.delectFish(updateAfter: lastUpdateTime)
+                    var uids: [String] = []
                     switch result {
                     case .success(let resp):
                         if !resp.isOk() {
-                            Log.warning("Storage.incrementalUpdate - ignore one fish: pickFish.resp.code is not ok, resp.code=\(resp.code), fish.uid=\(uid)")
-                            continue
+                            Log.error("Storage.incrementalUpdate - fail: delectFish.resp.code is not ok, resp.code=\(resp.code)")
+                            return
                         }
                         guard let data = resp.data else {
-                            Log.warning("Storage.incrementalUpdate - ignore one fish: pickFish.resp.data=nil, resp.code=\(resp.code), fish.uid=\(uid)")
-                            continue
+                            Log.error("Storage.incrementalUpdate - fail: delectFish.resp.data=nil, resp.code=\(resp.code)")
+                            return
                         }
-                        guard let fish = data.toEntity() else {
-                            Log.warning("Storage.incrementalUpdate - ignore one fish: parse fishResp to Fish failed, fish.uid=\(uid)")
-                            continue
-                        }
-                        fishCache.setFish(fish)
+                        uids = data
                     case .failure(let err):
-                        Log.warning("Storage.incrementalUpdate - ignore one fish: pickFish request failed, err=\(err), fish.uid=\(uid)")
+                        Log.error("Storage.incrementalUpdate - fail: delectFish request failed, err=\(err)")
+                    }
+    //                Log.debug("incremental update: \(uids)")
+                    for uid in uids {
+                        let result = await DataService.pickFish(uid: uid)
+                        switch result {
+                        case .success(let resp):
+                            if !resp.isOk() {
+                                Log.warning("Storage.incrementalUpdate - ignore one fish: pickFish.resp.code is not ok, resp.code=\(resp.code), fish.uid=\(uid)")
+                                continue
+                            }
+                            guard let data = resp.data else {
+                                Log.warning("Storage.incrementalUpdate - ignore one fish: pickFish.resp.data=nil, resp.code=\(resp.code), fish.uid=\(uid)")
+                                continue
+                            }
+                            guard let fish = data.toEntity() else {
+                                Log.warning("Storage.incrementalUpdate - ignore one fish: parse fishResp to Fish failed, fish.uid=\(uid)")
+                                continue
+                            }
+                            fishCache.setFish(fish)
+                        case .failure(let err):
+                            Log.warning("Storage.incrementalUpdate - ignore one fish: pickFish request failed, err=\(err), fish.uid=\(uid)")
+                        }
+                    }
+                } else {
+                    self.version = Version()
+                    let result = await DataService.searchFish(pageSize: 100000)
+                    switch result {
+                    case .success(let resp):
+                        if !resp.isOk() {
+                            Log.error("Storage.incrementalUpdate - fail: searchFish.resp.code is not ok, resp.code=\(resp.code)")
+                            return
+                        }
+                        guard let data = resp.data else {
+                            Log.error("Storage.incrementalUpdate - fail: searchFish.resp.data=nil, resp.code=\(resp.code)")
+                            return
+                        }
+                        fishCache.batchSetFish(data.getFish())
+                    case .failure(let err):
+                        Log.error("Storage.incrementalUpdate - fail: searchFish request failed, err=\(err)")
                     }
                 }
                 semaphore.signal()

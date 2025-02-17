@@ -78,7 +78,7 @@ struct Configuration: Codable {
     
     // fish repository
     var fishRepositoryActiveKeyShortcut = KeyboardShortcut(keyCode: 9, modifiers: [.command, .option], events: [.keyDown])
-    var textFishDetailPreviewLength = 1000
+    var textFishDetailPreviewLength = 10000
     var autoImportedFromClipboard = true
     var fastPasteToFrontmostApplication = false
 
