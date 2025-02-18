@@ -314,6 +314,7 @@ extension Notification.Name {
     static let RightClickInMainWindowTabBar = Notification.Name("RightClickInMainWindowTabBar")
     static let ShouldRemoveRecipeExecutionContext = Notification.Name("ShouldRemoveRecipeExecutionContext")
     static let RecipeExecutionContextChanged = Notification.Name("RecipeExecutionContextChanged")
+    static let ShouldCloseCommandBar = Notification.Name("ShouldCloseCommandBar")
     
     static let ReturnKeyWasPressed = Notification.Name("ReturnKeyWasPressed")
     static let UpArrowKeyWasPressed = Notification.Name("UpArrowKeyWasPressed")
@@ -323,7 +324,6 @@ extension Notification.Name {
     static let SpaceKeyWasPressed = Notification.Name("SpaceKeyWasPressed")
     static let DeleteKeyWasPressed = Notification.Name("DeleteKeyWasPressed")
     static let CommandKeyWasPressed = Notification.Name("CommandKeyWasPressed")
-    static let ShouldBack = Notification.Name("ShouldBack")
     static let ShouldRefreshFish = Notification.Name("ShouldRefreshFish")
     static let FishRefreshed = Notification.Name("FishRefreshed")
     static let RecipeRefreshed = Notification.Name("RecipeRefreshed")

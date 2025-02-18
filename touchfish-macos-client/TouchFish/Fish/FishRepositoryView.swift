@@ -161,7 +161,7 @@ struct FishRepositoryView: View {
             NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
         }
         .onReceive(NotificationCenter.default.publisher(for: .ShouldRefreshFish)) { _ in
-            Log.debug("fish repo refresh fish")
+//            Log.debug("fish repo refresh fish")
             Storage.incrementalUpdate()
             Task {
                 let fishs = await Storage.searchFish(

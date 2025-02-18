@@ -20,40 +20,55 @@ struct CommandBarView: View {
     
     @FocusState var isFocused: Bool
     
+    @State var openTextField: Bool = false
+    
     var body: some View {
         ZStack {
             HStack {
-                ForEach(Array(cells.enumerated()), id: \.0) { idx, cellText in
-                    Text(getCellText(originText: cellText))
-                        .background(
-                            GeometryReader { geometry in
-                                Rectangle()
-                                    .cornerRadius(5)
-                                    .foregroundStyle(idx == 0 ? "5B5BCF".color : "C6C7F4".color)
-                                    .frame(width: geometry.size.width+5, height: geometry.size.height+8)
-                                    .offset(x: -2.5, y: -4)
-                            }
-                        )
-                        .foregroundColor(idx == 0 ? .white : "666970".color)
-                        .font(.custom("Menlo", size: 16))
-                        .padding([.leading], 3)
+                if !openTextField {
+                    ForEach(Array(cells.enumerated()), id: \.0) { idx, cellText in
+                        Text(getCellText(originText: cellText))
+                            .background(
+                                GeometryReader { geometry in
+                                    Rectangle()
+                                        .cornerRadius(5)
+                                        .foregroundStyle(idx == 0 ? "5B5BCF".color : "C6C7F4".color)
+                                        .frame(width: geometry.size.width+5, height: geometry.size.height+8)
+                                        .offset(x: -2.5, y: -4)
+                                }
+                            )
+                            .foregroundColor(idx == 0 ? .white : "666970".color)
+                            .font(.custom("Menlo", size: 16))
+                            .padding([.leading], 3)
+                    }
                 }
                 ZStack {
-                    CommandBarTextField(text: $text)
-                    .frame(height: Constant.commandFieldHeight)
+                    CommandBarTextField(text: $text, openTextField: $openTextField)
+                        .frame(height: openTextField ? 88 : Constant.commandFieldHeight)
                     .offset(y: isFocused ? 2 : 8.8)
                     .focused($isFocused)
                     if text.count == 0 {
                         HStack {
                             Text(placeHolder)
-                                .font(.custom("Menlo", size: 20))
-                                .foregroundStyle("A3A3A3".color)
-                                .offset(x: 3, y: 1)
-                                .onTapGesture {
-                                    isFocused = true
-                                }
+                            .font(.custom("Menlo", size: 20))
+                            .foregroundStyle("A3A3A3".color)
+                            .offset(x: 3, y: 1)
+                            .onTapGesture {
+                                isFocused = true
+                            }
                             Spacer()
                         }
+                    }
+                    if openTextField {
+                        TextEditor(text: $text)
+                        .font(.custom("Menlo", size: 14))
+                        .background(Constant.commandBarBackgroundColor)
+                        .backgroundStyle(Constant.commandBarBackgroundColor)
+                        .cornerRadius(10)
+                        .focused($isFocused)
+                        .padding(5)
+                        .padding(.leading, -6)
+                        
                     }
                 }
                 switch situation {
@@ -67,12 +82,12 @@ struct CommandBarView: View {
                 }
             }
             .padding([.leading], 6)
-            .frame(height: Constant.commandBarHeight)
+            .frame(height: Constant.commandBarHeight + (openTextField ? 100 : 0))
         }
         .background(Constant.commandBarBackgroundColor)
         .cornerRadius(10)
-        .onChange(of: uid) { _ in
-            Log.debug("rebuild")
+        .onChange(of: uid) {
+//            Log.debug("rebuild")
         }
         .onAppear {
             Task {
@@ -143,7 +158,7 @@ struct CommandBarView: View {
                 }
             }
         }
-       .onReceive(NotificationCenter.default.publisher(for: .RecipeCommited)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .RecipeCommited)) { _ in
            Task {
                switch situation {
                case .NotRecipe:
@@ -185,9 +200,6 @@ struct CommandBarView: View {
         .onReceive(NotificationCenter.default.publisher(for: .CommandBarShouldFocus)) { _ in
             isFocused = true
         }
-        .onReceive(NotificationCenter.default.publisher(for: .ShouldBack)) { _ in
-            removeCell()
-        }
         .onReceive(NotificationCenter.default.publisher(for: .DeleteKeyWasPressed)) { _ in
             if isFocused && text.count == 0 {
                removeCell()
@@ -198,7 +210,11 @@ struct CommandBarView: View {
                 NotificationCenter.default.post(name: .RecipeCommited, object: nil)
             }
         }
-
+        .onReceive(NotificationCenter.default.publisher(for: .ShouldCloseCommandBar)) { _ in
+            withAnimation {
+                openTextField = false
+            }
+        }
     }
     
     struct CommitRecipeButtonView: View {
@@ -284,7 +300,3 @@ struct CommandBarView: View {
     }
     
 }
-
-
-
-

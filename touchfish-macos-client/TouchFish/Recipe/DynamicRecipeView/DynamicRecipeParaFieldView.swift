@@ -241,7 +241,7 @@ struct DynamicRecipeSingleLineEditParaView: View {
                                 Log.warning("set recipe setting failed, bundleId=\(recipe.bundleId), name=\(name), value=\(value)")
                             }
                         }
-                        
+                        await context.executeIfAutomatic()
                     }
                 }
             } else {
@@ -251,6 +251,7 @@ struct DynamicRecipeSingleLineEditParaView: View {
                     } else {
                         await context.addOrModifyArg(key: name, value: value)
                     }
+                    await context.executeIfAutomatic()
                 }
             }
         }
@@ -363,6 +364,7 @@ struct DynamicRecipeListSingleLineEditParaView: View {
                                 Log.warning("set recipe setting failed, bundleId=\(recipe.bundleId), name=\(name), value=\(value)")
                             }
                         }
+                        await context.executeIfAutomatic()
                     }
                 }
             } else {
@@ -373,6 +375,7 @@ struct DynamicRecipeListSingleLineEditParaView: View {
                     } else {
                         await context.addOrModifyArg(key: name, value: value)
                     }
+                    await context.executeIfAutomatic()
                 }
             }
         }
@@ -452,7 +455,7 @@ struct DynamicRecipeMultLineEditParaView: View {
                                 Log.warning("set recipe setting failed, bundleId=\(recipe.bundleId), name=\(name), value=\(value)")
                             }
                         }
-                        
+                        await context.executeIfAutomatic()
                     }
                 }
             } else {
@@ -462,6 +465,7 @@ struct DynamicRecipeMultLineEditParaView: View {
                     } else {
                         await context.addOrModifyArg(key: name, value: value)
                     }
+                    await context.executeIfAutomatic()
                 }
             }
         }
@@ -542,6 +546,7 @@ struct DynamicRecipeListMultLineEditParaView: View {
                         self.values.removeAll { !$0.isEmpty }
                         self.isHovered = Array(repeating: false, count: self.values.count)
                     }
+                    await context.executeIfAutomatic()
                 }
             } else {
                 Task {
@@ -552,6 +557,7 @@ struct DynamicRecipeListMultLineEditParaView: View {
                         self.values.removeAll { !$0.isEmpty }
                         self.isHovered = Array(repeating: false, count: self.values.count)
                     }
+                    await context.executeIfAutomatic()
                 }
             }
         }
@@ -674,6 +680,7 @@ struct DynamicRecipeChoiceParaView: View {
                         }
                         
                     }
+                    await context.executeIfAutomatic()
                 }
             } else {
                 Task {
@@ -682,6 +689,7 @@ struct DynamicRecipeChoiceParaView: View {
                     } else {
                         await context.addOrModifyArg(key: name, value: value)
                     }
+                    await context.executeIfAutomatic()
                 }
             }
         }
@@ -831,6 +839,7 @@ struct DynamicRecipeListChoiceParaView: View {
                             }
                         }
                     }
+                    await context.executeIfAutomatic()
                 }
             } else {
                 Task {
@@ -839,6 +848,7 @@ struct DynamicRecipeListChoiceParaView: View {
                     } else {
                         await context.addOrModifyArg(key: name, value: value)
                     }
+                    await context.executeIfAutomatic()
                 }
             }
         }
@@ -968,6 +978,7 @@ struct DynamicRecipeCheckParaView: View {
                             }
                         }
                     }
+                    await context.executeIfAutomatic()
                 }
             } else {
                 Task {
@@ -981,6 +992,7 @@ struct DynamicRecipeCheckParaView: View {
                             await context.delArg(key: name)
                         }
                     }
+                    await context.executeIfAutomatic()
                 }
             }
         }
@@ -1110,6 +1122,7 @@ struct DynamicRecipeListCheckParaView: View {
             isHovered.append(false)
         }
         .onChange(of: values) {
+            
             if isSetting {
                 Task {
                     let value = values.map { $0 ? "1" : "0" }.joined(separator: separator)
@@ -1126,6 +1139,7 @@ struct DynamicRecipeListCheckParaView: View {
                             }
                         }
                     }
+                    await context.executeIfAutomatic()
                 }
             } else {
                 Task {
@@ -1135,6 +1149,7 @@ struct DynamicRecipeListCheckParaView: View {
                     } else {
                         await context.addOrModifyArg(key: name, value: value)
                     }
+                    await context.executeIfAutomatic()
                 }
             }
         }

@@ -100,7 +100,7 @@ struct DynamicRecipeItemView: View {
             DynamicRecipeTextCardItemView(
                 size: size, title: title, description: description, iconPattern: iconPattern, tags: tags,
                 content: body, properties: properties, showProperties: showProperties, operations: operations,
-                value: value, selectable: selectable, info: $info, context:$context, paraFieldEnable: paraFieldEnable
+                value: value, selectable: selectable, info: $info, context: $context, paraFieldEnable: paraFieldEnable
             )
         case .ImageCard(
             let size, let title, let description, let iconPattern, let tags,

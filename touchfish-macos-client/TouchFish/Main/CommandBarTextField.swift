@@ -5,9 +5,10 @@ import AppKit
 struct CommandBarTextField: NSViewControllerRepresentable {
     
     @Binding var text: String
+    @Binding var openTextField: Bool
     
     func makeNSViewController(context: Context) -> some CommandBarTextFieldViewController {
-        return CommandBarTextFieldViewController(text: $text)
+        return CommandBarTextFieldViewController(text: $text, openTextField: $openTextField)
     }
     
     func updateNSViewController(_ nsViewController: NSViewControllerType, context: Context) {
@@ -23,9 +24,11 @@ struct CommandBarTextField: NSViewControllerRepresentable {
 class CommandBarTextFieldViewController: NSViewController, NSTextFieldDelegate {
     
     @Binding var text: String
+    @Binding var openTextField: Bool
     
-    init(text: Binding<String>) {
+    init(text: Binding<String>, openTextField: Binding<Bool>) {
         _text = text
+        _openTextField = openTextField
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -48,12 +51,28 @@ class CommandBarTextFieldViewController: NSViewController, NSTextFieldDelegate {
         textField.font = NSFont(name: "Menlo", size: 22)
         textField.isBordered = false
         textField.focusRingType = .none
+        let singleClick = NSClickGestureRecognizer(target: self, action: #selector(handleSingleClick(_:)))
+        singleClick.numberOfClicksRequired = 1
+        textField.addGestureRecognizer(singleClick)
+        let doubleClick = NSClickGestureRecognizer(target: self, action: #selector(handleDoubleClick(_:)))
+        doubleClick.numberOfClicksRequired = 2
+        textField.addGestureRecognizer(doubleClick)
         view = textField
     }
     
     lazy var fieldEditor: NSTextView = {
         return textField.window?.fieldEditor(true, for: textField) as! NSTextView
     }()
+    
+    @objc private func handleSingleClick(_ gesture: NSClickGestureRecognizer) {
+        
+    }
+    
+    @objc private func handleDoubleClick(_ gesture: NSClickGestureRecognizer) {
+        withAnimation {
+            openTextField = true
+        }
+    }
     
     override func viewDidAppear() {
         view.window?.makeFirstResponder(view)

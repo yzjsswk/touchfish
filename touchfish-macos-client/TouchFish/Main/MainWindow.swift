@@ -66,6 +66,7 @@ class MainWindow: NSWindow, NSWindowDelegate {
         if TouchFishApp.pasteBoardWindow.isVisible {
             TouchFishApp.pasteBoardWindow.hide()
         }
+        NotificationCenter.default.post(name: .ShouldCloseCommandBar, object: nil)
         super.mouseDown(with: event)
     }
     

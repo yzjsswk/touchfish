@@ -53,7 +53,7 @@ struct DynamicRecipeFishSideView: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .ShouldRefreshFish)) { _ in
-            Log.debug("fish side view refresh fish")
+//            Log.debug("fish side view refresh fish")
             Storage.incrementalUpdate()
             Task {
                 var newTags: [String:Bool] = [:]
