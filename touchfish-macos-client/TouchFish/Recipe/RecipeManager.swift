@@ -12,7 +12,7 @@ struct RecipeManager {
     static var orderedRecipeList: [Recipe] {
         var ret: [Recipe] = []
         for bundleId in Config.recipeOrders {
-            if let recipe = recipes[bundleId] {
+            if let recipe = recipes[bundleId], !ret.contains(where: { $0.bundleId == recipe.bundleId }) {
                 ret.append(recipe)
             }
         }

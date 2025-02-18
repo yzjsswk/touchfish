@@ -42,4 +42,9 @@ class QuickExecutionWindow: NSPanel {
         return true
     }
     
+    override func mouseDown(with event: NSEvent) {
+        NotificationCenter.default.post(name: .ShouldCloseCommandBar.group("quick"), object: nil)
+        super.mouseDown(with: event)
+    }
+    
 }

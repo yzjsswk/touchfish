@@ -53,6 +53,11 @@ struct CommandBarView: View {
                             .font(.custom("Menlo", size: 20))
                             .foregroundStyle("A3A3A3".color)
                             .offset(x: 3, y: 1)
+                            .onTapGesture(count: 2) {
+                                withAnimation {
+                                    openTextField = true
+                                }
+                            }
                             .onTapGesture {
                                 isFocused = true
                             }
@@ -85,9 +90,6 @@ struct CommandBarView: View {
         }
         .background(Constant.commandBarBackgroundColor)
         .cornerRadius(10)
-        .onChange(of: uid) {
-//            Log.debug("rebuild")
-        }
         .onAppear {
             Task {
                 switch situation {
@@ -210,8 +212,18 @@ struct CommandBarView: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .ShouldCloseCommandBar)) { _ in
-            withAnimation {
-                openTextField = false
+            if case .QuickExecutionRecipe(_) = self.situation {
+            } else {
+                withAnimation {
+                    openTextField = false
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .ShouldCloseCommandBar.group("quick"))) { _ in
+            if case .QuickExecutionRecipe(_) = self.situation {
+                withAnimation {
+                    openTextField = false
+                }
             }
         }
     }

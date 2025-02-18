@@ -253,7 +253,7 @@ struct RecipeManageDetailCommandView: View {
                     self.isEditCancelButtonHovered = isHovered
                 }
                 .onTapGesture {
-                    isEditButtonHovered = false
+                    isEditing = false
                     editingCommand = ""
                 }
             } else {

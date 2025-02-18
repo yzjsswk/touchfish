@@ -1,4 +1,6 @@
 import SwiftUI
+import AppKit
+import UniformTypeIdentifiers
 
 struct RecipeSelectionView: View {
     
@@ -6,29 +8,155 @@ struct RecipeSelectionView: View {
     
     @Binding var context: RecipeExecutionContext
     
+    @State var draggedRecipe: Recipe?
+    @State var draggingHoveringRecipe: Recipe?
+    
     var body: some View {
-
         VStack {
             ScrollView(showsIndicators: false) {
                 VStack {
                     ForEach(recipeList, id: \.bundleId) { recipe in
                         RecipeSelectionItemView(recipe: recipe, context: $context)
+                        .onDrag {
+                            draggedRecipe = recipe
+                            return NSItemProvider(item: recipe.bundleId.data(using: .utf8) as NSData?, typeIdentifier: UTType.data.identifier)
+                        }
+                        .onDrop(
+                            of: [.data],
+                            delegate: RecipeSelectionViewDraggingDelegate(
+                                recipe: recipe,
+                                draggedRecipe: $draggedRecipe,
+                                draggingHoveringRecipe: $draggingHoveringRecipe,
+                                recipeList: $recipeList
+                            )
+                        )
                     }
                 }
-                .padding(.vertical)
             }
         }
         .onAppear {
             RecipeManager.refresh()
         }
+        .onDrop(
+            of: [.data],
+            delegate: RecipeSelectionViewDropDelegate(
+                draggedRecipe: $draggedRecipe,
+                draggingHoveringRecipe: $draggingHoveringRecipe,
+                recipeList: $recipeList
+            )
+        )
+        .padding(.vertical)
         .onReceive(NotificationCenter.default.publisher(for: .RecipeRefreshed)) { _ in
             withAnimation {
                 recipeList = RecipeManager.orderedRecipeList
             }
         }
-        
     }
     
+}
+
+struct RecipeSelectionViewDraggingDelegate: DropDelegate {
+    
+    var recipe: Recipe
+    
+    @Binding var draggedRecipe: Recipe?
+    @Binding var draggingHoveringRecipe: Recipe?
+    @Binding var recipeList: [Recipe]
+    
+    func performDrop(info: DropInfo) -> Bool {
+        if let draggedRecipe = draggedRecipe, let draggingHoveringRecipe = draggingHoveringRecipe {
+            var draggedIdx: Int? = nil
+            var hoveringIdx: Int? = nil
+            for (idx, recipe) in recipeList.enumerated() {
+                if recipe.bundleId == draggedRecipe.bundleId {
+                    draggedIdx = idx
+                }
+                if recipe.bundleId == draggingHoveringRecipe.bundleId {
+                    hoveringIdx = idx
+                }
+            }
+            if let draggedIdx = draggedIdx, let hoveringIdx = hoveringIdx {
+                var newRecipeList = recipeList
+                newRecipeList.remove(at: draggedIdx)
+                newRecipeList.insert(draggedRecipe, at: hoveringIdx)
+                withAnimation {
+                    self.recipeList = newRecipeList
+                }
+                Config.recipeOrders = newRecipeList.map { $0.bundleId }
+                if !Config.save() {
+                    Log.warning("save recipe order failed")
+                }
+                self.draggedRecipe = nil
+                self.draggingHoveringRecipe = nil
+                return true
+            }
+        }
+        self.draggedRecipe = nil
+        self.draggingHoveringRecipe = nil
+        return false
+    }
+    
+    func dropEntered(info: DropInfo) {
+        draggingHoveringRecipe = recipe
+    }
+    
+    func dropExited(info: DropInfo) {
+    }
+    
+    func validateDrop(info: DropInfo) -> Bool {
+        return true
+    }
+}
+
+struct RecipeSelectionViewDropDelegate: DropDelegate {
+    
+    @Binding var draggedRecipe: Recipe?
+    @Binding var draggingHoveringRecipe: Recipe?
+    @Binding var recipeList: [Recipe]
+    
+    func performDrop(info: DropInfo) -> Bool {
+        if let draggedRecipe = draggedRecipe, let draggingHoveringRecipe = draggingHoveringRecipe {
+            var draggedIdx: Int? = nil
+            var hoveringIdx: Int? = nil
+            for (idx, recipe) in recipeList.enumerated() {
+                if recipe.bundleId == draggedRecipe.bundleId {
+                    draggedIdx = idx
+                }
+                if recipe.bundleId == draggingHoveringRecipe.bundleId {
+                    hoveringIdx = idx
+                }
+            }
+            if let draggedIdx = draggedIdx, let hoveringIdx = hoveringIdx {
+                var newRecipeList = recipeList
+                newRecipeList.remove(at: draggedIdx)
+                newRecipeList.insert(draggedRecipe, at: hoveringIdx)
+                withAnimation {
+                    self.recipeList = newRecipeList
+                }
+                Config.recipeOrders = newRecipeList.map { $0.bundleId }
+                if !Config.save() {
+                    Log.warning("save recipe order failed")
+                }
+                self.draggedRecipe = nil
+                self.draggingHoveringRecipe = nil
+                return true
+            }
+        }
+        self.draggedRecipe = nil
+        self.draggingHoveringRecipe = nil
+        return false
+    }
+    
+    func dropEntered(info: DropInfo) {
+    }
+    
+    func dropExited(info: DropInfo) {
+        draggingHoveringRecipe = nil
+    }
+    
+    func validateDrop(info: DropInfo) -> Bool {
+        return true
+    }
 }
 
 struct RecipeSelectionItemView: View {
