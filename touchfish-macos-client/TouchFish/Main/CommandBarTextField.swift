@@ -51,9 +51,6 @@ class CommandBarTextFieldViewController: NSViewController, NSTextFieldDelegate {
         textField.font = NSFont(name: "Menlo", size: 22)
         textField.isBordered = false
         textField.focusRingType = .none
-        let singleClick = NSClickGestureRecognizer(target: self, action: #selector(handleSingleClick(_:)))
-        singleClick.numberOfClicksRequired = 1
-        textField.addGestureRecognizer(singleClick)
         let doubleClick = NSClickGestureRecognizer(target: self, action: #selector(handleDoubleClick(_:)))
         doubleClick.numberOfClicksRequired = 2
         textField.addGestureRecognizer(doubleClick)
@@ -63,10 +60,6 @@ class CommandBarTextFieldViewController: NSViewController, NSTextFieldDelegate {
     lazy var fieldEditor: NSTextView = {
         return textField.window?.fieldEditor(true, for: textField) as! NSTextView
     }()
-    
-    @objc private func handleSingleClick(_ gesture: NSClickGestureRecognizer) {
-        
-    }
     
     @objc private func handleDoubleClick(_ gesture: NSClickGestureRecognizer) {
         withAnimation {

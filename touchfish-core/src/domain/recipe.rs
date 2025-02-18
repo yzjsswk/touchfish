@@ -10,6 +10,7 @@ pub struct Recipe {
     pub author: String,
     pub name: String,
     pub description: Option<String>,
+    pub readme: Option<String>,
     pub icon: Option<String>,
     pub command: Option<String>,
     #[serde(default = "default_auto_execute")]

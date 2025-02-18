@@ -233,16 +233,30 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
     }
 
     fn load_recipe_from_file(&self, file_path: &Path) -> YRes<Recipe> {
-        let content = std::fs::read_to_string(file_path).map_err(|e| {
+        let content = std::fs::read_to_string(&file_path).map_err(|e| {
             err!("load recipe from file failed").trace(
                 ctx!("load recipe from file -> read file content: std::fs::read_to_string failed", file_path, e)
             )
         })?;
-        let recipe: Recipe = toml::from_str(&content).map_err(|e| {
+        let mut recipe: Recipe = toml::from_str(&content).map_err(|e| {
             err!("load recipe from file failed").trace(
                 ctx!("load recipe from file -> deserialize file content to Recipe: toml::from_str failed", file_path, e)
             )
         })?;
+        if let Some(readme) = recipe.readme.clone() {
+            if let Some(parent_path) = file_path.parent() {
+                let readme_path = parent_path.join(readme);
+                match std::fs::read_to_string(&readme_path) {
+                    Ok(content) => {
+                        recipe.readme = Some(content);
+                    },
+                    Err(e) => {
+                        warn!("load recipe from file -> load readme - ignore readme: std::fs::read_to_string failed, recipe_path={:?}, readme_path={:?}, err={:?}", file_path, readme_path, e);
+                        recipe.readme = None;
+                    }
+                }
+            }
+        }
         Ok(recipe)
     }
 

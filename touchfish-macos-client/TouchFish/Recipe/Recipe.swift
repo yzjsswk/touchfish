@@ -9,6 +9,7 @@ struct Recipe {
     var version: Int
     var name: String
     var description: String?
+    var readme: String?
     var icon: Image
     var command: String?
     var autoExecute: Bool

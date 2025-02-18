@@ -21,6 +21,7 @@ struct RecipeResp: Codable {
     var version: Int
     var name: String
     var description: String?
+    var readme: String?
     var icon: String? // system:xxx fish:xxx
     var command: String?
     var autoExecute: Bool
@@ -31,17 +32,18 @@ struct RecipeResp: Codable {
     
     enum CodingKeys: String, CodingKey {
         case bundleId = "bundle_id"
-        case author = "author"
-        case version = "version"
-        case name = "name"
-        case description = "description"
-        case icon = "icon"
-        case command = "command"
+        case author
+        case version
+        case name
+        case description
+        case readme
+        case icon
+        case command
         case autoExecute = "auto_execute"
         case settings
-        case parameters = "parameters"
-        case actions = "actions"
-        case color = "color"
+        case parameters
+        case actions
+        case color
     }
     
     func toRecipe(host: String, port: String) -> Recipe? {
@@ -53,6 +55,7 @@ struct RecipeResp: Codable {
             version: self.version,
             name: self.name,
             description: self.description,
+            readme: self.readme,
             icon: self.icon?.icon ?? Image(systemName: "questionmark"),
             command: self.command,
             autoExecute: self.autoExecute,

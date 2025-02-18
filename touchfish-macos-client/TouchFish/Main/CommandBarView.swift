@@ -62,13 +62,12 @@ struct CommandBarView: View {
                     if openTextField {
                         TextEditor(text: $text)
                         .font(.custom("Menlo", size: 14))
+                        .scrollContentBackground(.hidden)
                         .background(Constant.commandBarBackgroundColor)
-                        .backgroundStyle(Constant.commandBarBackgroundColor)
                         .cornerRadius(10)
                         .focused($isFocused)
                         .padding(5)
                         .padding(.leading, -6)
-                        
                     }
                 }
                 switch situation {

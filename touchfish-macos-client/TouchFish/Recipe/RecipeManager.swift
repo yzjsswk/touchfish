@@ -52,7 +52,10 @@ struct RecipeManager {
                 if !server.enable {
                     continue
                 }
-                for recipe in await Storage.searchRecipe(host: server.host, port: server.port) {
+                for var recipe in await Storage.searchRecipe(host: server.host, port: server.port) {
+                    if let settedCommand = Config.recipeCommands[recipe.bundleId] {
+                        recipe.command = settedCommand
+                    }
                     var existedBundleId: [String] = []
                     if existedBundleId.contains(recipe.bundleId) {
                         // todo: when refresh too fast, this task may execute multiple, causing warning

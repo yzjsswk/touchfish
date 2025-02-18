@@ -70,6 +70,7 @@ struct Configuration: Codable {
     var enableRecipes: [String] = []
     var recipeSettings: [String:[String:String]] = [:]
     var recipeOrders: [String] = []
+    var recipeCommands: [String:String] = [:]
     
     var hideQuickExecutionWindowWhenClickOutSideEnable = true
     var paraFieldEnable = false
