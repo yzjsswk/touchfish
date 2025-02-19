@@ -44,16 +44,16 @@ struct FishListItemView: View {
                     .foregroundColor(isSelected ? "27295F".color : Color.black)
                 }
             }
-            .frame(width: Constant.fishItemIconWidth)
+            .frame(width: 20)
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     if fish.isMarked {
                         Text(fish.linePreview)
-                            .font(.title3)
+                            .font(.body)
                             .foregroundColor(isSelected ? Color.black: "222D59".color)
                     } else {
                         Text(fish.linePreview)
-                            .font(.title3)
+                            .font(.body)
                             .foregroundColor(isSelected ? "666970".color : Color.gray )
                     }
                     Spacer()

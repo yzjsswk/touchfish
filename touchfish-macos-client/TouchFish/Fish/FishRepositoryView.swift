@@ -6,6 +6,7 @@ struct FishRepositoryView: View {
     @State var fishList: [Fish] = []
     
     @State var selectedFishUid: String?
+    @State var isAdding: Bool = false
     @State var isEditing: Bool = false
     @State var isMultSelecting: Bool = false
     @State var multSelectedFishUids: Set<String> = []
@@ -50,112 +51,138 @@ struct FishRepositoryView: View {
     
     var body: some View {
         HStack {
-            if isEditing, let uid = selectedFishUid, let editingFish = fishs[uid] {
-                FishEditView(
-                    isEditing: $isEditing,
-                    uid: editingFish.uid,
-                    description: editingFish.description,
-                    tags: Dictionary(uniqueKeysWithValues: editingFish.tags.map { ($0, true) })
-                )
-//                .frame(width: Constant.mainWidth-30)
+            if isAdding {
+                FishAddView(isAdding: $isAdding)
             } else {
-                VStack {
-                    if isMultSelecting {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill("C6C7F4".color)
-                            HStack(spacing: 3) {
-                                if isAllMultSelected {
-                                    HStack {
-                                        Image(systemName: "checkmark.square")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .foregroundStyle("27295F".color)
-                                            .onTapGesture {
-                                                multSelectedFishUids.removeAll()
-                                            }
-                                    }
-                                    .frame(width: 25, height: 20)
-                                } else {
-                                    HStack {
-                                        Image(systemName: "square")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .foregroundStyle("27295F".color)
-                                            .onTapGesture {
-                                                for uid in fishs.keys {
-                                                    multSelectedFishUids.insert(uid)
-                                                }
-                                            }
-                                    }
-                                    .frame(width: 25, height: 20)
-                                }
-                                Spacer()
-                                // todo: icon move anima when lock
-                                if isAllMultSelectedLocked {
-                                    MultUnLockButtonView()
-                                        .onTapGesture {
-                                            Task {
-                                                await Storage.unLockFish(Array(multSelectedFishUids))
-                                            }
-                                        }
-                                } else {
-                                    MultLockButtonView()
-                                        .onTapGesture {
-                                            Task {
-                                                await Storage.lockFish(Array(multSelectedFishUids))
-                                            }
-                                        }
-                                    if isAllMultSelectedMarked {
-                                        MultUnMarkButtonView()
-                                            .onTapGesture {
-                                                Task {
-                                                    await Storage.unMarkFish(Array(multSelectedFishUids))
-                                                }
-                                            }
-                                    } else {
-                                        MultMarkButtonView()
-                                            .onTapGesture {
-                                                Task {
-                                                    await Storage.markFish(Array(multSelectedFishUids))
-                                                }
-                                            }
-                                    }
-                                    MultDeleteButtonView()
-                                        .onTapGesture {
-                                            Task {
-                                                await Storage.removeFish(Array(multSelectedFishUids))
-                                                multSelectedFishUids.removeAll()
-                                            }
-                                        }
-                                }
-                            }
-                            .padding(.horizontal, 5)
-                        }
-                        .padding(.horizontal, 3)
-                        .frame(height: 40)
-                    }
-                    FishListView(
-                        fishList: $fishList,
-                        selectedFishUid: $selectedFishUid,
+                if isEditing, let uid = selectedFishUid, let editingFish = fishs[uid] {
+                    FishEditView(
                         isEditing: $isEditing,
-                        isMultSelecting: $isMultSelecting,
-                        multSelectedFishUids: $multSelectedFishUids,
-                        fishItemPosOffset: $fishItemPosOffset
+                        uid: editingFish.uid,
+                        description: editingFish.description,
+                        tags: Dictionary(uniqueKeysWithValues: editingFish.tags.map { ($0, true) })
                     )
-//                    .frame(width: (Constant.mainWidth - 30)/2)
+                } else {
+                    HSplitView {
+                        VStack {
+                            if isMultSelecting {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill("C6C7F4".color)
+                                    HStack(spacing: 3) {
+                                        if isAllMultSelected {
+                                            HStack {
+                                                Image(systemName: "checkmark.square")
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .foregroundStyle("27295F".color)
+                                                    .onTapGesture {
+                                                        multSelectedFishUids.removeAll()
+                                                    }
+                                            }
+                                            .frame(width: 25, height: 20)
+                                        } else {
+                                            HStack {
+                                                Image(systemName: "square")
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .foregroundStyle("27295F".color)
+                                                    .onTapGesture {
+                                                        for uid in fishs.keys {
+                                                            multSelectedFishUids.insert(uid)
+                                                        }
+                                                    }
+                                            }
+                                            .frame(width: 25, height: 20)
+                                        }
+                                        Spacer()
+                                        // todo: icon move anima when lock
+                                        if isAllMultSelectedLocked {
+                                            MultUnLockButtonView()
+                                                .onTapGesture {
+                                                    Task {
+                                                        await Storage.unLockFish(Array(multSelectedFishUids))
+                                                    }
+                                                }
+                                        } else {
+                                            MultLockButtonView()
+                                                .onTapGesture {
+                                                    Task {
+                                                        await Storage.lockFish(Array(multSelectedFishUids))
+                                                    }
+                                                }
+                                            if isAllMultSelectedMarked {
+                                                MultUnMarkButtonView()
+                                                    .onTapGesture {
+                                                        Task {
+                                                            await Storage.unMarkFish(Array(multSelectedFishUids))
+                                                        }
+                                                    }
+                                            } else {
+                                                MultMarkButtonView()
+                                                    .onTapGesture {
+                                                        Task {
+                                                            await Storage.markFish(Array(multSelectedFishUids))
+                                                        }
+                                                    }
+                                            }
+                                            MultDeleteButtonView()
+                                                .onTapGesture {
+                                                    Task {
+                                                        await Storage.removeFish(Array(multSelectedFishUids))
+                                                        multSelectedFishUids.removeAll()
+                                                    }
+                                                }
+                                        }
+                                    }
+                                    .padding(.horizontal, 5)
+                                }
+                                .padding(.horizontal, 3)
+                                .frame(height: 40)
+                            } else {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 10)
+                                    .fill("C6C7F4".color)
+                                    HStack(spacing: 3) {
+                                        HStack {
+                                            Image(systemName: "plus.square")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .foregroundStyle("27295F".color)
+                                            .onTapGesture {
+                                                isAdding = true
+                                            }
+                                        }
+                                        .frame(width: 25, height: 20)
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 5)
+                                }
+                                .padding(.horizontal, 3)
+                                .frame(height: 40)
+                            }
+                            FishListView(
+                                fishList: $fishList,
+                                selectedFishUid: $selectedFishUid,
+                                isEditing: $isEditing,
+                                isMultSelecting: $isMultSelecting,
+                                multSelectedFishUids: $multSelectedFishUids,
+                                fishItemPosOffset: $fishItemPosOffset
+                            )
+                        }
+                        .padding(.trailing, 6)
+                        FishDetailView(
+                            fishs: $fishs,
+                            selectedFishUid: $selectedFishUid,
+                            isMultSelecting: $isMultSelecting,
+                            multSelectedFishUids: $multSelectedFishUids
+                        )
+                        .padding(.leading, 6)
+                    }
                 }
-                FishDetailView(
-                    fishs: $fishs,
-                    selectedFishUid: $selectedFishUid,
-                    isMultSelecting: $isMultSelecting,
-                    multSelectedFishUids: $multSelectedFishUids
-                )
-//                .frame(width: (Constant.mainWidth - 30)/2)
             }
         }
-        .padding(.horizontal, 5)
         .onAppear {
+            isAdding = false
             isEditing = false
             NotificationCenter.default.post(name: .CommandBarShouldFocus, object: nil, userInfo: nil)
             NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
@@ -202,10 +229,10 @@ struct FishRepositoryView: View {
                 }
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .CommandBarEndEditing)) { notification in
+        .onReceive(NotificationCenter.default.publisher(for: .CommandBarTextChanged)) { notification in
             fuzzy = nil
-            if let commandText = notification.userInfo?["commandText"] as? String, !isEditing, commandText != "" {
-                fuzzy = commandText
+            if let query = notification.userInfo?["text"] as? String, !isEditing, !isAdding, query != "" {
+                fuzzy = query
             }
             NotificationCenter.default.post(name: .ShouldRefreshFish, object: nil, userInfo: nil)
         }

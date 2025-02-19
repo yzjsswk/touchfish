@@ -2,6 +2,8 @@ import SwiftUI
 
 struct FishAddView: View {
     
+    @Binding var isAdding: Bool
+    
     @State var toAddFiles: [URL:AddInfo] = [:]
     @State var selectedFile: URL = URL(filePath: "")
     
@@ -23,8 +25,12 @@ struct FishAddView: View {
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 5)
-                HStack {
-                    Spacer()
+                HStack(spacing: 200) {
+                    ButtonView(label: "Cancel")
+                    .frame(width: 80, height: 40)
+                    .onTapGesture {
+                        isAdding = false
+                    }
                     ButtonView(label: "Add \(toAddFiles.count) File\(toAddFiles.count == 1 ? "":"s")")
                     .frame(width: 150, height: 40)
                     .onTapGesture {
@@ -55,9 +61,8 @@ struct FishAddView: View {
                                 }
                             }
                         }
-//                        RecipeManager.goToRecipe(recipeId: nil)
+                        isAdding = false
                     }
-                    Spacer()
                 }
                 .padding()
             }
@@ -113,7 +118,7 @@ struct FishAddView: View {
                     }
                 }
             } else {
-//                RecipeManager.goToRecipe(recipeId: nil)
+                isAdding = false
             }
         }
 

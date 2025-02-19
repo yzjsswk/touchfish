@@ -16,7 +16,7 @@ struct FishListView: View {
     var body: some View {
         VStack {
             ScrollView(showsIndicators: false) {
-                LazyVStack {
+                LazyVStack(spacing: 1) {
                     ForEach(Array(fishList.enumerated()), id: \.1.uid) { (idx, fish) in
                         FishListItemView(
                             fish: $fishList[idx],
@@ -55,6 +55,7 @@ struct FishListView: View {
                     .foregroundStyle(.gray)
                 Spacer()
             }
+            .offset(y: 3)
         }
 
     }

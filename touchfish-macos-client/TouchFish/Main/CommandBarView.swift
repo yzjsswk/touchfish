@@ -180,7 +180,7 @@ struct CommandBarView: View {
             Task {
                 switch situation {
                 case .NotRecipe:
-                    break
+                    NotificationCenter.default.post(name: .CommandBarTextChanged, object: nil, userInfo: ["text": self.text])
                 case .MainWindowRecipe(let context), .QuickExecutionRecipe(let context):
                     if let _ = await context.activeRecipe {
                         await context.executeIfAutomatic()

@@ -52,6 +52,7 @@ struct FishDetailView: View {
                 }
                 if !showDetail {
                     UpArrowView()
+                    .padding(.bottom, 6)
                     .onTapGesture {
                         withAnimation(.spring) {
                             showDetailWithAnima = true
