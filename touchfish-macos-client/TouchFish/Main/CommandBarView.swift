@@ -60,6 +60,11 @@ struct CommandBarView: View {
                             }
                             .onTapGesture {
                                 isFocused = true
+                                Task {
+                                    if case .QuickExecutionRecipe(let context) = situation, await context.activeRecipe == nil {
+                                        self.text = self.placeHolder
+                                    }
+                                }
                             }
                             Spacer()
                         }
@@ -95,7 +100,7 @@ struct CommandBarView: View {
                 switch situation {
                 case .NotRecipe:
                     return
-                case .MainWindowRecipe(let context), .QuickExecutionRecipe(let context):
+                case .MainWindowRecipe(let context):
                     self.contextUid = await context.uid
                     self.text = await context.query
                     if let recipe = await context.activeRecipe {
@@ -113,9 +118,33 @@ struct CommandBarView: View {
                         self.cells = cells
                         self.placeHolder = placeHolder
                     } else {
-                        self.text = ""
                         self.cells = []
                         self.placeHolder = "input `command`+`space` or select one"
+                    }
+                case .QuickExecutionRecipe(let context):
+                    self.contextUid = await context.uid
+                    self.text = await context.query
+                    if let recipe = await context.activeRecipe {
+                        let arguments = await context.arguments
+                        var cells: [String] = []
+                        var placeHolder = ""
+                        cells.append(recipe.name)
+                        for para in recipe.parameters {
+                            if let value = arguments[para.name] {
+                                cells.append("\(para.name):\(value)")
+                            } else {
+                                placeHolder.append("\(para.name):")
+                            }
+                        }
+                        self.cells = cells
+                        self.placeHolder = placeHolder
+                    } else {
+                        self.cells = []
+                        if let data = Monitor.lastClipboardData, let text = String(data: data, encoding: .utf8) {
+                            self.placeHolder = text
+                        } else {
+                            self.placeHolder = ""
+                        }
                     }
                 }
             }
@@ -176,7 +205,7 @@ struct CommandBarView: View {
                 switch situation {
                 case .NotRecipe:
                     return
-                case .MainWindowRecipe(let context), .QuickExecutionRecipe(let context):
+                case .MainWindowRecipe(let context):
                     if let recipe = await context.activeRecipe {
                         let arguments = await context.arguments
                         var cells: [String] = []
@@ -195,6 +224,43 @@ struct CommandBarView: View {
                         self.cells = []
                         self.placeHolder = "input `command`+`space` or select one"
                     }
+                case .QuickExecutionRecipe(let context):
+                    if let recipe = await context.activeRecipe {
+                        let arguments = await context.arguments
+                        var cells: [String] = []
+                        var placeHolder = ""
+                        cells.append(recipe.name)
+                        for para in recipe.parameters {
+                            if let value = arguments[para.name] {
+                                cells.append("\(para.name):\(value)")
+                            } else {
+                                placeHolder.append("\(para.name):")
+                            }
+                        }
+                        self.cells = cells
+                        self.placeHolder = placeHolder
+                    } else {
+                        self.cells = []
+                        if let data = Monitor.lastClipboardData, let text = String(data: data, encoding: .utf8) {
+                            self.placeHolder = text
+                        } else {
+                            self.placeHolder = ""
+                        }
+                    }
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .ClipboardDataChanged)) { _ in
+            if case .QuickExecutionRecipe(let context) = situation {
+                Task {
+                    if await context.activeRecipe == nil {
+                        self.cells = []
+                        if let data = Monitor.lastClipboardData, let text = String(data: data, encoding: .utf8) {
+                            self.placeHolder = text
+                        } else {
+                            self.placeHolder = ""
+                        }
+                    }
                 }
             }
         }
@@ -208,6 +274,11 @@ struct CommandBarView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .ReturnKeyWasPressed)) { _ in
             if isFocused {
+                Task {
+                    if case .QuickExecutionRecipe(let context) = situation, await context.activeRecipe == nil {
+                        self.text = self.placeHolder
+                    }
+                }
                 NotificationCenter.default.post(name: .RecipeCommited, object: nil)
             }
         }

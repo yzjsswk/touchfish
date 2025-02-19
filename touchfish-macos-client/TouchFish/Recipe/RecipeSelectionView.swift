@@ -86,6 +86,7 @@ struct RecipeSelectionViewDraggingDelegate: DropDelegate {
                 if !Config.save() {
                     Log.warning("save recipe order failed")
                 }
+                RecipeManager.refresh()
                 self.draggedRecipe = nil
                 self.draggingHoveringRecipe = nil
                 return true
@@ -137,6 +138,7 @@ struct RecipeSelectionViewDropDelegate: DropDelegate {
                 if !Config.save() {
                     Log.warning("save recipe order failed")
                 }
+                RecipeManager.refresh()
                 self.draggedRecipe = nil
                 self.draggingHoveringRecipe = nil
                 return true

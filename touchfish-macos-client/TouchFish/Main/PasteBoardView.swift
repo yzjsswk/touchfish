@@ -244,24 +244,19 @@ struct PasteBoardFishItemView: View {
         }
         .onTapGesture {
             fish.copyToClipboard()
+            TouchFishApp.pasteBoardWindow.hide()
             if Config.fastPasteToFrontmostApplication {
-                TouchFishApp.pasteBoardWindow.hide()
-                pasteToFrontmostApp()
+                if let frontApp = NSWorkspace.shared.frontmostApplication {
+                    frontApp.activate()
+                    let keyEvent = CGEvent(keyboardEventSource: nil, virtualKey: 9, keyDown: true)
+                    keyEvent?.flags = [.maskCommand]
+                    keyEvent?.post(tap: .cghidEventTap)
+//                    AppleScriptRunner.doPaste()
+                    Log.debug("paste fish to \(frontApp.localizedName ?? "")")
+                } else {
+                    Log.warning("paste fish to frontmost app - failed: got frontApp=nil")
+                }
             }
-        }
-    }
-    
-    func pasteToFrontmostApp() {
-        if let frontApp = NSWorkspace.shared.frontmostApplication {
-            frontApp.activate(options: .activateIgnoringOtherApps)
-    //        let keyEvent = CGEvent(keyboardEventSource: nil, virtualKey: 9, keyDown: true)
-    //        keyEvent?.flags = [.maskCommand]
-    //        Log.debug("do copy")
-    //        keyEvent?.post(tap: .cghidEventTap)
-            Log.debug("paste fish to frontmost app")
-            AppleScriptRunner.doPaste()
-        } else {
-            Log.warning("paste fish to frontmost app - failed: got frontApp=nil")
         }
     }
     

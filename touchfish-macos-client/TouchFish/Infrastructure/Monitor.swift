@@ -29,7 +29,7 @@ struct MonitorManager {
     static var localKeyBoardPressedAsyncEventMonitor: Any?
     
     static var clipboardListenerState: ClipboardListenerState = .unStarted
-    static var lastClipboardData = UUID().uuidString.data(using: .utf8)
+    static var lastClipboardData: Data? = nil
     
     static func start(type: MonitorType) {
         switch type {
@@ -70,6 +70,12 @@ struct MonitorManager {
                     TouchFishApp.quickExecutionWindow.hide()
                 } else {
                     TouchFishApp.quickExecutionWindow.show()
+//                    let keyEvent = CGEvent(keyboardEventSource: nil, virtualKey: 8, keyDown: true)
+//                    keyEvent?.flags = [.maskCommand]
+//                    keyEvent?.post(tap: .cghidEventTap)
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                        TouchFishApp.quickExecutionWindow.show()
+//                    }
                 }
             }
         case .HideWindowWhenClickOutside:
@@ -132,6 +138,9 @@ struct MonitorManager {
                                 clipboardData.1 != MonitorManager.lastClipboardData {
 //                            Log.debug("clipboard changed")
                             MonitorManager.lastClipboardData = clipboardData.1
+                            DispatchQueue.main.async {
+                                NotificationCenter.default.post(name: .ClipboardDataChanged, object: nil)
+                            }
                             if MonitorManager.clipboardListenerState == .ready {
                                 MonitorManager.clipboardListenerState = .running
                                 listenToClipboardChanges()

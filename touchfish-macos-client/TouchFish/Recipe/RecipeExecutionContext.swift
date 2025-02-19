@@ -127,14 +127,12 @@ actor RecipeExecutionContext {
                     return
                 }
                 self._recipe = targetRecipe
-                self._query = ""
                 self._parameters.removeAll()
                 // todo: set settings
                 self._executeResult.update(version: Date(), executeUid: nil, viewInfo: nil, timeCost: nil)
             }
         } else {
             self._recipe = nil
-            self._query = ""
             self._parameters.removeAll()
             self._settings.removeAll()
             self._executeResult.update(version: Date(), executeUid: nil, viewInfo: nil, timeCost: nil)

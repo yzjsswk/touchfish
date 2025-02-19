@@ -40,7 +40,7 @@ struct BasicSettingView: View {
             }
             .padding(.vertical, 2)
             HStack{
-                Text("data server is used to store data like fish and topics, notice that there must be one and only one")
+                Text("data server is used to store data like fish and topics, there must be one and only one")
                     .font(.callout)
                     .foregroundStyle(.gray)
                 Spacer()

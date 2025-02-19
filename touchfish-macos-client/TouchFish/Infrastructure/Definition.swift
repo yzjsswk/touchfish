@@ -2,6 +2,7 @@ import AppKit
 import CryptoKit
 import SwiftUI
 import Cocoa
+import ApplicationServices
 
 struct Constant {
     
@@ -54,6 +55,26 @@ struct Functions {
     
     static func makeLinearGradient(colors: [String], start: UnitPoint, end: UnitPoint) -> LinearGradient {
         LinearGradient(colors: colors.map { $0.color }, startPoint: start, endPoint: end)
+    }
+    
+    static func getSelectedTextFromActiveApp() -> String? {
+        // 获取当前活动应用
+        let systemWideElement = AXUIElementCreateSystemWide()
+        var focusedApp: AnyObject?
+        let result = AXUIElementCopyAttributeValue(systemWideElement, kAXFocusedApplicationAttribute as CFString, &focusedApp)
+        
+        if result == .success {
+            // 获取当前选取的文本
+            let app = focusedApp as! AXUIElement
+            var selectedText: AnyObject?
+            let textResult = AXUIElementCopyAttributeValue(app, kAXSelectedTextAttribute as CFString, &selectedText)
+            
+            if textResult == .success, let text = selectedText as? String {
+                return text
+            }
+        }
+        
+        return nil
     }
     
     static func getDataFromClipboard() -> (Fish.FishType, Data, Any)? {
@@ -315,6 +336,7 @@ extension Notification.Name {
     static let ShouldRemoveRecipeExecutionContext = Notification.Name("ShouldRemoveRecipeExecutionContext")
     static let RecipeExecutionContextChanged = Notification.Name("RecipeExecutionContextChanged")
     static let ShouldCloseCommandBar = Notification.Name("ShouldCloseCommandBar")
+    static let ClipboardDataChanged = Notification.Name("ClipboardDataChanged")
     
     static let ReturnKeyWasPressed = Notification.Name("ReturnKeyWasPressed")
     static let UpArrowKeyWasPressed = Notification.Name("UpArrowKeyWasPressed")
