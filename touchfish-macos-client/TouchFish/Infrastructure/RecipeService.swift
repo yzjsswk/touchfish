@@ -133,7 +133,7 @@ struct RecipeService {
         bundleId: String, command: String, arguments: [String], query: String, parameters: [String:String], settings: [String:String]
     ) async -> Result<RecipeServiceResponse<String>, AFError> {
         Log.debug("execute recipe: bundleId=\(bundleId), query=\(query), parameters=\(parameters), settings=\(settings)")
-        Metrics.recipeUsageCount[bundleId, default: 0] += 1
+        Metrics.recipeUsageCount.count(bundleId: bundleId)
         Metrics.save()
         let url = urlPrefix + "/recipe/execute"
         let para: [String:Any?] = [

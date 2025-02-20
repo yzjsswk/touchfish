@@ -101,7 +101,7 @@ struct DynamicRecipeImageCardItemView: View {
                         self.isHovered = isHovered
                     }
                 }
-                if showProperties && !paraFieldEnable {
+                if showProperties {
                     Spacer()
                     ZStack {
                         RoundedRectangle(cornerRadius: 10)

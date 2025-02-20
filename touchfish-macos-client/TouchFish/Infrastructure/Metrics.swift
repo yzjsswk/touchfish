@@ -4,7 +4,57 @@ var Metrics = TFMetrics.it
 
 struct TFMetrics: Codable {
     
-    var recipeUsageCount: [String:Int] = [:]
+    struct RecipeUsageCount: Codable {
+        var value: [String:Int]
+        var lock: NSLock
+        
+        init() {
+            self.value = [:]
+            self.lock = NSLock()
+        }
+        
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(value, forKey: .value)
+        }
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            value = try container.decode([String: Int].self, forKey: .value)
+            lock = NSLock()
+        }
+        
+        private enum CodingKeys: String, CodingKey {
+            case value
+        }
+        
+        func get(bundleId: String) -> Int {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            return value[bundleId, default: 0]
+        }
+        
+        func getAll() -> [String:Int] {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            return value
+        }
+        
+        mutating func count(bundleId: String) {
+            lock.lock()
+            defer {
+                lock.unlock()
+            }
+            value[bundleId, default: 0] += 1
+        }
+        
+    }
+    
+    var recipeUsageCount = RecipeUsageCount()
     
     static var it = read()
     
