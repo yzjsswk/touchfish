@@ -62,7 +62,7 @@ struct RecipeResp: Codable {
             settings: self.settings ?? [],
             parameters: self.parameters ?? [],
             actions: self.actions ?? [],
-            color: self.color?.linearGradient ?? Constant.userDefinedRecipeDefaultIemColor
+            color: self.color?.linearGradient ?? Constant.recipeItemDefaultColor
         )
     }
     

@@ -57,7 +57,6 @@ actor RecipeExecutionContext {
     private var _recipe: Recipe? = nil
     private var _query: String = ""
     private var _parameters: [String:String] = [:]
-    private var _settings: [String:String] = [:]
     
     private var _executeResult: ExecuteResult
     
@@ -112,10 +111,6 @@ actor RecipeExecutionContext {
         return ret
     }
     
-    var settings: [String:String] {
-        return _settings
-    }
-    
     var executeResult: ExecuteResult {
         return _executeResult
     }
@@ -128,13 +123,11 @@ actor RecipeExecutionContext {
                 }
                 self._recipe = targetRecipe
                 self._parameters.removeAll()
-                // todo: set settings
                 self._executeResult.update(version: Date(), executeUid: nil, viewInfo: nil, timeCost: nil)
             }
         } else {
             self._recipe = nil
             self._parameters.removeAll()
-            self._settings.removeAll()
             self._executeResult.update(version: Date(), executeUid: nil, viewInfo: nil, timeCost: nil)
         }
     }
@@ -204,6 +197,7 @@ actor RecipeExecutionContext {
             return
         }
         for action in recipe.actions {
+            Log.debug("execute: \(action)")
             self.executeAction(action: action)
         }
     }
@@ -222,7 +216,7 @@ actor RecipeExecutionContext {
                     arguments: arguments,
                     query: self.query,
                     parameters: self.arguments,
-                    settings: self.settings
+                    settings: Config.recipeSettings[recipe.bundleId, default: [:]]
                 )
                 var executeUid: String? = nil
                 var viewInfo: DynamicRecipeViewInfo
@@ -269,9 +263,10 @@ actor RecipeExecutionContext {
             }
         case .BackToMenu:
             self.switchRecipe(nil)
-        case .HideTouchFish:
-            // todo: only hide quick execution window
-            TouchFishApp.quickExecutionWindow.hide()
+        case .HideWindow:
+            Task {
+                await TouchFishApp.quickExecutionWindow.hide()
+            }
         case .OpenUrl(let url):
             // todo: browser config
             AppleScriptRunner.openWebUrl(with: "Google Chrome", url: url)

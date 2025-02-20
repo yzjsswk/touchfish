@@ -59,7 +59,7 @@ enum RecipeAction: Codable {
     case RunShellCommand(command: String, arguments: [String], refreshView: Bool)
     case CopyToClipboard(content: String)
     case BackToMenu
-    case HideTouchFish
+    case HideWindow
     case OpenUrl(url: String)
     case ActiveExternalApp(bundleId: String)
     case SetParameter(name: String, value: String)
@@ -89,7 +89,7 @@ enum RecipeAction: Codable {
             try container.encode(content, forKey: .content)
         case .BackToMenu:
             try container.encode("back", forKey: .type)
-        case .HideTouchFish:
+        case .HideWindow:
             try container.encode("hide", forKey: .type)
         case .OpenUrl(let url):
             try container.encode("open_url", forKey: .type)
@@ -119,7 +119,7 @@ enum RecipeAction: Codable {
         case "back":
             self = .BackToMenu
         case "hide":
-            self = .HideTouchFish
+            self = .HideWindow
         case "open_url":
             let url = try container.decode(String.self, forKey: .url)
             self = .OpenUrl(url: url)

@@ -14,7 +14,6 @@ struct Constant {
     static let sideWidth: CGFloat = 250
     static let commandBarHeight: CGFloat = 40
     static let commandFieldHeight: CGFloat = 28
-    static let userDefinedRecipeItemHeight: CGFloat = 50
     static let recipeItemHeight: CGFloat = 40
     static let recipeItemSelectedHeight: CGFloat = 55
     static let fishItemHeight: CGFloat = 24
@@ -23,15 +22,11 @@ struct Constant {
     static let fishDetailItemHeight: CGFloat = 10
     static let messageItemHeight: CGFloat = 60
     
-//    static let commandBarBackgroundColor = Functions.makeLinearGradient(colors: ["D8E0FE", "EBEDFE"])
     static let commandBarBackgroundColor = Functions.makeLinearGradient(colors: ["F0F1FD"])
     static let tagBackgroundColor = Functions.makeLinearGradient(colors: ["C5D2FA", "CACEFB"])
     static let mainBackgroundColor = Functions.makeLinearGradient(colors: ["#FDFDFD"])
-//    static let selectedItemBackgroundColor = Functions.makeLinearGradient(colors: ["5E71F9", "6077F7", "6A9EF8"])
     static let selectedItemBackgroundColor = Functions.makeLinearGradient(colors: ["5B5BCF"])
-//        static let selectedItemBackgroundColor = Functions.makeLinearGradient(colors: ["F0F0F3"])
-    static let internalRecipeItemColor = Functions.makeLinearGradient(colors: ["D8D8DB"])
-    static let userDefinedRecipeDefaultIemColor = Functions.makeLinearGradient(colors: ["D8D8DB"])
+    static let recipeItemDefaultColor = Functions.makeLinearGradient(colors: ["D8D8DB"])
     static let unreadMessageTipColor = Functions.makeLinearGradient(colors: ["E2503F"])
     static let mainTextColor = "1D2024"
     
@@ -55,26 +50,6 @@ struct Functions {
     
     static func makeLinearGradient(colors: [String], start: UnitPoint, end: UnitPoint) -> LinearGradient {
         LinearGradient(colors: colors.map { $0.color }, startPoint: start, endPoint: end)
-    }
-    
-    static func getSelectedTextFromActiveApp() -> String? {
-        // 获取当前活动应用
-        let systemWideElement = AXUIElementCreateSystemWide()
-        var focusedApp: AnyObject?
-        let result = AXUIElementCopyAttributeValue(systemWideElement, kAXFocusedApplicationAttribute as CFString, &focusedApp)
-        
-        if result == .success {
-            // 获取当前选取的文本
-            let app = focusedApp as! AXUIElement
-            var selectedText: AnyObject?
-            let textResult = AXUIElementCopyAttributeValue(app, kAXSelectedTextAttribute as CFString, &selectedText)
-            
-            if textResult == .success, let text = selectedText as? String {
-                return text
-            }
-        }
-        
-        return nil
     }
     
     static func getDataFromClipboard() -> (Fish.FishType, Data, Any)? {
@@ -340,6 +315,11 @@ extension Notification.Name {
     static let CommandBarShouldFocus = Notification.Name("CommandBarShouldFocus")
     static let CommandBarEndEditing = Notification.Name("CommandBarEndEditing")
     static let CommandBarTextChanged = Notification.Name("CommandBarTextChanged")
+    static let ShouldRefreshTopic = Notification.Name("ShouldRefreshTopic")
+    static let ShouldRefreshFish = Notification.Name("ShouldRefreshFish")
+    static let FishRefreshed = Notification.Name("FishRefreshed")
+    static let RecipeRefreshed = Notification.Name("RecipeRefreshed")
+    static let RecipeCommited = Notification.Name("RecipeCommited")
     
     static let ReturnKeyWasPressed = Notification.Name("ReturnKeyWasPressed")
     static let UpArrowKeyWasPressed = Notification.Name("UpArrowKeyWasPressed")
@@ -349,14 +329,7 @@ extension Notification.Name {
     static let SpaceKeyWasPressed = Notification.Name("SpaceKeyWasPressed")
     static let DeleteKeyWasPressed = Notification.Name("DeleteKeyWasPressed")
     static let CommandKeyWasPressed = Notification.Name("CommandKeyWasPressed")
-    static let ShouldRefreshFish = Notification.Name("ShouldRefreshFish")
-    static let FishRefreshed = Notification.Name("FishRefreshed")
-    static let RecipeRefreshed = Notification.Name("RecipeRefreshed")
-    static let RecipeStatusChanged = Notification.Name("RecipeStatusChanged")
-    static let DynamicRecipeViewChanged = Notification.Name("DynamicRecipeViewChanged")
-    static let RecipeCommited = Notification.Name("RecipeCommited")
-    static let ShouldRefreshTopic = Notification.Name("ShouldRefreshTopic")
-    
+
     func group(_ group: String) -> Notification.Name {
         return Notification.Name("\(group)-\(self.rawValue)")
     }

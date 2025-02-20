@@ -237,6 +237,17 @@ private func getTopicIcon(source: String) -> Image {
     if let icon = RecipeManager.recipes[source]?.icon {
         return icon
     }
+    for recipes in RecipeManager.allRecipes.values {
+        for recipe in recipes {
+            if let dotIndex = recipe.bundleId.firstIndex(of: ".") {
+                let startIndex = recipe.bundleId.index(after: dotIndex)
+                let noServerBundleId = String(recipe.bundleId[startIndex...])
+                if source == noServerBundleId {
+                    return recipe.icon
+                }
+            }
+        }
+    }
     if let appIcon = NSImage(named: NSImage.applicationIconName) {
         return Image(nsImage: appIcon)
     }

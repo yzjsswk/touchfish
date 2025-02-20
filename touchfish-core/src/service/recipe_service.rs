@@ -101,10 +101,10 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
         let recipe = self.load_recipe_from_file(&recipe_path.join("Recipe.toml")).trace(
             ctx!("execute recipe -> load recipe from recipe path: self.load_recipe_from_file failed", recipe_path, bundle_id)
         )?;
-        let parsed_parameters = ParsedRecipeExecuteContext::parse_str_paras(&context.parameters, &recipe).trace(
+        let parsed_parameters = ParsedRecipeExecuteContext::parse_str_paras(&context.parameters, &recipe.parameters).trace(
             ctx!("execute recipe -> parse parameters context: ParsedRecipeExecuteContext::parse_str_paras failed", bundle_id, recipe_path, context.parameters)
         )?;
-        let parsed_settings = ParsedRecipeExecuteContext::parse_str_paras(&context.settings, &recipe).trace(
+        let parsed_settings = ParsedRecipeExecuteContext::parse_str_paras(&context.settings, &recipe.settings).trace(
             ctx!("execute recipe -> parse settings context: ParsedRecipeExecuteContext::parse_str_paras failed", bundle_id, recipe_path, context.settings)
         )?;
         let parsed_context = ParsedRecipeExecuteContext {

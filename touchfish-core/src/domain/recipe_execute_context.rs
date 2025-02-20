@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use yfunc_rust::prelude::*;
 
-use super::{Recipe, RecipeParaType};
+use super::{RecipePara, RecipeParaType};
 
 #[yfunc]
 #[derive(Serialize, Deserialize, Debug)]
@@ -24,16 +24,16 @@ pub struct ParsedRecipeExecuteContext {
 
 impl ParsedRecipeExecuteContext {
 
-    pub fn parse_str_paras(str_values: &HashMap<String, String>, recipe: &Recipe) -> YRes<HashMap<String, Value>> {
+    pub fn parse_str_paras(str_values: &HashMap<String, String>, paras: &Vec<RecipePara>) -> YRes<HashMap<String, Value>> {
         let parsed_values = str_values.into_iter().try_fold::<_, _, YRes<_>>(HashMap::new(), |mut acc, (name, value)| {
-            for para in &recipe.parameters {
+            for para in paras {
                 if para.name == *name {
                     match &para.separator {
                         Some(sep) => {
                             let origin_values: Vec<&str> = value.split(sep).collect();
                             let parsed_values = origin_values.into_iter().try_fold::<_, _, YRes<_>>(Vec::new(), |mut acc, it| {
                                 let parsed_value = ParsedRecipeExecuteContext::parse_str_para(it, para.para_type).trace(
-                                    ctx!("parse str paras: ParsedRecipeExecuteContext::parse_str_para failed", para.name, it, para.para_type, recipe.bundle_id)
+                                    ctx!("parse str paras: ParsedRecipeExecuteContext::parse_str_para failed", para.name, it, para.para_type)
                                 )?;
                                 acc.push(parsed_value);
                                 Ok(acc)
@@ -42,7 +42,7 @@ impl ParsedRecipeExecuteContext {
                         },
                         None => {
                             let parsed_value = ParsedRecipeExecuteContext::parse_str_para(&value, para.para_type).trace(
-                                ctx!("parse str paras: ParsedRecipeExecuteContext::parse_str_para failed", para.name, value, para.para_type, recipe.bundle_id)
+                                ctx!("parse str paras: ParsedRecipeExecuteContext::parse_str_para failed", para.name, value, para.para_type)
                             )?;
                             acc.insert(name.clone(), parsed_value);
                         },
