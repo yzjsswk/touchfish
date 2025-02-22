@@ -209,7 +209,14 @@ impl<C> RecipeService<C> where C: RecipeCache+Sync+Send+'static {
                 }
                 YRes::Ok(())
             };
-            match timeout(Duration::from_secs(300), task).await {
+            let exec_timeout = match std::env::var("TFRS_EXEC_TIMEOUT") {
+                Ok(v) => match v.parse() {
+                    Ok(x) => x,
+                    Err(_) => 300,
+                },
+                Err(_) => 300,
+            };
+            match timeout(Duration::from_secs(exec_timeout), task).await {
                 Ok(Ok(_)) => {}
                 Ok(Err(e)) => {
                     error!("execute recipe failed: recipe_path={:?}, bundle_id={bundle_id}, command={command}, args={:?}, err={:#?}", recipe_path, args, e);

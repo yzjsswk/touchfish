@@ -28,6 +28,7 @@ struct CommandBarView: View {
                 if !openTextField {
                     ForEach(Array(cells.enumerated()), id: \.0) { idx, cellText in
                         Text(getCellText(originText: cellText))
+                            .lineLimit(1)
                             .background(
                                 GeometryReader { geometry in
                                     Rectangle()
@@ -85,8 +86,12 @@ struct CommandBarView: View {
                     EmptyView()
                 case .MainWindowRecipe(let context),  .QuickExecutionRecipe(let context):
                     if context.activeRecipe != nil {
-                        CommitRecipeButtonView(recipeExecutionContext: context)
-                        .padding(.trailing, 5)
+                        VStack {
+                            Spacer()
+                            CommitRecipeButtonView(recipeExecutionContext: context)
+                            .padding(.trailing, 5)
+                            .padding(.bottom, openTextField ? 4.5 : 8)
+                        }
                     }
                 }
             }
@@ -188,7 +193,7 @@ struct CommandBarView: View {
                 }
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .RecipeCommited)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .RecipeCommited.group(self.uid.uuidString))) { _ in
            Task {
                switch situation {
                case .NotRecipe:
@@ -268,7 +273,7 @@ struct CommandBarView: View {
             isFocused = true
         }
         .onReceive(NotificationCenter.default.publisher(for: .DeleteKeyWasPressed)) { _ in
-            if isFocused && text.count == 0 {
+            if isFocused && text.count == 0 && !openTextField {
                removeCell()
             }
         }
@@ -279,7 +284,7 @@ struct CommandBarView: View {
                         self.text = self.placeHolder
                     }
                 }
-                NotificationCenter.default.post(name: .RecipeCommited, object: nil)
+                NotificationCenter.default.post(name: .RecipeCommited.group(self.uid.uuidString), object: nil)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .ShouldCloseCommandBar)) { _ in

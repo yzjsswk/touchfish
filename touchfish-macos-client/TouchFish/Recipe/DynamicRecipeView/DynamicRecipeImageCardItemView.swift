@@ -43,8 +43,10 @@ struct DynamicRecipeImageCardItemView: View {
                                         .foregroundStyle("27295F".color)
                                 }
                             }
-                            Text(title)
-                            .font(.title2)
+                            if title.count > 0 {
+                                Text(title)
+                                .font(.title2)
+                            }
                             DynamicRecipeCardItemTagView(tags: tags)
                         }
                         .frame(height: 20)
@@ -97,9 +99,9 @@ struct DynamicRecipeImageCardItemView: View {
                             }
                         }
                     }
-                    .onHover { isHovered in
-                        self.isHovered = isHovered
-                    }
+                }
+                .onHover { isHovered in
+                    self.isHovered = isHovered
                 }
                 if showProperties {
                     Spacer()

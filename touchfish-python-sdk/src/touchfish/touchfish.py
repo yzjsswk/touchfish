@@ -41,6 +41,7 @@ class DataService:
         page_size: int = None,
     ):
         url = DataService.get_url_prefix() + '/fish/search'
+        fish_types = [fish_type.value for fish_type in fish_types]
         return requests.post(url=url, json={
             'fuzzy': fuzzy,
             'identitys': identitys,
@@ -72,6 +73,7 @@ class DataService:
         update_before: int = None,
     ):
         url = DataService.get_url_prefix() + '/fish/delect'
+        fish_types = [fish_type.value for fish_type in fish_types]
         return requests.post(url=url, json={
             'fuzzy': fuzzy,
             'identitys': identitys,
@@ -115,7 +117,7 @@ class DataService:
         import base64
         fish_data = base64.b64encode(fish_data).decode('utf-8')
         return requests.post(url=url, json={
-            'fish_type': fish_type.name,
+            'fish_type': fish_type.value,
             'fish_data': fish_data,
             'desc': desc, 
             'tags': tags, 

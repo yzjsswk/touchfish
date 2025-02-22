@@ -9,7 +9,7 @@ struct DynamicRecipeView: View {
     
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack {
+            LazyVStack {
                 ForEach(Array(dynamicRecipeViewInfo.items.enumerated()), id: \.0) { idx, item in
                     DynamicRecipeItemView(
                         context:$context, item: item, info: .constant(dynamicRecipeViewInfo), paraFieldEnable: paraFieldEnable

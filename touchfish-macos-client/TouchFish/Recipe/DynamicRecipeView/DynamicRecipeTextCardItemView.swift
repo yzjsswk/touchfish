@@ -43,8 +43,10 @@ struct DynamicRecipeTextCardItemView: View {
                                         .foregroundStyle("27295F".color)
                                 }
                             }
-                            Text(title)
-                            .font(.title2)
+                            if title.count > 0 {
+                                Text(title)
+                                .font(.title2)
+                            }
                             DynamicRecipeCardItemTagView(tags: tags)
                         }
                         .frame(height: 20)
@@ -58,13 +60,23 @@ struct DynamicRecipeTextCardItemView: View {
                     }
                     Spacer()
                     ZStack {
-                        ScrollView(showsIndicators: false) {
+                        if size == .Adaptive {
                             if let contentMd = try? AttributedString(markdown: content) {
                                 Text(contentMd)
                                 .font(.body)
                             } else {
                                 Text(content)
                                 .font(.body)
+                            }
+                        } else {
+                            ScrollView(showsIndicators: false) {
+                                if let contentMd = try? AttributedString(markdown: content) {
+                                    Text(contentMd)
+                                    .font(.body)
+                                } else {
+                                    Text(content)
+                                    .font(.body)
+                                }
                             }
                         }
                         if isHovered {
@@ -88,9 +100,9 @@ struct DynamicRecipeTextCardItemView: View {
                             }
                         }
                     }
-                    .onHover { isHovered in
-                        self.isHovered = isHovered
-                    }
+                }
+                .onHover { isHovered in
+                    self.isHovered = isHovered
                 }
                 if showProperties {
                     Spacer()
@@ -123,7 +135,7 @@ struct DynamicRecipeTextCardItemView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 10)
-        .frame(height: ((size == .Small || (size == .Adaptive && content.count < (showProperties ? 80*4 : 115*4))) ? 180 : ((size == .Large || (size == .Adaptive && content.count > (showProperties ? 200*4 : 275*4))) ? 480 : 300)))
+        .frame(height: (size == .Small ? 180 : (size == .Large ? 480 : (size == .Medium ? 300 : nil))))
     }
 
 }
