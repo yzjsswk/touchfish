@@ -57,15 +57,16 @@ struct CommandBarView: View {
                             .onTapGesture(count: 2) {
                                 withAnimation {
                                     openTextField = true
+                                    isFocused = false
                                 }
                             }
                             .onTapGesture {
                                 isFocused = true
-                                Task {
-                                    if case .QuickExecutionRecipe(let context) = situation, await context.activeRecipe == nil {
-                                        self.text = self.placeHolder
-                                    }
-                                }
+//                                Task {
+//                                    if case .QuickExecutionRecipe(let context) = situation, await context.activeRecipe == nil {
+//                                        self.text = self.placeHolder
+//                                    }
+//                                }
                             }
                             Spacer()
                         }
@@ -278,7 +279,7 @@ struct CommandBarView: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .ReturnKeyWasPressed)) { _ in
-            if isFocused {
+            if isFocused && !openTextField {
                 Task {
                     if case .QuickExecutionRecipe(let context) = situation, await context.activeRecipe == nil {
                         self.text = self.placeHolder

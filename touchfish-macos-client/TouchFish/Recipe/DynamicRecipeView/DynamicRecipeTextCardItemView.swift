@@ -1,4 +1,5 @@
 import SwiftUI
+import MarkdownUI
 
 struct DynamicRecipeTextCardItemView: View {
     
@@ -61,22 +62,12 @@ struct DynamicRecipeTextCardItemView: View {
                     Spacer()
                     ZStack {
                         if size == .Adaptive {
-                            if let contentMd = try? AttributedString(markdown: content) {
-                                Text(contentMd)
-                                .font(.body)
-                            } else {
-                                Text(content)
-                                .font(.body)
-                            }
+                            Markdown(content)
+                            .markdownTheme(.gitHub)
                         } else {
                             ScrollView(showsIndicators: false) {
-                                if let contentMd = try? AttributedString(markdown: content) {
-                                    Text(contentMd)
-                                    .font(.body)
-                                } else {
-                                    Text(content)
-                                    .font(.body)
-                                }
+                                Markdown(content)
+                                .markdownTheme(.gitHub)
                             }
                         }
                         if isHovered {

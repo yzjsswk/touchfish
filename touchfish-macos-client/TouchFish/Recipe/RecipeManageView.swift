@@ -1,4 +1,5 @@
 import SwiftUI
+import MarkdownUI
 
 struct RecipeManageView: View {
     
@@ -187,12 +188,8 @@ struct RecipeManageDetailView: View {
                 }
                 .padding(8)
                 if let readme = recipe.readme {
-                    if let readmeMd = try? AttributedString(markdown: readme) {
-                        // todo: markdown render not correct
-                        Text(readmeMd)
-                    } else {
-                        Text(readme)
-                    }
+                    Markdown(readme)
+                    .markdownTheme(.gitHub)
                 }
                 
             }

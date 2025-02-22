@@ -133,13 +133,13 @@ struct Functions {
         if s < 60 {
             return ms == 0 ? "\(s) s" : "\(s)s \(ms)ms"
         }
-        let min = s / 60
-        s = min % 60
+        var min = s / 60
+        s = s % 60
         if min < 60 {
             return s == 0 ? "\(min) m" : "\(min)m \(s)s"
         }
         let h = min / 60
-        s = min % 60
+        min = min % 60
         return min == 0 ? "\(h) h" : "\(h)h \(min)m"
     }
     

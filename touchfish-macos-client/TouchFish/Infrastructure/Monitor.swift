@@ -96,31 +96,73 @@ struct MonitorManager {
         case .LocalKeyBoardPressedAsyncEvent:
             MonitorManager.localKeyBoardPressedAsyncEventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [] event in
                 if event.keyCode == kVK_UpArrow {
+                    if let responder = NSApp.keyWindow?.firstResponder {
+                        let hasMarkedText = (responder as? NSTextInputClient)?.hasMarkedText() ?? false
+                        if hasMarkedText {
+                            return event
+                        }
+                    }
                     NotificationCenter.default.post(name: .UpArrowKeyWasPressed, object: nil)
                     return event
                 }
                 if event.keyCode == kVK_DownArrow {
+                    if let responder = NSApp.keyWindow?.firstResponder {
+                        let hasMarkedText = (responder as? NSTextInputClient)?.hasMarkedText() ?? false
+                        if hasMarkedText {
+                            return event
+                        }
+                    }
                     NotificationCenter.default.post(name: .DownArrowKeyWasPressed, object: nil)
                     return event
                 }
                 if event.keyCode == kVK_Tab {
+                    if let responder = NSApp.keyWindow?.firstResponder {
+                        let hasMarkedText = (responder as? NSTextInputClient)?.hasMarkedText() ?? false
+                        if hasMarkedText {
+                            return event
+                        }
+                    }
                     NotificationCenter.default.post(name: .TabKeyWasPressed, object: nil)
                     return event
                 }
                 if event.keyCode == kVK_Escape {
+                    if let responder = NSApp.keyWindow?.firstResponder {
+                        let hasMarkedText = (responder as? NSTextInputClient)?.hasMarkedText() ?? false
+                        if hasMarkedText {
+                            return event
+                        }
+                    }
                     NotificationCenter.default.post(name: .EscapeKeyWasPressed, object: nil)
                     return nil
                 }
                 if event.keyCode == kVK_Space {
+                    if let responder = NSApp.keyWindow?.firstResponder {
+                        let hasMarkedText = (responder as? NSTextInputClient)?.hasMarkedText() ?? false
+                        if hasMarkedText {
+                            return event
+                        }
+                    }
                     NotificationCenter.default.post(name: .SpaceKeyWasPressed, object: nil)
                     return event
                 }
                 if event.keyCode == kVK_Delete {
+                    if let responder = NSApp.keyWindow?.firstResponder {
+                        let hasMarkedText = (responder as? NSTextInputClient)?.hasMarkedText() ?? false
+                        if hasMarkedText {
+                            return event
+                        }
+                    }
                     NotificationCenter.default.post(name: .DeleteKeyWasPressed, object: nil)
                     return event
                 }
                 let characters = event.charactersIgnoringModifiers ?? ""
                 if characters == "\r" {
+                    if let responder = NSApp.keyWindow?.firstResponder {
+                        let hasMarkedText = (responder as? NSTextInputClient)?.hasMarkedText() ?? false
+                        if hasMarkedText {
+                            return event
+                        }
+                    }
                     NotificationCenter.default.post(name: .ReturnKeyWasPressed, object: nil)
                     return event
                 }

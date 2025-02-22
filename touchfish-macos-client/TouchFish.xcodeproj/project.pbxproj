@@ -59,6 +59,7 @@
 		99AC06052BB2BE440046E8C5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99AC06042BB2BE440046E8C5 /* AppDelegate.swift */; };
 		99AC06082BB2BE930046E8C5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 99AC06072BB2BE930046E8C5 /* Main.storyboard */; };
 		99AC060B2BB413AD0046E8C5 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 99AC060A2BB413AD0046E8C5 /* SwiftyBeaver */; };
+		99AC453B2D6A269600D0A24F /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 99AC453A2D6A269600D0A24F /* MarkdownUI */; };
 		99B657EA2D5F7CAC0095B3F0 /* PasteBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B657E92D5F7CA50095B3F0 /* PasteBoardView.swift */; };
 		99B657EC2D606ED10095B3F0 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B657EB2D606ECE0095B3F0 /* HomeView.swift */; };
 		99C614FA2C43C38B00A99567 /* BasicSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C614F92C43C38B00A99567 /* BasicSettingView.swift */; };
@@ -147,6 +148,7 @@
 				99C646392CCB64CA002454C9 /* YFuncSwift in Frameworks */,
 				996FEE562BC917AE0047EB82 /* Alamofire in Frameworks */,
 				99AC060B2BB413AD0046E8C5 /* SwiftyBeaver in Frameworks */,
+				99AC453B2D6A269600D0A24F /* MarkdownUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,6 +332,7 @@
 				99AC060A2BB413AD0046E8C5 /* SwiftyBeaver */,
 				996FEE552BC917AE0047EB82 /* Alamofire */,
 				99C646382CCB64CA002454C9 /* YFuncSwift */,
+				99AC453A2D6A269600D0A24F /* MarkdownUI */,
 			);
 			productName = TouchFish;
 			productReference = 99AC05A52BB2BCD90046E8C5 /* TouchFish.app */;
@@ -363,6 +366,7 @@
 				99AC06092BB413AD0046E8C5 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 				996FEE542BC917AE0047EB82 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				99C646372CCB64CA002454C9 /* XCLocalSwiftPackageReference "../../YFunc/yfunc-swift" */,
+				99AC45392D6A269500D0A24F /* XCLocalSwiftPackageReference "../../swift-markdown-ui-main" */,
 			);
 			productRefGroup = 99AC05A62BB2BCD90046E8C5 /* Products */;
 			projectDirPath = "";
@@ -659,6 +663,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		99AC45392D6A269500D0A24F /* XCLocalSwiftPackageReference "../../swift-markdown-ui-main" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../swift-markdown-ui-main";
+		};
 		99C646372CCB64CA002454C9 /* XCLocalSwiftPackageReference "../../YFunc/yfunc-swift" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../../YFunc/yfunc-swift";
@@ -694,6 +702,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 99AC06092BB413AD0046E8C5 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
+		};
+		99AC453A2D6A269600D0A24F /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MarkdownUI;
 		};
 		99C646382CCB64CA002454C9 /* YFuncSwift */ = {
 			isa = XCSwiftPackageProductDependency;
