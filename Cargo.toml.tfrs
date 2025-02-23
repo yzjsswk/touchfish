@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "touchfish-core",
+    "touchfish-redis-cache",
     "touchfish-recipe-server",
 ]
