@@ -140,9 +140,11 @@ actor RecipeExecutionContext {
     
     func addOrModifyArg(key: String, value: String) {
         if self.arguments.keys.contains(key) {
-            self._parameters[key] = value
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: .RecipeExecutionContextChanged.group(self.uid.uuidString), object: nil)
+            if let existedValue = self._parameters[key], existedValue != value {
+                self._parameters[key] = value
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: .RecipeExecutionContextChanged.group(self.uid.uuidString), object: nil)
+                }
             }
             return
         }

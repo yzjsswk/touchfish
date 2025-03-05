@@ -281,8 +281,10 @@ struct CommandBarView: View {
         .onReceive(NotificationCenter.default.publisher(for: .ReturnKeyWasPressed)) { _ in
             if isFocused && !openTextField {
                 Task {
-                    if case .QuickExecutionRecipe(let context) = situation, await context.activeRecipe == nil {
-                        self.text = self.placeHolder
+                    if TouchFishApp.quickExecutionWindow.isVisible {
+                        if case .QuickExecutionRecipe(let context) = situation, await context.activeRecipe == nil {
+                            self.text = self.placeHolder
+                        }
                     }
                 }
                 NotificationCenter.default.post(name: .RecipeCommited.group(self.uid.uuidString), object: nil)
