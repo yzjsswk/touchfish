@@ -174,7 +174,7 @@ struct CommandBarView: View {
                         await context.modifyQuery(finalText)
                     }
                     lastEditTime = editTime
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         if lastEditTime == editTime {
                             NotificationCenter.default.post(name: .CommandBarEndEditing.group(self.uid.uuidString), object: nil)
                         }
